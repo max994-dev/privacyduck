@@ -1,0 +1,23 @@
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+#Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+RewriteEngine On
+RewriteBase /
+
+# 🔁 Redirect HTTP to HTTPS
+#RewriteCond %{HTTPS} off
+#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 🔁 Redirect www to non-www
+#RewriteCond %{HTTP_HOST} ^www\.privacyduck\.com$ [NC]
+#RewriteRule ^ https://privacyduck.com%{REQUEST_URI} [L,R=301]
+
+# Route /admin and /admin/... to admin.php (even if /admin is a folder)
+RewriteRule ^super/admin(?:/.*)?$ admin.php [QSA,L]
+
+# Route everything else if not a real file or folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

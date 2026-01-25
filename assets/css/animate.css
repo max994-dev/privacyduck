@@ -1,0 +1,141 @@
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInReverse {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes slideInSimple {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+@keyframes slideOutSimple {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+@keyframes slideUpReverse {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes slideUpDisappear {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes opacity {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Desktop orbit animations */
+@keyframes orbit {
+    from {
+        transform: rotate(0deg) translateX(298.5px) rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg) translateX(298.5px) rotate(-360deg);
+    }
+}
+@keyframes orbit1 {
+    from {
+        transform: rotate(120deg) translateX(298.5px) rotate(-120deg);
+    }
+    to {
+        transform: rotate(480deg) translateX(298.5px) rotate(-480deg);
+    }
+}
+@keyframes orbit2 {
+    from {
+        transform: rotate(240deg) translateX(298.5px) rotate(-240deg);
+    }
+    to {
+        transform: rotate(600deg) translateX(298.5px) rotate(-600deg);
+    }
+}
+@keyframes orbit3 {
+    from {
+        transform: rotate(170deg) translateX(254px) rotate(-170deg);
+    }
+    to {
+        transform: rotate(530deg) translateX(254px) rotate(-530deg);
+    }
+}
+@keyframes orbit4 {
+    from {
+        transform: rotate(80deg) translateX(211px) rotate(-80deg);
+    }
+    to {
+        transform: rotate(440deg) translateX(211px) rotate(-440deg);
+    }
+}
+@keyframes orbit5 {
+    from {
+        transform: rotate(300deg) translateX(170.5px) rotate(-300deg);
+    }
+    to {
+        transform: rotate(660deg) translateX(170.5px) rotate(-660deg);
+    }
+}
+
+@keyframes pingbtn {
+    75%, 100% {
+      transform: scale(1.1);
+    }
+  }

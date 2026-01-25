@@ -1,0 +1,65 @@
+body {
+    color: white !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* If you're using Tailwind CDN and older version, you can also use this as a fallback */
+[aria-selected="true"] {
+    background-color: #24A556;
+    border: none;
+    color: white !important;
+}
+
+[role="tab"] {
+    color: white !important;
+}
+
+.slide-track {
+    transition: transform 0.5s ease-in-out;
+}
+
+[aria-expanded="true"] .icon-plus {
+    display: none;
+}
+[aria-expanded="true"] .faq_title {
+    color: #010205;
+}
+[aria-expanded="false"] .faq_title {
+    color: #878C91;
+}
+[aria-expanded="true"] {
+    background-color: #ffffff !important;
+}
+
+[aria-expanded="true"] .icon-minus {
+    display: inline;
+}
+
+[aria-expanded="false"] .icon-minus {
+    display: none;
+}
+
+
+.timeline-line {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+}
+
+.active {
+    background-color: #24A556;
+    color: white;
+}
+
+.border-top-green {
+    border-top: 1px solid #24A556;
+}
+
+.border-bottom-green {
+    border-bottom: 1px solid #24A556;
+}
+
+li::marker {
+    color: #24A556;
+    font-size: 16px !important;
+}

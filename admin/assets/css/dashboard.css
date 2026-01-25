@@ -1,0 +1,201 @@
+.glassmorphism {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.sidebar-glassmorphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-item {
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-left: 4px solid white;
+}
+
+.content-glassmorphism {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header-glassmorphism {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-glassmorphism {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-hover:hover {
+    transform: scale(1.02);
+}
+
+.btn-hover:active {
+    transform: scale(0.98);
+}
+
+.logo-container {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile sidebar toggle */
+.sidebar-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Enhanced responsive design */
+@media (max-width: 640px) {
+    .sidebar-mobile {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-mobile.open {
+        transform: translateX(0);
+    }
+
+    /* Mobile adjustments */
+    .mobile-padding {
+        padding: 1rem;
+    }
+
+    .mobile-text {
+        font-size: 1.25rem;
+    }
+
+    .mobile-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .mobile-table {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .sm-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sm-text {
+        font-size: 1rem;
+    }
+
+    .sm-padding {
+        padding: 0.75rem;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+    .tablet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* User dropdown styles */
+.user-dropdown {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive table */
+@media (max-width: 640px) {
+    .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* White background adjustments */
+.main-white-bg {
+    background: white;
+}
+
+.text-dark {
+    color: #1f2937;
+}
+
+.text-gray {
+    color: #6b7280;
+}
+
+.text-light-gray {
+    color: #9ca3af;
+}
+
+.border-light {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.hover-bg-light:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tabulator {
+    border: none;
+    font-size: 14px;
+    background-color: white;
+  }
+  
+  .tabulator .tabulator-header .tabulator-col {
+    background-color: white !important;
+    color: #9D9D9D !important;
+    font-weight: 500;
+    border: none;
+    letter-spacing: -0.01em;
+  }
+  
+  .tabulator .tabulator-row {
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tabulator .tabulator-cell {
+    border-right: none !important;
+    /* remove vertical border */
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none;
+    background-color: transparent;
+    padding-top: 27.5px !important;
+    padding-bottom: 27.5px !important;
+    padding-left:20px !important;
+    padding-right:20px !important;
+  }
+  .tabulator .tabulator-header .tabulator-col .tabulator-col-content{
+    padding-top: 17px !important;
+    padding-bottom: 17px !important;
+    padding-left:20px !important;
+    padding-right:20px !important;
+  }
+  .tabulator-row.tabulator-selectable:hover{
+    background-color: unset !important;
+    cursor: default !important;
+  }

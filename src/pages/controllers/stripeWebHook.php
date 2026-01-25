@@ -1,0 +1,194 @@
+<?php
+require 'vendor/autoload.php'; // Load Stripe PHP SDK
+
+// \Stripe\Stripe::setApiKey('sk_test_51RfUwfH7IMPWhKBfU8k7UjIxTEIGCTHj6TRMDxmAgXkhmJkh5Fb8NlCvOLIWjcIt7iq4kVl7aSf2PfZuQZrysVPN00qApWto6m'); // Replace with your real secret key
+\Stripe\Stripe::setApiKey('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'); // Replace with your real secret key
+// \Stripe\Stripe::setApiKey('sk_test_51NnPaLCqUk2FODuHtNQscSDsITgLluZBeKbyAGnKsnBJeOtDkH58gLEMear3nxKBxieiPYOMWG6UjwdIv8Cd0byp00tLcqA3u6'); // Replace with your real secret key
+
+$endpoint_secret = 'whsec_qp5kgRq4Lvj4DV31dwBo3H5imiWIQvvs'; // Your webhook secret from Stripe
+// $endpoint_secret = 'whsec_cHYXKI7XQnNMaAiz0q95Appsvvh4rEKP'; // Your webhook secret from Stripe
+
+// Get raw payload and signature
+$payload = @file_get_contents('php://input');
+$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+$event = null;
+
+// Verify the webhook signature
+try {
+    $event = \Stripe\Webhook::constructEvent(
+        $payload,
+        $sig_header,
+        $endpoint_secret
+    );
+} catch (\UnexpectedValueException $e) {
+    http_response_code(400); // Invalid payload
+    exit();
+} catch (\Stripe\Exception\SignatureVerificationException $e) {
+    http_response_code(400); // Invalid signature
+    exit();
+}
+$conn = getDBConnection();
+// Handle the event
+if ($event->type == 'invoice.payment_succeeded') {
+    $invoice = $event->data->object;
+    // file_put_contents("log.txt", json_encode($invoice));
+
+    // You can access:
+    $customer = \Stripe\Customer::retrieve($invoice->customer);
+    $email = $customer->email;
+    $subscription = $invoice->subscription;
+    $stmt = $conn->prepare("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?");
+    $stmt->bind_param("s", $subscription);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $stmt = $conn->prepare("UPDATE subscriptions SET status = 'active' WHERE stripe_subscription_id = ?");
+        $stmt->bind_param("s", $subscription);
+        $stmt->execute();
+
+        $price_id = $row["price_id"];
+        $stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
+        $stmt->bind_param("i", $price_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $price = $result->fetch_assoc();
+        $plan_id = $price["plan_id"];
+
+        $stmt = $conn->prepare("SELECT * FROM plans WHERE id = ?");
+        $stmt->bind_param("i", $plan_id);
+        $stmt->execute();
+        $plan = $stmt->get_result()->fetch_assoc();
+
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        $stmt = $conn->prepare("UPDATE users SET plan_id = ?, plan_start = ?, plan_end = ? WHERE id = ?");
+        $period_start = date("Y-m-d H:i:s");
+        $period_end = date("Y-m-d H:i:s", strtotime("+" . ($plan['year'] == "two" ? 2 : 1) . " year", strtotime($period_start)));
+        $stmt->bind_param("issi", $plan_id, $period_start, $period_end, $user["id"]);
+        $stmt->execute();
+    }
+} else if ($event->type == 'customer.subscription.created') {
+    $invoice = $event->data->object;
+    // file_put_contents("log-c.txt", json_encode($invoice));
+    $customer = \Stripe\Customer::retrieve($invoice->customer);
+    $email = $customer->email;
+    $price_id = $invoice->items->data[0]->price->id;
+    $subscription = $invoice->items->data[0]->subscription;
+    $stmt = $conn->prepare("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?");
+    $stmt->bind_param("s", $subscription);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    // file_put_contents("log-c-debug.txt", 1);
+
+    if ($result->num_rows == 0) {
+        // file_put_contents("log-c-debug.txt", 2);
+        $stmt = $conn->prepare("SELECT * FROM prices WHERE stripe_price_id = ?");
+        $stmt->bind_param("s", $price_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $price = $result->fetch_assoc();
+	//edited 2026;
+	if (!$price) {
+	    throw new Exception("Price not found for stripe_price_id={$price_id}");
+	}
+
+        // file_put_contents("log-c-debug.txt", 3);
+        $stmt = $conn->prepare("SELECT * FROM customers WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        // file_put_contents("log-c-debug.txt", 4);
+        if ($result->num_rows == 0) {
+            // file_put_contents("log-c-debug.txt", 5);
+            $stmt = $conn->prepare("INSERT INTO customers (email, stripe_customer_id, name, created_at) VALUES (?, ?, ?, ?)");
+            $createdAt = date("Y-m-d H:i:s");
+	    $stmt->bind_param("ssss", $email, $customer->id, $customer->name, $createdAt);
+            $stmt->execute();
+            $customerId = $conn->insert_id;
+        } else $customerId = $result->fetch_assoc()["id"];
+        // file_put_contents("log-c-debug.txt", 6);
+        $now = date("Y-m-d H:i:s");
+        $years = (($price['year'] ?? 'one') === 'two') ? 2 : 1;
+	$current_period_end = date("Y-m-d H:i:s", strtotime("+{$years} year", strtotime($now)));
+        // file_put_contents("log-c-debug.txt", 7);
+        $current_period_start = $now;
+        $stmt = $conn->prepare("INSERT INTO subscriptions (stripe_subscription_id, price_id, customer_id, status, current_period_start, current_period_end, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        // file_put_contents("log-c-debug.txt", 8);
+        $status = "active";
+        $stmt->bind_param("siissss", $subscription, $price["id"], $customerId, $status, $current_period_start, $current_period_end, $now);
+        $stmt->execute();
+
+        $plan_id = $price["plan_id"];
+
+        $stmt = $conn->prepare("SELECT * FROM plans WHERE id = ?");
+        $stmt->bind_param("i", $plan_id);
+        $stmt->execute();
+        $plan = $stmt->get_result()->fetch_assoc();
+
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        $stmt = $conn->prepare("UPDATE users SET plan_id = ?, plan_start = ?, plan_end = ? WHERE id = ?");
+        $period_start = date("Y-m-d H:i:s");
+        $period_end = date("Y-m-d H:i:s", strtotime("+" . ($plan['year'] == "two" ? 2 : 1) . " year", strtotime($period_start)));
+        $stmt->bind_param("issi", $plan_id, $period_start, $period_end, $user["id"]);
+        $stmt->execute();
+    }
+    // file_put_contents("log-c-e.txt", json_encode($invoice));
+} else if ($event->type == 'customer.subscription.updated') {
+    $invoice = $event->data->object;
+    // file_put_contents("log-u.txt", json_encode($invoice));
+    $customer = \Stripe\Customer::retrieve($invoice->customer);
+    $email = $customer->email;
+    $price_id = $invoice->items->data[0]->price->id;
+    $subscription = $invoice->items->data[0]->subscription;
+    $stmt = $conn->prepare("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?");
+    $stmt->bind_param("s", $subscription);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+
+        $stmt = $conn->prepare("SELECT * FROM prices WHERE stripe_price_id = ?");
+        $stmt->bind_param("s", $price_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $price = $result->fetch_assoc();
+	if (!$price) {
+	    throw new Exception("Price not found for stripe_price_id={$price_id}");
+	}
+	//edited 2026;
+        $stmt = $conn->prepare("UPDATE subscriptions SET price_id = ? WHERE stripe_subscription_id = ?");
+        $stmt->bind_param("is", $price["id"], $subscription);
+        $stmt->execute();
+    }
+    // file_put_contents("log-u-e.txt", json_encode($invoice));
+} else if ($event->type == 'customer.subscription.deleted') {
+    $invoice = $event->data->object;
+    // file_put_contents("log-d.txt", json_encode($invoice));
+    $customer = \Stripe\Customer::retrieve($invoice->customer);
+    $email = $customer->email;
+    $price_id = $invoice->items->data[0]->price->id;
+    $subscription = $invoice->items->data[0]->subscription;
+    $stmt = $conn->prepare("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?");
+    $stmt->bind_param("s", $subscription);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+
+        $stmt = $conn->prepare("DELETE FROM subscriptions WHERE stripe_subscription_id = ?");
+        $stmt->bind_param("s", $subscription);
+        $stmt->execute();
+    }
+}
+
+http_response_code(200); // Stripe needs 200 response to consider webhook successful

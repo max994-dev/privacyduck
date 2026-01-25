@@ -1,0 +1,20 @@
+[aria-selected="true"] {
+    background-color: #24A556;
+    border: none;
+    color: white !important;
+}
+
+[aria-expanded="true"] .icon-plus {
+    display: none;
+}
+
+[aria-expanded="true"] .icon-minus {
+    display: inline;
+}
+
+[aria-expanded="false"] .icon-minus {
+    display: none;
+}
+[aria-expanded="true"] {
+    background-color: #ffffff !important;
+}

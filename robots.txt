@@ -1,0 +1,35 @@
+User-agent: *
+Disallow: /api/
+Disallow: /controllers/
+Disallow: /src/
+Disallow: /scripts/
+Disallow: /media/
+Disallow: /uploads/
+Disallow: /payment/
+Disallow: /login/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /super/admin/
+Disallow: /emailverify/
+Disallow: /common/
+Disallow: /business/dashboard/
+Disallow: /signupProcess
+Disallow: /loginProcess
+Disallow: /inboundProcess
+Disallow: /signup
+Disallow: /signupinfo
+Disallow: /freescaning
+Disallow: /result
+
+Allow: /$
+Allow: /pricing
+Allow: /sites-we-cover
+Allow: /personalized-service
+Allow: /family
+Allow: /business
+Allow: /business/link
+Allow: /business/speaksales
+Allow: /business/quote/signup
+Allow: /business/quote/login
+
+Sitemap: https://privacyduck.com/sitemap.xml
