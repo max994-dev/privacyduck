@@ -331,7 +331,7 @@ main_head_end();
     </span>
 </h1>
             <p class="np-poppins mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]">
-               Our US based professional opt-out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
+               Our US based professional opt-out team is dedicated to thoroughly removing your personal details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
 
 
             </p>
