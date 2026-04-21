@@ -1,0 +1,55 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy project files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: "."
+          target: "/tmp/privacyduck-release"
+          rm: true
+          overwrite: true
+          strip_components: 0
+
+      - name: Activate release on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            set -e
+
+            mkdir -p /var/www/html
+
+            rsync -av --delete \
+              --exclude ".git" \
+              --exclude ".github" \
+              --exclude "storage/logs" \
+              --exclude "assets/uploads" \
+              --exclude ".env" \
+              --exclude ".env.*" \
+              /tmp/privacyduck-release/ /var/www/html/
+
+            cd /var/www/html
+
+            if [ -f composer.json ]; then
+              composer install --no-dev --optimize-autoloader --no-interaction || true
+            fi
+
+            systemctl restart apache2 || true
+            systemctl restart nginx || true
