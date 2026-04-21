@@ -13,9 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Write key from a multiline env var, strip Windows CRLF, then validate with
-      # `ssh-keygen` (OpenSSH). Passing the raw secret into `key:` in docker actions
-      # often fails when line endings or paste formatting break PEM parsing.
+      # Write key from a multiline env var, strip Windows CRLF, ensure trailing newline.
+      # We do not run `ssh-keygen -y` here: a bad paste can make OpenSSL report "string is too large"
+      # (corrupt ASN.1) while the only fix is to re-paste a clean key. appleboy/Go will still fail
+      # if the key is unusable, with a clearer follow-up.
       - name: Prepare SSH private key
         id: sshkey
         run: |
@@ -23,18 +24,24 @@ jobs:
           umask 077
           # Must live under GITHUB_WORKSPACE: appleboy's container only mounts the repo root.
           KEY_FILE="${GITHUB_WORKSPACE}/.github_deploy_key"
-          printf '%s' "$VPS_SSH_KEY" | tr -d '\r' > "$KEY_FILE"
+          # One trailing newline after the block (avoids "invalid format" on some clients)
+          printf '%s\n' "$VPS_SSH_KEY" | tr -d '\r' > "$KEY_FILE"
           if [ ! -s "$KEY_FILE" ]; then
-            echo "::error::Secret VPS_SSH_KEY is empty. Paste the full private key (not the .pub file)."
+            echo "::error::Repository secret VPS_SSH_KEY is empty. Add it under Settings → Secrets and variables → Actions (name: VPS_SSH_KEY). Value must be the full private key file (e.g. id_ed25519), not the .pub file."
+            exit 1
+          fi
+          SZ=$(wc -c < "$KEY_FILE" | tr -d ' ')
+          if [ "$SZ" -lt 200 ] || [ "$SZ" -gt 20000 ]; then
+            echo "::error::VPS_SSH_KEY size is ${SZ} bytes (expected roughly 200-20000). You may have pasted the wrong text, a truncated key, or something other than a single private key file."
             exit 1
           fi
           if ! head -1 "$KEY_FILE" | grep -qE '^-+(BEGIN|OPENSSH)'; then
-            echo "::error::VPS_SSH_KEY must be a private key (first line should look like BEGIN ... PRIVATE KEY)."
+            echo "::error::VPS_SSH_KEY must be a private key. First line should be like: -----BEGIN OPENSSH PRIVATE KEY----- or -----BEGIN ... PRIVATE KEY-----"
             exit 1
           fi
-          if ! ssh-keygen -y -f "$KEY_FILE" -P "${VPS_SSH_PASSPHRASE-}" > /dev/null 2> "${RUNNER_TEMP}/sshkey_check.err"; then
-            echo "::error::The private key could not be read. Wrong passphrase, corrupt paste, or not a private key. ssh-keygen said:"
-            cat "${RUNNER_TEMP}/sshkey_check.err" || true
+          BEGINS=$(grep -c '^-----BEGIN' "$KEY_FILE" || true)
+          if [ "$BEGINS" -ne 1 ]; then
+            echo "::error::Found ${BEGINS} '-----BEGIN' line(s) in VPS_SSH_KEY. Paste exactly one private key (one BEGIN/END block), not several keys or extra text."
             exit 1
           fi
           chmod 600 "$KEY_FILE"

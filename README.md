@@ -127,6 +127,8 @@ Repository secrets to configure:
    - **Multiline secret + Docker:** passing `key:` straight into `appleboy/scp-action` can break PEM parsing (line breaks lost or Windows `CR` left in the file). This repo’s workflow writes the key to `.github_deploy_key` under the repo with `tr -d '\r'`, then uses `key_path` so the action reads a real file.
    - **Re-save the secret** if you edited the key in Notepad: paste the key again in GitHub (or use a `.pem` created on Linux / `ssh-keygen` only) so line endings are normal.
 
+7. **OpenSSL / ssh-keygen said `string is too large`:** that is not “missing” the secret. It means the **value stored in** `VPS_SSH_KEY` is not a clean private key: often a **bad or truncated paste**, two keys **concatenated**, **.pub** content mixed in, or other text so the key bytes do not decode. **Regenerate a new deploy key** with `ssh-keygen -t ed25519 -N "" -f github_deploy` and paste the full contents of the **`github_deploy` file (private)** into the secret, and the single line from **`github_deploy.pub`** into `~/.ssh/authorized_keys` on the server.
+
 ## Common Issues
 
 - **Push blocked by GitHub secret scanning**  
