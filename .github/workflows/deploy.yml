@@ -13,13 +13,50 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Write key from a multiline env var, strip Windows CRLF, then validate with
+      # `ssh-keygen` (OpenSSH). Passing the raw secret into `key:` in docker actions
+      # often fails when line endings or paste formatting break PEM parsing.
+      - name: Prepare SSH private key
+        id: sshkey
+        run: |
+          set -euo pipefail
+          umask 077
+          # Must live under GITHUB_WORKSPACE: appleboy's container only mounts the repo root.
+          KEY_FILE="${GITHUB_WORKSPACE}/.github_deploy_key"
+          printf '%s' "$VPS_SSH_KEY" | tr -d '\r' > "$KEY_FILE"
+          if [ ! -s "$KEY_FILE" ]; then
+            echo "::error::Secret VPS_SSH_KEY is empty. Paste the full private key (not the .pub file)."
+            exit 1
+          fi
+          if ! head -1 "$KEY_FILE" | grep -qE '^-+(BEGIN|OPENSSH)'; then
+            echo "::error::VPS_SSH_KEY must be a private key (first line should look like BEGIN ... PRIVATE KEY)."
+            exit 1
+          fi
+          if ! ssh-keygen -y -f "$KEY_FILE" -P "${VPS_SSH_PASSPHRASE-}" > /dev/null 2> "${RUNNER_TEMP}/sshkey_check.err"; then
+            echo "::error::The private key could not be read. Wrong passphrase, corrupt paste, or not a private key. ssh-keygen said:"
+            cat "${RUNNER_TEMP}/sshkey_check.err" || true
+            exit 1
+          fi
+          chmod 600 "$KEY_FILE"
+          echo "key_path=.github_deploy_key" >> "$GITHUB_OUTPUT"
+          if [ -n "${VPS_PORT:-}" ]; then
+            echo "port=${VPS_PORT}" >> "$GITHUB_OUTPUT"
+          else
+            echo "port=22" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_PASSPHRASE: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        shell: bash
+
       - name: Copy project files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_PORT }}
+          port: ${{ steps.sshkey.outputs.port }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key_path: ${{ steps.sshkey.outputs.key_path }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           source: "."
           target: "/tmp/privacyduck-release"
@@ -31,9 +68,9 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_PORT }}
+          port: ${{ steps.sshkey.outputs.port }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key_path: ${{ steps.sshkey.outputs.key_path }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           script: |
             set -e

@@ -94,6 +94,39 @@ Main routes are defined in `index.php` (for example `/`, `/pricing`, `/login`, `
 - Provide production `.env` values on the server.
 - Make sure PHP can write to required runtime directories (for example `storage/logs` if webhook logging is enabled).
 
+## GitHub Actions deploy (VPS over SSH)
+
+The workflow in `.github/workflows/deploy.yml` uses [appleboy/scp-action](https://github.com/appleboy/scp-action) and [appleboy/ssh-action](https://github.com/appleboy/ssh-action) with a **private** key stored in GitHub repository secrets (not the public key).
+
+Repository secrets to configure:
+
+- `VPS_HOST` - server hostname or IP
+- `VPS_PORT` - SSH port (usually `22`)
+- `VPS_USER` - SSH user (e.g. `root` or a deploy user)
+- `VPS_SSH_KEY` - **full** private key text (from `id_ed25519` or `id_rsa`), including the `-----BEGIN ... PRIVATE KEY-----` and `-----END ...` lines, with newlines preserved
+- `VPS_SSH_PASSPHRASE` - only if the private key is **password-protected**; if the key has no passphrase, create an empty secret or leave unused depending on your setup
+
+**Why you see** `ssh.ParsePrivateKey: ssh: unmarshal error for field KdfName of type openSSHEncryptedPrivateKey` **or** `attempted methods [none]`:
+
+1. **The client never successfully loaded the private key.** The Go SSH library inside `drone-scp` failed to parse `VPS_SSH_KEY` (wrong format, corrupted paste, or an encryption / KDF combination it does not handle well).
+2. **Fix (most reliable for CI):** create a **new deploy key with no passphrase**, then paste the private key into `VPS_SSH_KEY` and the matching `.pub` line into the server’s `~/.ssh/authorized_keys` for `VPS_USER`.
+
+   On your machine:
+
+   - `ssh-keygen -t ed25519 -C "github-actions-deploy" -N "" -f github_deploy`  
+   - Put the contents of `github_deploy` into the `VPS_SSH_KEY` secret.  
+   - Put the contents of `github_deploy.pub` on the VPS in `~/.ssh/authorized_keys` (permissions: `~/.ssh` = `700`, `authorized_keys` = `600`).
+
+3. **If you use a passphrase:** set `VPS_SSH_PASSPHRASE` to the **exact** passphrase. A mismatch looks like a bad key, not a wrong password, in some cases.
+
+4. **Avoid:** pasting the **public** key (`.pub`) into `VPS_SSH_KEY`, or a truncated key, or a key with extra quotes/spaces on the first or last line.
+
+5. **Still failing:** some very new OpenSSH private key formats are picky; using an unencrypted `ed25519` key (step 2) avoids most parser issues.
+
+6. **You did everything “right” but it still failed:** common gotchas:
+   - **Multiline secret + Docker:** passing `key:` straight into `appleboy/scp-action` can break PEM parsing (line breaks lost or Windows `CR` left in the file). This repo’s workflow writes the key to `.github_deploy_key` under the repo with `tr -d '\r'`, then uses `key_path` so the action reads a real file.
+   - **Re-save the secret** if you edited the key in Notepad: paste the key again in GitHub (or use a `.pem` created on Linux / `ssh-keygen` only) so line endings are normal.
+
 ## Common Issues
 
 - **Push blocked by GitHub secret scanning**  
