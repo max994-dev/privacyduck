@@ -33,3 +33,6 @@ smtp_test*.php
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Created only in CI (GitHub Actions) for deploy; do not commit
+.github_deploy_key
