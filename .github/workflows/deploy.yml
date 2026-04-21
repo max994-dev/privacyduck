@@ -44,7 +44,9 @@ jobs:
             echo "::error::Found ${BEGINS} '-----BEGIN' line(s) in VPS_SSH_KEY. Paste exactly one private key (one BEGIN/END block), not several keys or extra text."
             exit 1
           fi
-          chmod 600 "$KEY_FILE"
+          # drone-scp runs tar inside Docker as a user that often cannot read chmod 600 files
+          # owned by the runner; that caused: tar: can't open './.github_deploy_key': Permission denied
+          chmod 644 "$KEY_FILE"
           echo "key_path=.github_deploy_key" >> "$GITHUB_OUTPUT"
           if [ -n "${VPS_PORT:-}" ]; then
             echo "port=${VPS_PORT}" >> "$GITHUB_OUTPUT"
@@ -82,6 +84,9 @@ jobs:
           script: |
             set -e
 
+            # Deploy tarball may include .github_deploy_key (needed for tar to succeed); never keep it on disk.
+            rm -f /tmp/privacyduck-release/.github_deploy_key
+
             mkdir -p /var/www/html
 
             rsync -av --delete \
@@ -91,6 +96,7 @@ jobs:
               --exclude "assets/uploads" \
               --exclude ".env" \
               --exclude ".env.*" \
+              --exclude ".github_deploy_key" \
               /tmp/privacyduck-release/ /var/www/html/
 
             cd /var/www/html
