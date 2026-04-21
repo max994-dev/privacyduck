@@ -1,0 +1,55 @@
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color:#010205;
+}
+
+* {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.toastify {
+    font-family: inherit;
+    border-radius: 20px;
+    backdrop-filter: blur(16px);
+    min-width: 400px !important;
+    position: relative;
+    padding-right: 50px !important;
+}
+
+.toastify.error {
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+    border-radius: 8px;
+}
+.toastify.warning {
+    background: rgba(181, 220, 38, 0.9);
+    color: white;
+    border-radius: 8px;
+}
+
+.toastify.success {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+    border-radius: 8px;
+}
+
+.toast-close-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.toast-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

@@ -1,0 +1,34 @@
+<?php
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/config.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/utils.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/database.php");
+
+$conn = getDBConnection();
+
+$stmt = $conn->prepare("SELECT * FROM plans where show_dashboard = 1");
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+const dashboard_plans_data = JSON.parse(`<?php
+    if ($result->num_rows == 0) {
+        echo json_encode([]);
+    } else {
+        try {
+            $tmpData = $result->fetch_all(MYSQLI_ASSOC);
+            foreach ($tmpData as $key => $value) {
+                // if ($_SESSION['email'] == "hello@privacyduck.com" || $_SESSION['email'] == "joewartson757@gmail.com") $value["stripe_payment_link"] = $value["stripe_payment_link_etc"];
+                // else $value["stripe_payment_link_etc"] = "";
+                $value["stripe_payment_link"] = $value["stripe_payment_link_etc"];
+                if (!isset($data[$value["year"]])) {
+                    $data[$value["year"]] = [];
+                }
+                $data[$value["year"]][$value["person"]] = $value;
+            }
+            echo json_encode($data);
+        } catch (Exception $e) {
+            echo json_encode([
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
+?>`);

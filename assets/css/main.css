@@ -1,0 +1,196 @@
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.but-shadow {
+  box-shadow: 0px 1px 2px #1018280D;
+}
+
+.valid-border {
+  border-width: 1px;
+  border-color: #AB4522;
+  outline-color: #AB4522;
+}
+
+.text-outline {
+  -webkit-text-stroke: 0.5px #010205;
+  /* For Firefox (less support, optional) */
+  text-stroke: 0.5px #010205;
+}
+
+.poppins::placeholder {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+table.dataTable td,
+table.dataTable th {
+  vertical-align: middle;
+  font-weight: 500 !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+#tawk_6504b7050f2b18434fd8c5c2>div {
+  width: 100% !important;
+  max-width: unset !important;
+}
+
+.pagination .page-link {
+  border-radius: 6px !important;
+  color: #000;
+}
+
+.dataTables_info {
+  margin-top: 10px;
+}
+
+/* Pagination Buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  margin: 0 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  /* gray-200 */
+  color: black;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover State */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #f3f4f6;
+  /* gray-100 */
+}
+
+/* Active Page */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #22c55e;
+  /* green-500 */
+  color: white !important;
+  border-color: #22c55e;
+}
+
+/* Disabled Buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+legend {
+  background: linear-gradient(to right, #77B248, #24A556);
+  background-clip: text;
+  color: transparent;
+}
+
+.breadcrumb {
+  clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%, 10% 50%, 0 0);
+}
+.breadcrumb2 {
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%, 5% 50%, 0 0);
+}
+.restoration-claim{
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%, 0 0);
+}
+
+input[type="text"],
+input[type="email"] {
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+  --tw-ring-color: transparent !important;
+  border: 1px solid black;
+  /* Keeps the black border on focus */
+  outline: none;
+  /* Removes the default blue outline */
+}
+
+input[type="text"].demo_input:focus {
+  --tw-ring-color: transparent !important;
+  border: 1px solid #FFCF50 !important;
+  /* Keeps the black border on focus */
+  outline: none !important;
+  /* Removes the default blue outline */
+}
+textarea.demo_input:focus {
+  --tw-ring-color: transparent !important;
+  border: 1px solid #FFCF50 !important;
+  /* Keeps the black border on focus */
+  outline: none !important;
+  /* Removes the default blue outline */
+}
+
+textarea{
+  outline: none !important;
+}
+textarea:focus{
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+  border: 1px solid black !important;
+}
+
+.tabulator {
+  border: none;
+  font-size: 14px;
+  background-color: white;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+  background-color: white !important;
+  color: #9D9D9D !important;
+  font-weight: 500;
+  border: none;
+  letter-spacing: -0.01em;
+}
+
+.tabulator .tabulator-row {
+  border-bottom: 1px solid #eee;
+}
+
+.tabulator .tabulator-cell {
+  border-right: none !important;
+  /* remove vertical border */
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none;
+  background-color: transparent;
+  padding-top: 27.5px !important;
+  padding-bottom: 27.5px !important;
+  padding-left:20px !important;
+  padding-right:20px !important;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content{
+  padding-top: 17px !important;
+  padding-bottom: 17px !important;
+  padding-left:20px !important;
+  padding-right:20px !important;
+}
+.info-edit-icon {
+  font-size: 16px;
+  color: #24A556;
+  cursor: pointer;
+  background-color: #E8FCE7;
+}
+.tabulator-row.tabulator-selectable:hover{
+  background-color: unset !important;
+  cursor: default !important;
+}
+
+/* Digital Identity Journey (journey.php): active tab = cyan/blue, not brand green */
+.np-journey-section [role="tab"][aria-selected="true"] {
+  background-color: rgba(34, 211, 238, 0.22) !important;
+  border: 1px solid #67e8f9 !important;
+  color: #ecfeff !important;
+}
+.np-journey-section [role="tab"][aria-selected="false"] {
+  background-color: transparent !important;
+  border: 1px solid rgba(209, 213, 219, 0.9) !important;
+  color: #ffffff !important;
+}

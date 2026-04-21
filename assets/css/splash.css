@@ -1,0 +1,91 @@
+@keyframes privacy-fade {
+    0%{
+        opacity:0
+    }
+    15%{
+        opacity:100%
+    }
+    100%{
+        opacity:100%
+    }
+  }
+@keyframes logo-fade {
+    34%{
+        opacity:0
+    }
+    50%{
+        opacity:100%
+    }
+    61%{
+        opacity:100%
+    }
+    62%{
+        opacity:0
+    }
+    100%{
+        opacity:0
+    }
+  }
+@keyframes logo1-fade {
+    60%{
+        opacity:0
+    }
+    61%{
+        opacity:100%
+    }
+    79%{
+        opacity: 100%;
+    }
+    80%{
+        opacity: 0;
+    }
+    100%{
+        opacity:0
+    }
+  }
+@keyframes logo2-fade {
+    78%{
+        opacity:0
+    }
+    79%{
+        opacity:100%
+    }
+    100%{
+        opacity:100%
+    }
+  }
+  
+  @keyframes duck-fade {
+    14% { opacity: 0; }
+    35% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+  
+  @keyframes logo-loop {
+    0%   { opacity: 1; }
+    100% { opacity: 1; } /* just to loop the span animations */
+  }
+  
+  /* Tailwind utility overrides */
+  @layer utilities {
+    .animate-privacy-fade {
+      animation: privacy-fade 2.5s forwards 1;
+    }
+  
+    .animate-duck-fade {
+      animation: duck-fade 2.5s forwards 1;
+    }
+    .animate-logo-fade {
+      animation: logo-fade 2.5s forwards 1;
+    }
+    .animate-logo1-fade {
+      animation: logo1-fade 2.5s forwards 1;
+    }
+    .animate-logo2-fade {
+      animation: logo2-fade 2.5s forwards 1;
+    }
+  
+    .animate-logo-loop {
+      animation: logo-loop 2.5s forwards 1;
+    }
+  }
