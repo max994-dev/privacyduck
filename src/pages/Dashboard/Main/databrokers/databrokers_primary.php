@@ -19,7 +19,8 @@
                     $count = count(array_filter($data, function ($item) {
                         return $item["step"] >= 2;
                     }));
-                    if($count==301){
+                    // If we've completed all kind=1 sites, there are no brokers to show
+                    if ($count == count($data)) {
                         echo 0;
                     }else{
                         if (is_dir($path)) {
@@ -142,10 +143,10 @@
                 />
             </div>
             `);
-        if (window.removal_progress === 301 || window.scanImages.length === 0) {
+        if (window.removal_progress === window.totalcount || window.scanImages.length === 0) {
             $('#databrokers').addClass('hidden');
             $('#no_databrokers').removeClass('hidden');
-            if (window.removal_progress === 301) {
+            if (window.removal_progress === window.totalcount) {
                 $('#no_databrokers').html(`
                 <h1 class="text-[14px] px-[15px] leading-[130%] text-white">Your data is safe and secure. No data brokers found.</h1>
                 `);

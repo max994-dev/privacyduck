@@ -26,7 +26,7 @@ main_head_end();
                 </div>
                 <div class="mt-[32px] flex justify-center items-center">
                     <h1 class="text-center text-[16px] leading-[24px] px-[16px] sm:max-w-[554px]">
-                    We wil touch with you using  <span class="font-bold"> Removals@privacyduck.com</span>. 
+                    We wil touch with you using  <span class="font-bold"> hello@privacyduck.com</span>. 
                     </h1>
                 </div>
             </div>

@@ -63,6 +63,8 @@ try {
     $stmt->execute();
 
     $_SESSION["fullName"] = $firstname . " " . $lastname;
+    $_SESSION["signup_complete"] = 1;
+    unset($_SESSION["needs_profile_info"]);
 
     echo json_encode(["success" => "success"]);
 

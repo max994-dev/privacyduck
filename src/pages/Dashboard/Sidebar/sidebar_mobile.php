@@ -39,17 +39,21 @@
         <!-- Scrollable Sidebar -->
         <div class="mt-[30px] flex-1 overflow-y-auto">
             <div id="sidebar_mobile" class="flex flex-col space-y-[32px]">
-                <?php foreach (
-                    [
-                        ["href" => "", "svg" => "key", "label" => "Dashboard"],
-                        // ["href" => "/detail", "svg" => "cog", "label" => "Excruciating detail"],
-                        ["href" => "/family", "svg" => "couple_people", "label" => "Manage Family", "sub_label" => "Add a family member", "sub_svg" => "sub_plus_mobile"],
-                        ["href" => "/plans", "svg" => "plan", "label" => "Plans"],
-                        // ["href" => "/custom", "svg" => "message_question", "label" => "Custom Removals"],
-                        ["href" => "/concierge", "svg" => "concierge", "label" => "Privacy Concierge"],
-                        ["href" => "/editinfo", "svg" => "edit_your_info", "label" => "Edit your info"]
-                    ] as $item
-                ) { ?>
+                <?php
+                $sidebarMobileNavItems = [
+                    ["href" => "", "svg" => "key", "label" => "Dashboard"],
+                    ["href" => "/family", "svg" => "couple_people", "label" => "Manage Family", "sub_label" => "Add a family member", "sub_svg" => "sub_plus_mobile"],
+                    ["href" => "/plans", "svg" => "plan", "label" => "Plans"],
+                    ["href" => "/custom", "svg" => "message_question", "label" => "Custom removals", "plan_only" => true],
+                    ["href" => "/concierge", "svg" => "concierge", "label" => "Privacy Concierge"],
+                    ["href" => "/editinfo", "svg" => "edit_your_info", "label" => "Edit your info"],
+                    ["href" => "/account", "svg" => "fixed_menu_account", "label" => "Account"],
+                ];
+                foreach ($sidebarMobileNavItems as $item) {
+                    if (!empty($item["plan_only"]) && empty($_SESSION["planable"])) {
+                        continue;
+                    }
+                ?>
                     <div>
                         <a data-link href="<?= '/dashboard' . $item['href'] ?>" class="flex space-x-[14px] items-center">
                             <?php require BASEPATH . "/src/common/svgs/dashboard/sidebar/" . $item['svg'] . ".php"; ?>

@@ -17,12 +17,12 @@ function fixed_menu()
             <div id="dashboard_header_contact" class="flex items-center gap-[16px]">
                 <div class="flex items-center gap-[8px]">
                     <?php require(BASEPATH . "/src/common/svgs/dashboard/menu/supportemail.php"); ?>
-                    <h1 class="text-[16px] text-[#010205] font-medium"> Removals@privacyduck.com</h1>
+                    <h1 class="text-[16px] text-[#010205] font-medium"> hello@privacyduck.com</h1>
                 </div>
-                <div class="flex items-center gap-[8px]">
+                <!-- <div class="flex items-center gap-[8px]">
                     <?php require(BASEPATH . "/src/common/svgs/dashboard/menu/phone.php"); ?>
                     <h1 class="text-[16px] text-[#010205] font-medium">+1 775 443 3727</h1>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="flex items-center space-x-[10px]">
@@ -195,6 +195,44 @@ function fixed_menu()
     // Splash page content
     const waiting = `<?php require(BASEPATH . "/src/pages/Dashboard/splash.php") ?>`;
 
+    function tryFinalizePendingBusinessInvite() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("invite_paid") !== "1") {
+            return;
+        }
+        $.post("/invite_payment_finalize_pending", {}, function(res) {
+            if (res.success && !res.skipped) {
+                if (typeof toastr !== "undefined") {
+                    toastr.success("Member added.");
+                }
+                params.delete("invite_paid");
+                var qs = params.toString();
+                history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
+                location.reload();
+                return;
+            }
+            if (res.success && res.skipped) {
+                // no pending
+            } else if (res.error && typeof toastr !== "undefined") {
+                toastr.error(res.error);
+            }
+            params.delete("invite_paid");
+            var qs2 = params.toString();
+            history.replaceState(null, "", window.location.pathname + (qs2 ? "?" + qs2 : ""));
+        }, "json").fail(function(xhr) {
+            var msg = "Could not add member after payment.";
+            try {
+                var j = JSON.parse(xhr.responseText);
+                if (j && j.error) {
+                    msg = j.error;
+                }
+            } catch (e) {}
+            if (typeof toastr !== "undefined") {
+                toastr.error(msg);
+            }
+        });
+    }
+
     function renderRoute() {
         const path = window.location.pathname;
         $('#content').html(waiting);
@@ -261,10 +299,15 @@ function fixed_menu()
                 });
                 break;
             default:
-                history.pushState(null, null, "/business/dashboard");
+                if (window.location.pathname === "/business/dashboard" || window.location.pathname === "/business/dashboard/main") {
+                    // keep ?invite_paid= etc.
+                } else {
+                    history.pushState(null, null, "/business/dashboard");
+                }
                 $.get("/business/content/dashboard/main", data => {
                     $('#content').html(data);
                     menu_select();
+                    tryFinalizePendingBusinessInvite();
                 });
         }
         change_active_sidebar();
@@ -290,4 +333,17 @@ function fixed_menu()
     }
 
     renderRoute();
+</script>
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {},
+        Tawk_LoadStart = new Date();
+    (function() {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/6813761a7c6684190de59a7c/1iq60amh0';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
 </script>

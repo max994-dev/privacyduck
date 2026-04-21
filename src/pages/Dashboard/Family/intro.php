@@ -109,44 +109,41 @@
         $.get("/get_discount_price", {}, function(res) {
             if (res.error) {
                 toastr.error(res.error)
-                $("#family_invite_button").html("Invite Members");
+                $("#family_invite_button").html("Add Members");
                 $("#family_invite_button").prop("disabled", false);
                 return;
             } else {
                 document.getElementById("family_info_modal").classList.remove("hidden");
-                $("#family_invite_button").html("Invite Members");
+                $("#family_invite_button").html("Add Members");
                 $("#family_invite_button").prop("disabled", false);
                 if (res.success == "free") {
-                    $("#family_payment_price_exp_value").html(`Free`);
+                    $("#family_payment_line_title").text("Additional family member");
+                    $("#mobile_family_payment_line_title").text("Additional family member");
+                    $("#family_payment_price_exp_value").html("Free");
+                    $("#mobile_family_payment_price_exp_value").html("Free");
                     $("#family_payment_price_discount").addClass("hidden");
-                    $("#family_payment_price_real_value").html(`Free`);
+                    $("#mobile_family_payment_price_discount").addClass("hidden");
+                    $("#family_payment_price_real_value").html("Free");
+                    $("#mobile_family_payment_price_real_value").html("Free");
                     window.family_stripe_link = "free";
                 } else {
-                    window.family_stripe_link = res.data.stripe_payment_link_etc;
+                    window.family_stripe_link = res.data.stripe_payment_link_etc || res.data.stripe_payment_link;
                     const final_value = parseFloat(res.data.value) / 100;
-                    const discount_value = 129 - final_value;
-                    $("#family_payment_price_exp_value").html(`$ 129`);
-                    $("#mobile_family_payment_price_exp_value").html(`$ 129`);
-
-                    $("#family_payment_price_discount").removeClass("hidden");
-                    $("#mobile_family_payment_price_discount").removeClass("hidden");
-
-                    $("#family_payment_price_dis_cond").html(`Claim Family discount (${res.data.price})`);
-                    $("#mobile_family_payment_price_dis_cond").html(`Claim Family discount (${res.data.price})`);
-                    if(res.data.value == 12900){
-                        $("#family_payment_price_dis_value").addClass("hidden");
-                        $("#mobile_family_payment_price_dis_value").addClass("hidden");
-                    }else{
-                        $("#family_payment_price_dis_value").removeClass("hidden");
-                        $("#mobile_family_payment_price_dis_value").removeClass("hidden");
-
-                        $("#family_payment_price_dis_value").html("$" + discount_value.toFixed(2));
-                        $("#mobile_family_payment_price_dis_value").html("$" + discount_value.toFixed(2));
-                    }
-                    $("#family_payment_price_real_value").html(`$` + final_value.toFixed(2));
-                    $("#mobile_family_payment_price_real_value").html(`$` + final_value.toFixed(2));
+                    const lineTitle = res.data.price || "Additional family member";
+                    $("#family_payment_line_title").text(lineTitle);
+                    $("#mobile_family_payment_line_title").text(lineTitle);
+                    $("#family_payment_price_exp_value").html("$" + final_value.toFixed(2));
+                    $("#mobile_family_payment_price_exp_value").html("$" + final_value.toFixed(2));
+                    $("#family_payment_price_discount").addClass("hidden");
+                    $("#mobile_family_payment_price_discount").addClass("hidden");
+                    $("#family_payment_price_real_value").html("$" + final_value.toFixed(2));
+                    $("#mobile_family_payment_price_real_value").html("$" + final_value.toFixed(2));
                 }
             }
-        })
+        }, "json").fail(function() {
+            toastr.error("Could not open add-member form. Check your plan or try again.");
+            $("#family_invite_button").html("Add Members");
+            $("#family_invite_button").prop("disabled", false);
+        });
     }
 </script>

@@ -85,7 +85,9 @@
     }
 
     function getcontacts(contacts) {
-        contacts = contacts.filter(v => Object.keys(v).find(vv => v[vv]))
+        // Only treat entries with address/phone fields as "contact entries".
+        // (Marketing opt-in is also stored in `contacts`, but should not create empty UI rows.)
+        contacts = contacts.filter(v => ["phone", "city", "zip", "state", "address"].some(k => v[k]))
         // Now use it safely
         document.getElementById("phones").innerHTML = "";
         contacts.length > 0 ? contacts.map((v, index) => {

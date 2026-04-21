@@ -62,9 +62,9 @@
                         </div>
                         <h2 class="font-bold text-[40px] sm:text-[48px] " id="title">Standard Protection</h2>
                         <h2 class="mt-[8px] font-medium text-[15px]" id="cond">1 Year, 1 Person</h2>
-                        <h2 class="mt-[32px] font-bold text-[36px] leading-[46px]" id="price">$10.75 <span
+                        <h2 class="mt-[32px] font-bold text-[36px] leading-[46px]" id="price">$25.00 <span
                                 class="text-[16px]">/mo</span></h2>
-                        <h2 class="mt-[24px] text-[15px] font-medium" id="billed">Billed annually ($129.00/year)</h2>
+                        <h2 class="mt-[24px] text-[15px] font-medium" id="billed">Billed annually ($299.99/year)</h2>
                     </div>
                     <div class="hidden xl:block ml-[58px] border-[1px] border-[#FFFFFF40] h-[275px]"></div>
                     <div class="flex justify-center sm:ml-[58px] sm:max-w-[309px]">
@@ -97,6 +97,14 @@
                                     Custom removal requests plus automated services
                                 </h2>
                             </div>
+                            <label class="flex gap-x-[6px] mt-[24px] relative cursor-pointer group items-start">
+                                <input type="checkbox" id="pd_book_call_optin_pricing"
+                                    class="relative top-[5px] w-[24px] h-[24px] shrink-0 rounded border-[#CDCDCD] text-[#24A556] focus:ring-[#24A556]"
+                                    title="Include free onboarding call" />
+                                <span class="font-medium text-[18px] text-left">
+                                    <span class="text-[#24A556] font-semibold">Book call</span> — free onboarding call (scheduled between 2:00–4:00 PM Pacific). After checkout, you’ll book a time before entering your details.
+                                </span>
+                            </label>
                         </div>
                     </div>
                     <div class="hidden xl:block ml-[58px] border-[1px] border-[#FFFFFF40] h-[275px]"></div>
@@ -146,7 +154,7 @@
             $("#price").html(plan.price);
             $("#billed").text(plan.billed);
             $("#subtitle").text(plan.subtitle);
-            $("#plan-content").text(plan.content);
+            $("#content").text(plan.content);
             id = plan.id;
             coupon = plan.coupon;
             link = plan.stripe_payment_link;
@@ -191,15 +199,41 @@
         init();
         //------------------------------------------------
 
+        async function persistBookCallIntentFromPricing() {
+            var $cb = $("#pd_book_call_optin_pricing");
+            if (!$cb.length) return true;
+            var intent = $cb.is(":checked") ? 1 : 0;
+            try {
+                await $.post("/book_call_set_intent", { intent: intent });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
         $("#pricing_pay").click(async function() {
             // location.href = "/payment?plan_id=" + id;
             const login = "<?php echo isset($_SESSION["isAuthenticated"]) ? $_SESSION["isAuthenticated"] : false; ?>";
             if (login) {
+                var okIntent = await persistBookCallIntentFromPricing();
+                if (!okIntent) {
+                    if (typeof toastr !== "undefined") toastr.error("Could not save Book call preference. Please try again.");
+                    return;
+                }
                 window.open(link + "?prefilled_email=" + "<?php echo $_SESSION["email"] ?? ""; ?>" + `${coupon?"&prefilled_promo_code="+coupon:""}`, "_blank");
             } else {
                 window.location.href = "/login";
             }
-        })
+        });
+
+        (function bookCallOptinPricing() {
+            var $cb = $("#pd_book_call_optin_pricing");
+            if (!$cb.length) return;
+            $cb.prop("checked", <?php echo !empty($_SESSION['pd_book_call_intent']) ? 'true' : 'false'; ?>);
+            $cb.on("change", function() {
+                $.post("/book_call_set_intent", { intent: this.checked ? 1 : 0 });
+            });
+        })();
     }
     plans_init();
 </script>

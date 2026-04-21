@@ -34,76 +34,25 @@
             </div> -->
         </div>
     </div>
+</div>
+<div class="mt-[16px] sm:mt-[31px] rounded-[30px] bg-[#FEFEFE] border border-[#F6F6F6] w-full px-[16px] py-[14px]">
     <?php foreach (
         [
             ["svg" => "removal_mobile", "id" => "main_removal_mobile"],
-        ] as $key => $value
-    ) {
-    ?>
-        <div id="<?php echo $value["id"]; ?>" class="bg-[#FEFEFE] border border-[#F6F6F6] rounded-[30px] ml-[20px] w-[160px] h-[184px] sm:flex-1">
-            <div class="text-center">
-                <h1 class="text-[#010205] text-[14px] font-bold align-middle mt-[18px]"></h1>
-                <div class="flex justify-center mt-[13px]">
-                    <?php require(BASEPATH . "/src/common/svgs/dashboard/main/" . $value["svg"] . ".php"); ?>
-                </div>
-                <h1 class="text-[24px] text-[#010205] font-semibold tracking-[-0.01em] mt-[6px] align-top"></h1>
-                <!-- <div class="mt-[6px] text-[12px] text-[#010205] tracking-[-0.01em] flex items-center space-x-[5px] justify-center">
-                    <i class="fa-solid fa-arrow-up text-[20px]"></i>
-                    <h1><span class="text-[#24A556]"></span>this month</h1>
-                </div> -->
-            </div>
-        </div>
-    <?php
-    } ?>
-</div>
-<div class="mt-[31px] rounded-[30px] bg-[#FEFEFE] border border-[#F6F6F6] w-full h-[205px]">
-    <h1 class="text-[#010205] font-bold text-[18px] tracking-[0.01em] pl-[18px] pt-[18px]">How Exposed Are You</h1>
-    <div class="chart-container w-full h-[118px] mt-[10px] pl-[6px]">
-        <canvas id="exposureChart_mobile"></canvas>
-    </div>
-    <div class="flex items-center space-x-[16px] mt-[8px] pl-[18px]">
-        <h1 class="text-[#010205] tracking-[0.01em] text-[8px] text-outline">
-            Projected(Pro)</h1>
-        <svg width="41" height="2" viewBox="0 0 41 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 1H40.0125" stroke="#77B248" stroke-width="2" stroke-dasharray="7 7" />
-        </svg>
-        <h1 class="text-[#010205] tracking-[0.01em] text-[8px] text-outline">
-            Historical</h1>
-        <svg width="40" height="2" viewBox="0 0 40 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.0124512 1L39.0125 1" stroke="url(#paint0_linear_1228_11740)" stroke-width="2" />
-            <defs>
-                <linearGradient id="paint0_linear_1228_11740" x1="1.01245" y1="1.49998" x2="38.5124" y2="0.999988" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#77B248" />
-                    <stop offset="1" stop-color="#24A556" />
-                </linearGradient>
-            </defs>
-        </svg>
-
-    </div>
-</div>
-<div id="main_progress" class="flex mt-[31px] justify-between space-x-[20px]">
-    <?php foreach (
-        [
             ["svg" => "risk_mobile", "id" => "main_risk_mobile"],
             ["svg" => "requests_mobile", "id" => "main_request_mobile"],
-        ] as $key => $value
+        ] as $idx => $value
     ) {
+        $borderClass = $idx < 2 ? "border-b border-[#F0F0F0]" : "";
     ?>
-        <div id="<?php echo $value["id"]; ?>" class="bg-[#FEFEFE] border border-[#F6F6F6] rounded-[30px] w-[160px] h-[184px] sm:flex-1">
-            <div class="text-center">
-                <h1 class="text-[#010205] text-[14px] font-bold align-middle mt-[18px]"></h1>
-                <div class="flex justify-center mt-[13px]">
-                    <?php require(BASEPATH . "/src/common/svgs/dashboard/main/" . $value["svg"] . ".php"); ?>
-                </div>
-                <h1 class="text-[24px] text-[#010205] font-semibold tracking-[-0.01em] mt-[6px] align-top"></h1>
-                <!-- <div class="mt-[6px] text-[12px] text-[#010205] tracking-[-0.01em] flex items-center space-x-[5px] justify-center">
-                    <i class="fa-solid fa-arrow-up text-[20px]"></i>
-                    <h1><span class="text-[#24A556]"></span>this month</h1>
-                </div> -->
+        <div id="<?php echo $value["id"]; ?>" class="flex items-center justify-between gap-[12px] py-[14px] <?php echo $borderClass; ?>">
+            <h1 class="text-[#010205] text-[14px] font-bold leading-tight shrink min-w-0"></h1>
+            <div class="flex items-center gap-[10px] shrink-0">
+                <?php require(BASEPATH . "/src/common/svgs/dashboard/main/" . $value["svg"] . ".php"); ?>
+                <h1 class="text-[22px] sm:text-[24px] text-[#010205] font-semibold tracking-[-0.01em] tabular-nums"></h1>
             </div>
         </div>
-    <?php
-    } ?>
+    <?php } ?>
 </div>
 
 <script>
@@ -116,13 +65,13 @@
             id: "main_removal_mobile"
         }, {
             title: "Privacy Risk Score",
-            value: `${(100-(window.removal_progress/window.totalcount*100).toFixed(2)).toFixed(2)}`,
+            value: `${(100 - (window.removal_progress / window.totalcount * 100)).toFixed(1)}`,
             percentage: "0",
             icon: "fa-arrow-down",
             id: "main_risk_mobile"
         }, {
             title: "Requests Completed",
-            value: `${window.totalcount}`,
+            value: `${window.removal_progress}`,
             percentage: "0",
             icon: "fa-check",
             id: "main_request_mobile"
@@ -146,152 +95,5 @@
             // if (data[i].icon === "fa-arrow-down") element.querySelector("i").classList.add("text-[#D0004B]");
             // else element.querySelector("i").classList.add("text-[#24A556]");
         }
-    }
-
-    function main_chart_mobile() {
-        const labels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'];
-        const ctx = document.getElementById('exposureChart_mobile').getContext('2d');
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'Projected (Pro)',
-                data: [0.3, 0.5, 0.55, 0.6, 0.7, 0.68, 0.74, 0.8, 0.85, 0.86, 0.9, 0.92],
-                borderColor: 'rgba(34,197,94,1)', // Tailwind green-500
-                borderDash: [6, 6],
-                tension: 0.4,
-                fill: false,
-                pointBackgroundColor: 'rgba(34,197,94,1)',
-            }]
-        };
-        const customPlugin = {
-            id: 'backgroundAndLinePlugin',
-            beforeDraw: (chart) => {
-                const {
-                    ctx,
-                    chartArea: {
-                        left,
-                        right,
-                        top,
-                        bottom
-                    },
-                    scales: {
-                        x,
-                        y
-                    }
-                } = chart;
-                ctx.save();
-
-                // 1. Background shaded areas with spacing
-                const totalSteps = labels.length;
-                const stepWidth = x.getPixelForValue(1) - x.getPixelForValue(0);
-                const gap = 6; // gap in pixels between bars
-                const barWidth = stepWidth - gap;
-
-                labels.forEach((_, index) => {
-                    let xStart;
-                    // if(index==0){
-                    //   xStart = x.getPixelForValue(index+1) - barWidth / 2;
-                    // }else{
-                    xStart = x.getPixelForValue(index) - barWidth / 2;
-                    // }
-
-                    ctx.fillStyle = '#E8FCE7';
-                    ctx.fillRect(xStart, top, barWidth, bottom - top);
-                });
-
-                // 2. Draw solid green circle + line at "Initial Scrub"
-                const startX = x.getPixelForValue(0);
-                const yValue = y.getPixelForValue(0.1); // Initial Scrub
-
-                // Horizontal green line
-                ctx.beginPath();
-                ctx.moveTo(startX, yValue);
-                ctx.lineTo(right, yValue);
-                ctx.strokeStyle = '#77B248';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Solid green circle
-                ctx.beginPath();
-                ctx.arc(startX, yValue, 6, 0, 2 * Math.PI);
-                ctx.fillStyle = 'rgba(34,197,94,1)';
-                ctx.fill();
-
-                ctx.restore();
-            }
-        };
-        const options = {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 1,
-                    ticks: {
-                        callback: function(value) {
-                            if (value === 0) return 'Initial Scrub';
-                            if (value === 0.4) return 'Ramping Up';
-                            if (value === 0.8) return 'Full Protection';
-                            return '';
-                        },
-                        stepSize: 0.2,
-                    },
-                    grid: {
-                        display: false
-                    }
-                },
-                x: {
-                    offset: true,
-                    ticks: {
-                        stepSize: 1,
-                        callback: function(value, index, ticks) {
-                            // Show labels only at half positions: 0.5, 1.5, 2.5, ...
-                            return value % 2 === 0.5 ? this.getLabelForValue(value - 0.5) : '';
-                        },
-                        major: {
-                            enabled: true
-                        }
-                    },
-                    afterBuildTicks: function(scale) {
-                        // Replace default ticks with custom tick positions (0.5, 2.5, ...)
-                        const ticks = [];
-                        for (let i = 0.5; i < labels.length - 0.5; i += 2) {
-                            ticks.push({
-                                value: i
-                            });
-                        }
-                        scale.ticks = ticks;
-                    },
-                    grid: {
-                        display: false
-                    },
-                    min: 0,
-                    max: labels.length - 1,
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            elements: {
-                point: {
-                    radius: 6,
-                    borderWidth: 2,
-                    backgroundColor: 'white',
-                    borderColor: 'rgba(34,197,94,1)'
-                },
-                line: {
-                    borderWidth: 2
-                }
-            }
-        };
-
-        new Chart(ctx, {
-            type: 'line',
-            data: data,
-            options: options,
-            plugins: [customPlugin]
-        });
     }
 </script>

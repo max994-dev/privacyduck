@@ -4,6 +4,7 @@ $meta_description = "Erase your digital footprint. PrivacyDuck removes your pers
 $meta_url = "https://privacyduck.com/";
 $meta_keywords = "remove employee data, employee privacy protection, delete employee info from google, business data removal, executive privacy";
 include_once(BASEPATH . "/src/common/meta.php");
+require_once __DIR__ . "/landing_header.php";
 main_head_start();
 ?>
 <link rel="preload" as="image" href="/assets/image/desktop/background.png">
@@ -46,6 +47,8 @@ main_head_start();
             right: 30px;
         }
     }
+    :root { --np-brand: #77B248; }
+    .np-bg-green { background-color: var(--np-brand); }
 </style>
 <?php
 main_head_end();
@@ -57,26 +60,70 @@ main_head_end();
 
 <div id="white-header">
     <?php
-    main_header();
+    landing_main_header();
     ?>
 </div>
 <div id="black-header" class="hidden">
     <?php
-    main_header("black");
+    landing_main_header("black");
     ?>
 </div>
 <?php
 // main_splash();
 ?>
-<div class="landing-section" data-header="white" class="intro">
-    <?php
-    require("intro.php"); ?>
+<div class="landing-section relative min-h-[min(88svh,820px)] lg:min-h-[72svh] flex flex-col lg:flex-row bg-[#1a2820] text-white pt-[104px] overflow-hidden" data-header="white">
+    <div class="absolute inset-0 z-0 lg:hidden" aria-hidden="true">
+        <img src="/assets/image/desktop/landing/new/hero_new.jpg" alt="" class="absolute inset-0 w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-b from-[#1a2820]/90 via-[#1a2820]/82 to-[#1a2820]/94"></div>
+    </div>
+    <div class="absolute inset-0 z-0 hidden lg:block w-[100%] right-0 top-0 bottom-0">
+        <img src="/assets/image/desktop/landing/new/hero_new.jpg" alt="" class="h-full w-full object-cover lg:rounded-l-[40px]" style="min-height:520px" />
+    </div>
+    <div class="relative z-10 flex-1 flex flex-col justify-center px-5 md:px-10 lg:px-20 xl:px-[100px] py-10 sm:py-12 pb-28 lg:pb-12 max-w-[960px]">
+        <h1 class="font-semibold text-[32px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-[-0.02em]">
+            Real people removing your Phone from everywhere it appears.
+        </h1>
+        <p class="mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]">
+            Our US based professional opt-out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
+        </p>
+        <form action="/new_signup" method="get" class="mt-8 sm:mt-10 flex flex-col sm:flex-row w-full max-w-[520px] gap-3 sm:gap-2 sm:items-stretch" aria-label="Sign up with your email">
+            <input
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                inputmode="email"
+                placeholder="Enter your email"
+                class="flex-1 min-w-0 rounded-full bg-white/10 border border-white/25 text-white placeholder:text-white/55 px-5 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/35"
+            />
+            <button type="submit" class="w-full sm:w-auto justify-center rounded-full np-bg-green text-white font-semibold text-[15px] px-8 py-3.5 hover:opacity-95 inline-flex items-center gap-2 border-0 cursor-pointer shrink-0">
+                Sign Up
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="hidden sm:block" aria-hidden="true"><path d="M5 12H19M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </form>
+    </div>
+    <div class="absolute left-0 right-0 bottom-0 h-px bg-white/20 z-10"></div>
+    <p class="absolute left-0 right-0 bottom-5 sm:bottom-6 z-10 text-center text-white/80 text-[11px] leading-snug sm:text-sm px-4">
+        <span class="font-semibold">PrivacyDuck.com - </span><span class="block sm:inline">The trusted leader in personal data removal since 2019.</span>
+    </p>
 </div>
 <div class="flex flex-col text-[#010205] bg-[#FAFAFA]">
     <div class="landing-section" data-header="dark">
-        <?php
-        require("scroll_animation.php");
-        ?>
+        <section class="bg-[#F5F5F0] border-t border-black/[0.06]">
+            <div class="max-w-[1200px] mx-auto px-5 md:px-10 py-12 md:py-16 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%] tracking-[-0.02em]">
+                        Remove your data from 400+ data brokers
+                    </h2>
+                    <p class="mt-3 text-[#010205]/70 text-[15px] sm:text-[17px]">
+                        Most services cover a limited set of sources. PrivacyDuck uses real local workers to remove your data across more sources, including the ones other services miss. We cover 400+ people search sites, data brokers, and other databases in our sweep, including customized deletion from google.
+                    </p>
+                </div>
+                <a href="/new_signup" class="inline-flex justify-center items-center rounded-full np-bg-green text-white font-semibold text-[16px] px-10 py-4 hover:opacity-95 w-full sm:w-auto shrink-0 shadow-md">
+                    Start removing now
+                </a>
+            </div>
+        </section>
     </div>
     <div class="landing-section" data-header="dark">
         <?php

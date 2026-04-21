@@ -37,7 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
             $data = $result->fetch_assoc();
             $_SESSION["user_id"] = $data["id"];
         }
-	$_SESSION["signup_complete"] = 1;
+        // After successful payment, force the user to add full info once
+        $_SESSION["signup_complete"] = 0;
+        $_SESSION["needs_profile_info"] = 1;
         $stmt = $conn->prepare("SELECT * FROM plans WHERE id = ?");
         $stmt->bind_param("i", $_SESSION["plan_id"]);
         $stmt->execute();
@@ -54,7 +56,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
         $_SESSION["planable"] = true;
         setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
         unset($_SESSION['verify_code']);
-        header("Location: " . WEB_DOMAIN . "/dashboard");
+        if (!empty($_SESSION['pd_book_call_intent']) && empty($_SESSION['pd_book_call_done'])) {
+            header("Location: " . WEB_DOMAIN . "/book-call");
+        } else {
+            header("Location: " . WEB_DOMAIN . "/dashboard");
+        }
     } else {
         $error = "Invalid verification code. Please try again.";
     }

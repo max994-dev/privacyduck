@@ -1,242 +1,11 @@
 <?php
-isLogin();
-require BASEPATH . "/src/pages/Dashboard/sites_data.php";
-// Only start if not already active
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once BASEPATH . "/src/pages/Dashboard/dashboard_bootstrap.php";
 
-if (empty($_SESSION["user_id"])) {
-    header("Location: /login");
+if (!empty($_SESSION['pd_book_call_intent']) && empty($_SESSION['pd_book_call_done']) && !empty($_SESSION['planable'])) {
+    header('Location: ' . WEB_DOMAIN . '/book-call');
     exit;
 }
 
-$showSignup = empty($_SESSION["signup_complete"]);
-$conn = getDBConnection();
-//google scan start
-$main_stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? AND kind=3");
-$main_stmt->bind_param("i", $_SESSION["user_id"]);
-$main_stmt->execute();
-$main_result = $main_stmt->get_result();
-if ($main_result->num_rows == 0) {
-    $values = [];
-    $params = [];
-    $types = "";
-
-    // Build values and placeholders
-    foreach (["googlecom", "googlecom2", "googlecom3"] as $url) {
-        $values[] = "(?, ?, ?, ?)";
-        $params[] = $url;
-        $params[] = $_SESSION["user_id"];
-        $params[] = 3;
-        $params[] = 0;
-        $types .= "ssii";
-    }
-    $sql = "INSERT INTO results (target_domain, user_id, kind, step) VALUES " . implode(", ", $values);
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-} else {
-    $data = $main_result->fetch_all(MYSQLI_ASSOC);
-    $count = count(array_filter($data, function ($item) {
-        return $item["step"] < 2;
-    }));
-    if ($count == 0) {
-        $sql = "UPDATE results SET step = 0 WHERE user_id = ? AND kind=3";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $_SESSION["user_id"]);
-        $stmt->execute();
-    }
-}
-//google scan end
-
-// if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
-$main_stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? AND kind=0");
-$main_stmt->bind_param("i", $_SESSION["user_id"]);
-$main_stmt->execute();
-$main_result = $main_stmt->get_result();
-if ($main_result->num_rows == 0) {
-    $values = [];
-    $params = [];
-    $types = "";
-
-    // Build values and placeholders
-    foreach ($websites as $url => $removal_url) {
-        $values[] = "(?, ?, ?, ?)";
-        $params[] = $url;
-        $params[] = $_SESSION["user_id"];
-        $params[] = 0;
-        $params[] = 0;
-        $types .= "ssii";
-    }
-    $sql = "INSERT INTO results (target_domain, user_id, kind, step) VALUES " . implode(", ", $values);
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-} else {
-    $data = $main_result->fetch_all(MYSQLI_ASSOC);
-    $count = count(array_filter($data, function ($item) {
-        return $item["step"] < 2;
-    }));
-    if ($count == 0) {
-        $sql = "UPDATE results SET step = 0 WHERE user_id = ? AND kind=0";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $_SESSION["user_id"]);
-        $stmt->execute();
-    }
-}
-// }
-if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
-    function plan($userId, $websites, $websitesUrl, $data)
-    {
-        $conn = getDBConnection();
-        $main_stmt = $conn->prepare("SELECT planable FROM results WHERE user_id = ? AND planable=0");
-        $main_stmt->bind_param("i", $userId);
-        $main_stmt->execute();
-        $main_result = $main_stmt->get_result();
-        if ($main_result->num_rows > 0) {
-            $sql = "UPDATE users SET planedAt = NOW() WHERE id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-
-            $conn = getDBConnection();
-            $main_stmt = $conn->prepare("UPDATE results SET planable = 1 WHERE user_id = ? AND planable=0");
-            $main_stmt->bind_param("i", $userId);
-            $main_stmt->execute();
-        }
-
-        $main_stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? AND kind=1");
-        $main_stmt->bind_param("i", $userId);
-        $main_stmt->execute();
-        $main_result = $main_stmt->get_result();
-        if ($main_result->num_rows == 0) {
-            $values = [];
-            $params = [];
-            $types = "";
-
-            // Build values and placeholders
-            foreach ($websites as $url => $removal_url) {
-                $values[] = "(?, ?, ?, ?, ?, ?, ?, ?)";
-                $params[] = $url;
-                $params[] = $userId;
-                $params[] = 1;
-                $params[] = 0;
-                $params[] = 1;
-                $params[] = $websitesUrl[$url];
-                $params[] = $removal_url;
-                $params[] = $data;
-                $types .= "ssiiisss";
-            }
-            $sql = "INSERT INTO results (target_domain, user_id, kind, step, planable, site_url, removal_url, data) VALUES " . implode(", ", $values);
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $sql = "UPDATE users SET planedAt = NOW() WHERE id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-        } else {
-            $data = $main_result->fetch_all(MYSQLI_ASSOC);
-            $count = count(array_filter($data, function ($item) {
-                return $item["step"] < 2;
-            }));
-            $sql = "Select planedAt from users WHERE id = ? AND (planedAt <= NOW() - INTERVAL 90 DAY OR planedAt IS NULL)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-            if ($count == 0 && $stmt->get_result()->num_rows > 0) {
-                $sql = "UPDATE users SET planedAt = NOW() WHERE id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $userId);
-                $stmt->execute();
-                $sql = "UPDATE results SET data = ?, step = 0, planable = 1 WHERE user_id = ? AND kind=1";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("si", $data, $userId);
-                $stmt->execute();
-            }
-        }
-    }
-    function removalPlan($userId, $websites, $websitesUrl)
-    {
-        $conn = getDBConnection();
-        $main_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-        $main_stmt->bind_param("i", $userId);
-        $main_stmt->execute();
-        $main_result = $main_stmt->get_result();
-        $userData = $main_result->fetch_assoc();
-        //2026
-	if (!$userData) {
-	     session_unset();
-	     session_destroy();
-	     header("Location: /login.php");
- 	     exit;
-	}
-        $contacts = $userData["contacts"] ?? "[]";
-	$contacts = json_decode($contacts, true) ?: [];
-        if (count($contacts) > 0) {
-            foreach ($contacts as $contact) {
-                plan($userId, $websites, $websitesUrl, json_encode([
-                    "email" => $userData["email"],
-                    "firstname" => $userData["firstname"],
-                    "lastname" => $userData["lastname"],
-                    "age" => $userData["age"],
-                    "city" => $contact["city"],
-                    "zip" => $contact["zip"],
-                    "state" => $contact["state"],
-                    "phone" => $contact["phone"],
-                    "address" => $contact["address"],
-                ]));
-            }
-        } else {
-            plan($userId, $websites, $websitesUrl, json_encode([
-                "email" => $userData["email"],
-                "firstname" => $userData["firstname"],
-                "lastname" => $userData["lastname"],
-                "age" => $userData["age"]
-            ]));
-        }
-    }
-    removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
-    $main_stmt = $conn->prepare("SELECT * FROM family WHERE core_id = ? AND status = 0");
-    $main_stmt->bind_param("i", $_SESSION["user_id"]);
-    $main_stmt->execute();
-    $main_result = $main_stmt->get_result();
-    if ($main_result->num_rows > 0) {
-        $data = $main_result->fetch_all(MYSQLI_ASSOC);
-        for ($i = 0; $i < count($data); $i++) {
-            removalPlan($data[$i]["invite_id"], $websites, $websitesUrl);
-        }
-    }
-} else {
-    $conn = getDBConnection();
-    $main_stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? AND kind=1");
-    $main_stmt->bind_param("i", $_SESSION["user_id"]);
-    $main_stmt->execute();
-    $main_result = $main_stmt->get_result();
-    if ($main_result->num_rows == 0) {
-        $values = [];
-        $params = [];
-        $types = "";
-
-        // Build values and placeholders
-        foreach ($websites as $url => $removal_url) {
-            $values[] = "(?, ?, ?, ?, ?, ?, ?)";
-            $params[] = $url;
-            $params[] = $_SESSION["user_id"];
-            $params[] = 1;
-            $params[] = 0;
-            $params[] = 0;
-            $params[] = $websitesUrl[$url];
-            $params[] = $removal_url;
-            $types .= "ssiiiss";
-        }
-        $sql = "INSERT INTO results (target_domain, user_id, kind, step, planable, site_url, removal_url) VALUES " . implode(", ", $values);
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-    }
-}
 $meta_title = "PrivacyDuck - Dashboard";
 $meta_description = "Protect your privacy with PrivacyDuck. We remove your personal data from the internet and safeguard your online presence. Get started today!";
 $meta_url = "https://privacyduck.com/";
@@ -249,12 +18,17 @@ common_splash();
 function fixed_menu()
 {
 ?>
-    <div class="hidden xl:flex justify-between py-[16px] px-[48px]">
-        <div class="flex items-center">
-            <div id="dashboard_header_contact" class="flex items-center gap-[16px]">
+    <div class="hidden xl:flex justify-between py-[16px] px-[48px] items-center">
+        <div class="flex items-center min-w-0">
+            <button type="button" id="dashboard-desktop-sidebar-show"
+                class="hidden inline-flex items-center justify-center w-10 h-10 rounded-full text-[#010205] hover:bg-[#F0F0F0] mr-3 shrink-0"
+                aria-label="Show sidebar" title="Show sidebar">
+                <?php require_once(BASEPATH . "/src/common/svgs/dashboard/sidebar/menu.php"); ?>
+            </button>
+            <div id="dashboard_header_contact" class="flex items-center gap-[16px] min-w-0">
                 <div class="flex items-center gap-[8px]">
                     <?php require(BASEPATH . "/src/common/svgs/dashboard/menu/supportemail.php"); ?>
-                    <h1 class="text-[16px] text-[#010205] font-medium"> Removals@privacyduck.com</h1>
+                    <h1 class="text-[16px] text-[#010205] font-medium"> hello@privacyduck.com</h1>
                 </div>
                 <div class="flex items-center gap-[8px]">
                     <?php require(BASEPATH . "/src/common/svgs/dashboard/menu/phone.php"); ?>
@@ -301,8 +75,20 @@ function fixed_menu()
     body {
         overflow-x: hidden;
     }
+    @media (min-width: 1280px) {
+        #dashboard-desktop-sidebar-aside {
+            width: 307px;
+            flex-shrink: 0;
+            transition: width 0.3s ease-out;
+        }
+        #dashboard-desktop-sidebar-aside.is-collapsed {
+            width: 0 !important;
+            border: none;
+            pointer-events: none;
+        }
+    }
 </style>
-<div class="xl:flex">
+<div class="xl:flex xl:flex-row xl:min-h-screen w-full">
     <!-- Sidebar -->
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Family/add_info.php"); ?>
     <div class="fixed z-[1000] top-0 left-0 w-full h-[72px] bg-white text-white xl:hidden">
@@ -318,13 +104,15 @@ function fixed_menu()
             </div>
         </div>
     </div>
-    <?php require(BASEPATH . "/src/pages/Dashboard/Sidebar/sidebar.php"); ?>
+    <aside id="dashboard-desktop-sidebar-aside" class="hidden xl:block overflow-hidden">
+        <?php require(BASEPATH . "/src/pages/Dashboard/Sidebar/sidebar.php"); ?>
+    </aside>
     <div id="mobile-sidebar-overlay"
         class="fixed inset-0  overflow-y-auto overflow-x-hidden w-[298px] animate-[slideInSimple_0.4s_ease-out_forwards] z-[1000] hidden">
         <?php require_once(BASEPATH . "/src/pages/Dashboard/Sidebar/sidebar_mobile.php"); ?>
     </div>
     <!-- Content -->
-    <div class="relative w-screen xl:w-[calc(100vw-307px)] h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
+    <div class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         <?php fixed_menu(); ?>
         <div id="content" class="min-h-[calc(100vh-146px)] mt-[72px] xl:mt-0 px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
 		  <?php if ($showSignup): ?>
@@ -376,6 +164,46 @@ function fixed_menu()
             label.classList.remove('hidden');
         }
     });
+
+    (function dashboardDesktopSidebarCollapse() {
+        const aside = document.getElementById('dashboard-desktop-sidebar-aside');
+        const showBtn = document.getElementById('dashboard-desktop-sidebar-show');
+        const hideBtn = document.getElementById('dashboard-desktop-sidebar-hide');
+        if (!aside || !showBtn || !hideBtn) return;
+        const KEY = 'pd_dashboard_sidebar_collapsed';
+
+        function readCollapsed() {
+            try {
+                return localStorage.getItem(KEY) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function apply(collapsed) {
+            if (window.innerWidth < 1280) {
+                aside.classList.remove('is-collapsed');
+                showBtn.classList.add('hidden');
+                return;
+            }
+            aside.classList.toggle('is-collapsed', collapsed);
+            showBtn.classList.toggle('hidden', !collapsed);
+            try {
+                localStorage.setItem(KEY, collapsed ? '1' : '0');
+            } catch (e) {}
+        }
+
+        apply(readCollapsed());
+        window.addEventListener('resize', function() {
+            apply(readCollapsed());
+        });
+        hideBtn.addEventListener('click', function() {
+            apply(true);
+        });
+        showBtn.addEventListener('click', function() {
+            apply(false);
+        });
+    })();
 
     // Sidebar selection highlight
     function sidebar_select() {
@@ -448,6 +276,43 @@ function fixed_menu()
         }
     }
 
+    function tryFinalizePendingFamilyInvite() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("invite_paid") !== "1") {
+            return;
+        }
+        $.post("/invite_payment_finalize_pending", {}, function(res) {
+            if (res.success && !res.skipped) {
+                if (typeof toastr !== "undefined") {
+                    toastr.success("Family member added.");
+                }
+                if (typeof memberTable === "function") {
+                    memberTable();
+                }
+            } else if (res.success && res.skipped) {
+                // no pending row
+            } else if (res.error) {
+                if (typeof toastr !== "undefined") {
+                    toastr.error(res.error);
+                }
+            }
+            params.delete("invite_paid");
+            var qs = params.toString();
+            history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
+        }, "json").fail(function(xhr) {
+            var msg = "Could not add member after payment.";
+            try {
+                var j = JSON.parse(xhr.responseText);
+                if (j && j.error) {
+                    msg = j.error;
+                }
+            } catch (e) {}
+            if (typeof toastr !== "undefined") {
+                toastr.error(msg);
+            }
+        });
+    }
+
     function renderRoute() {
         const path = window.location.pathname;
         const id = "<?php echo $_SESSION['user_id']; ?>";
@@ -479,6 +344,7 @@ function fixed_menu()
                         add_info_show_modal();
                         window.show_family_modal = false;
                     }
+                    tryFinalizePendingFamilyInvite();
                 });
                 break;
             case "/dashboard/plans":
@@ -521,8 +387,6 @@ function fixed_menu()
                     $('#content').html(data);
                     initSearchOptions_and_events();
                     main_isRemoval();
-                    main_chart();
-                    main_chart_mobile();
                     main_animate_progress();
                     // main_animate_progress_mobile();
                     databrokers_select();
@@ -552,4 +416,17 @@ function fixed_menu()
     }
 
     renderRoute();
+</script>
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {},
+        Tawk_LoadStart = new Date();
+    (function() {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/6813761a7c6684190de59a7c/1iq60amh0';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
 </script>

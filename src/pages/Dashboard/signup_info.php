@@ -7,7 +7,9 @@ $main_stmt->execute();
 $main_result = $main_stmt->get_result();
 $user = $main_result->fetch_assoc();
 $user_contacts = json_decode($user["contacts"], true);
-if ($user && $user["firstname"] && $user["lastname"] && $user["city"] && $user["state"] && $user["phone"] && $user["zip"] && $user["address"] && $user["email"] && is_array($user_contacts) && count($user_contacts) > 1) {
+if (!empty($_SESSION["needs_profile_info"])) {
+    $init_show_modal = true;
+} else if ($user && $user["firstname"] && $user["lastname"] && $user["city"] && $user["state"] && $user["phone"] && $user["zip"] && $user["address"] && $user["email"] && is_array($user_contacts) && count($user_contacts) > 1) {
     $init_show_modal = false;
 } else {
     $init_show_modal = true;
@@ -228,7 +230,9 @@ if ($user && $user["firstname"] && $user["lastname"] && $user["city"] && $user["
     }
 
     function signup_info_getcontacts(contacts) {
-        contacts = contacts.filter(v => Object.keys(v).find(vv => v[vv]))
+        // Only treat entries with address/phone fields as "contact entries".
+        // (Marketing opt-in is also stored in `contacts`, but should not create empty UI rows.)
+        contacts = contacts.filter(v => ["phone", "city", "zip", "state", "address"].some(k => v[k]))
         // Now use it safely
         document.getElementById("signup_info_phones").innerHTML = "";
         contacts.length > 0 ? contacts.map((v, index) => {

@@ -6,24 +6,24 @@ window.addEventListener('DOMContentLoaded', function () {
             single: {
                 title: "Standard Protection",
                 cond: "1Year 1Person",
-                price: "$10.75<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($129.00/year)",
+                price: "$25.00<span class='text-[16px]'>/mo</span>",
+                billed: "Billed annually ($299.99/year)",
                 subtitle: "Standard PrivacyDuck protection plan for 1 person.",
                 content: "Remove yourself from all major data broker websites for 1 year."
             },
             couple: {
                 title: "Standard Protection",
                 cond: "1Year 2Person",
-                price: "$19.08<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($229.00/year)",
+                price: "$44.17<span class='text-[16px]'>/mo</span>",
+                billed: "Billed annually ($529.99/year)",
                 subtitle: "Most popular PrivacyDuck protection plan for 2 people.",
                 content: "Remove 2 people from all major data broker websites for 1 year."
             },
             family: {
                 title: "Family Protection",
                 cond: "1Year 4Person",
-                price: "$27.42<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($329.00/year)",
+                price: "$64.17<span class='text-[16px]'>/mo</span>",
+                billed: "Billed annually ($769.99/year)",
                 subtitle: "Standard PrivacyDuck protection plan for the entire family.",
                 content: "Remove 4 people from all major data broker websites for 1 year."
             },
@@ -33,24 +33,24 @@ window.addEventListener('DOMContentLoaded', function () {
             single: {
                 title: "Standard Protection",
                 cond: "2Year 1Person",
-                price: "$8.71<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($209.00/2 years)",
+                price: "$20.83<span class='text-[16px]'>/mo</span>",
+                billed: "Billed $499.99 every 2 years",
                 subtitle: "Standard PrivacyDuck protection plan for 1 person.",
-                content: "Remove 2 people from all major data broker websites for 1 year."
+                content: "Remove yourself from all major data broker websites for 2 years."
             },
             couple: {
                 title: "Standard Protection",
                 cond: "2Year, 2Person",
-                price: "$8.71<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($209.00/2 years)",
+                price: "$37.50<span class='text-[16px]'>/mo</span>",
+                billed: "Billed $899.99 every 2 years",
                 subtitle: "Most popular PrivacyDuck protection plan for 2 people.",
-                content: "Remove 2 people from all major data broker websites for 2 year."
+                content: "Remove 2 people from all major data broker websites for 2 years."
             },
             family: {
                 title: "Family Protection",
                 cond: "2Year, 4Person",
-                price: "$20.79<span class='text-[16px]'>/mo</span>",
-                billed: "Billed annually($449.00/2 years)",
+                price: "$54.17<span class='text-[16px]'>/mo</span>",
+                billed: "Billed $1,299.99 every 2 years",
                 subtitle: "Standard PrivacyDuck protection plan for the entire family.",
                 content: "Remove 4 people from all major data broker websites for 2 years."
             },

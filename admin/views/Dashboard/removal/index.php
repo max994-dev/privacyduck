@@ -1,6 +1,7 @@
 <?php
 include_once($_SERVER["DOCUMENT_ROOT"]."/src/common/config.php");
 include_once($_SERVER["DOCUMENT_ROOT"]."/src/common/database.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/src/common/odoo_removal_sync.php");
 header('Content-Type: application/json');
 
 $conn = getDBConnection();
@@ -31,6 +32,13 @@ try {
     $stmt = $conn->prepare("UPDATE results SET step=? WHERE user_id=? AND kind=1 AND target_domain=?");
     $stmt->bind_param("iis", $step, $user_id, $domain);
     $stmt->execute();
+
+    // Hybrid sync: push current status to Odoo immediately (pull cron remains source of reliability).
+    try {
+        odoo_sync_result_row_to_odoo($conn, $user_id, $domain);
+    } catch (Throwable $syncErr) {
+        error_log('odoo_removal_push_sync: ' . $syncErr->getMessage());
+    }
 
     $conn->commit(); // [web:569]
     echo json_encode(["success"=>true]);

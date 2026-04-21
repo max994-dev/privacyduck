@@ -115,8 +115,7 @@
 </div>
 <script>
     const loadingHtml = "<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class=''>Sending...</span>";
-    const stripe = Stripe("pk_live_51NnPaLCqUk2FODuHsjoSwco3FniR1031fy4tXQT8ebrY7IkaLy0wChdhmBdSoB3MeUt25FsEQdXOYAwWBJk4ZfUD00UMCUKYaV");
-    // const stripe = Stripe("pk_test_51NnPaLCqUk2FODuHFKKs4aYRhos4gvUVpcLkIPUyUYQtKqiLDtjEwbMcbmr25NolQ4dosbAcoC5EdGRUYz4okLBI00V8d4qRVj");
+    const stripe = Stripe(<?php echo json_encode(pd_stripe_publishable_key()); ?>);
     const elements = stripe.elements();
 
     const style = {
@@ -181,27 +180,15 @@
             }
 
             if (paymentIntent.status === "succeeded") {
-                $.post("/success", {}, function(res) {
-                    if (res === "success") {
-                        const width = 500;
-                        const height = 300;
-                        const left = (screen.width / 2) - (width / 2);
-                        const top = (screen.height / 2) - (height / 2);
-                        const popup = window.open(
-                            "<?= WEB_DOMAIN ?>/invite_paymentverify",
-                            'GoogleLogin',
-                            `width=${width},height=${height},top=${top},left=${left}`
-                        );
-                        window.addEventListener('message', function(event) {
-                            if (event.origin !== window.location.origin) return;
-                            const { data } = event;
-                            if (data.type === 'invite_payment_verified') {
-                                invite_member();
-                            }
-                        });
+                $.post("/invite_payment_mark_complete", {}, function(res) {
+                    if (res && res.success) {
+                        add_payment_close_modal();
+                        if (typeof invite_member === "function") invite_member();
                     } else {
-                        throw new Error(res);
+                        throw new Error((res && res.error) ? res.error : "Could not complete invite payment step.");
                     }
+                }, "json").fail(function() {
+                    throw new Error("Could not complete invite payment step.");
                 });
             }
         });

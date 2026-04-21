@@ -11,10 +11,7 @@
         $datas = [
             ["avatar" => "ceo", "name" => "Christopher Scott", "role" => "Founder & CEO"],
             ["avatar" => "cto", "name" => "Oleksandr Savchuk", "role" => "CTO"],
-            ["avatar" => "backend", "name" => "Maya Mathy", "role" => "Backend Developer"],
-            ["avatar" => "frontend", "name" => "Keira Battye", "role" => "Frontend Developer"],
-            ["avatar" => "designer", "name" => "Dominic Game", "role" => "Designer"],
-            ["avatar" => "seo", "name" => "James Vial", "role" => "SEO"],
+            ["avatar" => "backend", "name" => "Victor Paiva ", "role" => ""],
         ];
         foreach ($datas as $data) {
         ?>

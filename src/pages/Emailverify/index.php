@@ -1,15 +1,158 @@
 <?php
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/config.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/utils.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/database.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/stripe_signup_sync.php");
+require_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/auth_redirect.php");
+
+pd_normalize_post_request();
+
 if (!isset($_SESSION['verify_code']) || !isset($_SESSION['email'])) {
-    header("Location: " . WEB_DOMAIN . "/login");
+    header("Location: " . WEB_DOMAIN . "/new_signin");
     exit;
 }
 $verifyCode = $_SESSION['verify_code'];
 $verifyEmail = $_SESSION['email'];
+$authFlow = $_SESSION['auth_flow'] ?? '';
+$isSigninCodeFlow = ($authFlow === 'new_landing');
+$isPasswordSetupFlow = ($authFlow === 'password_setup');
+$isPasswordResetFlowOnly = ($authFlow === 'password_reset');
+$isPasswordGateFlow = $isPasswordSetupFlow || $isPasswordResetFlowOnly;
+
+if (email_verification_bypassed($verifyEmail)) {
+    if ($isSigninCodeFlow) {
+        $conn = getDBConnection();
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $verifyEmail);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows === 0) {
+            $stmt->close();
+            $conn->close();
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['email']);
+            header("Location: " . WEB_DOMAIN . "/new_signin");
+            exit;
+        }
+        $data = $result->fetch_assoc();
+        $stmt->close();
+        $conn->close();
+        pd_apply_user_session_from_row($data, $verifyEmail);
+        unset($_SESSION["verify_code"], $_SESSION["auth_flow"]);
+        header("Location: " . pd_new_landing_post_auth_redirect_url($data));
+        exit;
+    }
+
+    if ($isPasswordGateFlow) {
+        $conn = getDBConnection();
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $verifyEmail);
+        $stmt->execute();
+        $exists = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+        $conn->close();
+        if (!$exists) {
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['email']);
+            header("Location: " . WEB_DOMAIN . "/new_signin");
+            exit;
+        }
+        unset($_SESSION['verify_code'], $_SESSION['auth_flow']);
+        $_SESSION['password_reset_allowed'] = true;
+        $_SESSION['password_reset_email'] = $verifyEmail;
+        header("Location: " . WEB_DOMAIN . "/new_reset_password");
+        exit;
+    }
+    $conn = getDBConnection();
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $verifyEmail);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 0) {
+        $fullName = $_SESSION["fullName"] ?? "";
+
+        $nameParts = explode(" ", $fullName);
+        $firstName = $nameParts[0];
+        $lastName = isset($nameParts[1]) ? $nameParts[1] : "";
+        $stmt = $conn->prepare("INSERT INTO users (email, firstname, lastname, created_at) VALUES (?, ?, ?,?)");
+        $stmt->bind_param("ssss", $verifyEmail, $firstName, $lastName, date("Y-m-d H:i:s"));
+        $stmt->execute();
+    }
+
+    stripe_sync_privacyduck_subscription_for_email($conn, $verifyEmail);
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $verifyEmail);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+    $conn->close();
+    if (isset($_SESSION["auth_flow"]) && $_SESSION["auth_flow"] === "new_landing") {
+        pd_apply_user_session_from_row($data, $verifyEmail);
+        unset($_SESSION["verify_code"]);
+        unset($_SESSION["auth_flow"]);
+        header("Location: " . pd_new_landing_post_auth_redirect_url($data));
+        exit;
+    }
+    $hasActivePlan = !empty($data["plan_id"]) && !empty($data["plan_end"]);
+    $isPlanValid = $hasActivePlan && (new DateTime() < new DateTime($data["plan_end"]));
+    $_SESSION["fullName"] = $data["firstname"] . " " . $data["lastname"];
+    $_SESSION["plan_id"] = $data["plan_id"];
+    $_SESSION["user_id"] = $data["id"];
+    $_SESSION["planable"] = $isPlanValid;
+    $_SESSION["signup_complete"] = $isPlanValid;
+    $_SESSION["isAuthenticated"] = true;
+    unset($_SESSION['verify_code']);
+    setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
+    header("Location: " . WEB_DOMAIN . "/dashboard");
+    exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
     $enteredCode = implode("", $_POST['verify_code']);
 
-    if ($verifyCode == $enteredCode) {
+    if ((string) $verifyCode === (string) $enteredCode) {
+        if ($isSigninCodeFlow) {
+            $conn = getDBConnection();
+            $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->bind_param("s", $verifyEmail);
+            $stmt->execute();
+            $existing = $stmt->get_result();
+            if ($existing->num_rows === 0) {
+                $stmt->close();
+                $conn->close();
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['email']);
+                header("Location: " . WEB_DOMAIN . "/new_signin");
+                exit;
+            }
+            $data = $existing->fetch_assoc();
+            $stmt->close();
+            $conn->close();
+            pd_apply_user_session_from_row($data, $verifyEmail);
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow']);
+            setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
+            header("Location: " . pd_new_landing_post_auth_redirect_url($data));
+            exit;
+        }
+
+        if ($isPasswordGateFlow) {
+            $conn = getDBConnection();
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->bind_param("s", $verifyEmail);
+            $stmt->execute();
+            $exists = $stmt->get_result()->num_rows > 0;
+            $stmt->close();
+            $conn->close();
+            if (!$exists) {
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['email']);
+                header("Location: " . WEB_DOMAIN . "/new_signin");
+                exit;
+            }
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow']);
+            $_SESSION['password_reset_allowed'] = true;
+            $_SESSION['password_reset_email'] = $verifyEmail;
+            header("Location: " . WEB_DOMAIN . "/new_reset_password");
+            exit;
+        }
 
         //Insert the data(verified email, firstname, lastname) to the MYSQL database (Table users)
         $conn = getDBConnection();
@@ -29,8 +172,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
             $stmt->bind_param("ssss", $verifyEmail, $firstName, $lastName, date("Y-m-d H:i:s"));
             $stmt->execute();
             $_SESSION["user_id"] = $conn->insert_id;
-            $_SESSION["plan_id"] = Null;
-            $_SESSION["planable"] = Null;
+            $_SESSION["plan_id"] = null;
+            $_SESSION["planable"] = false;
         } else {
             $data = $result->fetch_assoc();
             $hasActivePlan = !empty($data["plan_id"]) && !empty($data["plan_end"]);
@@ -42,11 +185,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
 	    $_SESSION["signup_complete"] = $isPlanValid;
         }
         $conn->close();
+        if (isset($_SESSION["auth_flow"]) && $_SESSION["auth_flow"] === "new_landing") {
+            $conn2 = getDBConnection();
+            $stmt2 = $conn2->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt2->bind_param("s", $verifyEmail);
+            $stmt2->execute();
+            $fresh = $stmt2->get_result()->fetch_assoc();
+            $stmt2->close();
+            $conn2->close();
+            if ($fresh) {
+                pd_apply_user_session_from_row($fresh, $verifyEmail);
+            }
+            unset($_SESSION['verify_code']);
+            unset($_SESSION['auth_flow']);
+            setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
+            header("Location: " . ($fresh ? pd_new_landing_post_auth_redirect_url($fresh) : WEB_DOMAIN . "/pricing"));
+            exit;
+        }
         $_SESSION["isAuthenticated"] = true;
         unset($_SESSION['verify_code']);
         setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
-        header("Location: " . WEB_DOMAIN . "/dashboard");
-        exit; //2026
+        // Normal signup: subscription first if no paid plan; otherwise dashboard
+        $hasPaidPlan = !empty($_SESSION["plan_id"]) && !empty($_SESSION["planable"]);
+        if (!$hasPaidPlan) {
+            header("Location: " . WEB_DOMAIN . "/pricing");
+        } else {
+            header("Location: " . WEB_DOMAIN . "/dashboard");
+        }
+        exit;
     } else {
         $error = "Invalid verification code. Please try again.";
     }
@@ -133,9 +299,12 @@ main_head_end();
                     <a href="/"><img class="w-[220px] h-[45px]" src="/assets/image/desktop/logo2.svg" alt="logo" /></a>
                 </div>
                 <div class="text-center mt-[32px] px-[9px] sm:px-[70px] max-w-[584px]">
-                    <h1 class="text-[16px] leading-[24px] text-[#010205]">We sent an email to
-                        <span class="font-bold"><?= $_SESSION['email']; ?>.</span> Please enter the verification code in the email to confirm your address and
-                        proceed. If you don’t see the email, check your spam folder.
+                    <h1 class="text-[16px] leading-[24px] text-[#010205]"><?php if ($isSigninCodeFlow): ?>We sent a login code to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code to sign in. If you don’t see it, check your spam folder.<?php elseif ($isPasswordSetupFlow): ?>We sent a code to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter it to verify your email and set your password. Check spam if you don’t see it.<?php elseif ($isPasswordResetFlowOnly): ?>We sent a reset code to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code from your email to continue. If you don’t see it, check your spam folder.<?php else: ?>We sent an email to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Please enter the verification code in the email to confirm your address and
+                        proceed. If you don’t see the email, check your spam folder.<?php endif; ?>
                     </h1>
                 </div>
                 <form id="verification-form" class="space-y-6 mt-[32px]" action="" method="POST">

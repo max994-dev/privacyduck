@@ -47,6 +47,9 @@
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
+        if (isset($_SESSION["invite_pay_verified"])) unset($_SESSION["invite_pay_verified"]);
+        if (isset($_SESSION["invite_pay_verified_at"])) unset($_SESSION["invite_pay_verified_at"]);
+        if (isset($_SESSION["addon_invitee_email"])) unset($_SESSION["addon_invitee_email"]);
         echo "repeat";
         exit;
     }
@@ -59,6 +62,8 @@
     echo "success";
     if (isset($_SESSION["invite_requirePayment"])) unset($_SESSION["invite_requirePayment"]);
     if (isset($_SESSION["invite_pay_verified"])) unset($_SESSION["invite_pay_verified"]);
+    if (isset($_SESSION["invite_pay_verified_at"])) unset($_SESSION["invite_pay_verified_at"]);
+    if (isset($_SESSION["addon_invitee_email"])) unset($_SESSION["addon_invitee_email"]);
     if (isset($_SESSION["invite_count"])) unset($_SESSION["invite_count"]);
     if (isset($_SESSION["invite_price"])) unset($_SESSION["invite_price"]);
 ?>

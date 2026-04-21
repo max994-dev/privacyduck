@@ -2,6 +2,8 @@
 if (!isset($_SESSION['verify_code']) || !isset($_SESSION['email'])) {
     if (isset($_SESSION["invite_requirePayment"])) unset($_SESSION["invite_requirePayment"]);
     if (isset($_SESSION["invite_pay_verified"])) unset($_SESSION["invite_pay_verified"]);
+    if (isset($_SESSION["invite_pay_verified_at"])) unset($_SESSION["invite_pay_verified_at"]);
+    if (isset($_SESSION["addon_invitee_email"])) unset($_SESSION["addon_invitee_email"]);
     if (isset($_SESSION["invite_count"])) unset($_SESSION["invite_count"]);
     if (isset($_SESSION["invite_price"])) unset($_SESSION["invite_price"]);
     exit();
@@ -15,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
 
     if ($verifyCode == $enteredCode) {
         $_SESSION["invite_pay_verified"] = true;
+        $_SESSION["invite_pay_verified_at"] = time();
         unset($_SESSION['verify_code']);
         ?>
         <script>

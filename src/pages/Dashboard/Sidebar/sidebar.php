@@ -1,9 +1,14 @@
 <div
-    class="w-[307px] h-screen overflow-hidden border-t border-b border-r bg-white rounded-tr-[30px] rounded-br-[30px] hidden xl:flex flex-col">
+    class="flex flex-col w-[307px] h-screen overflow-hidden border-t border-b border-r bg-white rounded-tr-[30px] rounded-br-[30px]">
 
-    <!-- Logo + Tabs -->
-    <div class="pt-[40px] pl-[39px]">
+    <!-- Logo + hide (desktop) -->
+    <div class="pt-[32px] pl-[39px] pr-[16px] flex items-start justify-between gap-2 shrink-0">
         <a href="/"><img src="/assets/image/desktop/logo3.svg" alt="logo" /></a>
+        <button type="button" id="dashboard-desktop-sidebar-hide"
+            class="hidden xl:inline-flex items-center justify-center w-9 h-9 rounded-full text-[#4B4B4E] hover:bg-[#FAFAFA] transition-colors shrink-0"
+            aria-label="Hide sidebar">
+            <i class="fa-solid fa-angles-left text-[14px]" aria-hidden="true"></i>
+        </button>
     </div>
 
     <!-- Tabs -->
@@ -29,17 +34,21 @@
     <!-- Sidebar Links -->
     <div class="mt-[41px] px-[39px] flex-1 overflow-y-auto">
         <div id="sidebar" class="flex flex-col space-y-[32px]">
-            <?php foreach (
-                [
-                    ["href" => "", "svg" => "key", "label" => "Dashboard"],
-                    // ["href" => "/detail", "svg" => "cog", "label" => "Excruciating detail"],
-                    ["href" => "/family", "svg" => "couple_people", "label" => "Manage Family", "sub_label" => "Add a family member", "sub_svg" => "sub_plus"],
-                    ["href" => "/plans", "svg" => "plan", "label" => "Plans"],
-                    // ["href" => "/custom", "svg" => "message_question", "label" => "Custom Removals"],
-                    ["href" => "/concierge", "svg" => "concierge", "label" => "Privacy Concierge"],
-                    ["href" => "/editinfo", "svg" => "edit_your_info", "label" => "Edit your info"],
-                ] as $item
-            ) { ?>
+            <?php
+            $sidebarNavItems = [
+                ["href" => "", "svg" => "key", "label" => "Dashboard"],
+                ["href" => "/family", "svg" => "couple_people", "label" => "Manage Family", "sub_label" => "Add a family member", "sub_svg" => "sub_plus"],
+                ["href" => "/plans", "svg" => "plan", "label" => "Plans"],
+                ["href" => "/custom", "svg" => "message_question", "label" => "Custom removals", "plan_only" => true],
+                ["href" => "/concierge", "svg" => "concierge", "label" => "Privacy Concierge"],
+                ["href" => "/editinfo", "svg" => "edit_your_info", "label" => "Edit your info"],
+                ["href" => "/account", "svg" => "fixed_menu_account", "label" => "Account"],
+            ];
+            foreach ($sidebarNavItems as $item) {
+                if (!empty($item["plan_only"]) && empty($_SESSION["planable"])) {
+                    continue;
+                }
+            ?>
                 <div>
                     <a data-link href="<?= '/dashboard' . $item['href'] ?>" class="flex space-x-[14px] items-center">
                         <?php require BASEPATH . "/src/common/svgs/dashboard/sidebar/" . $item['svg'] . ".php"; ?>

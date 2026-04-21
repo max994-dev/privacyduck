@@ -47,11 +47,9 @@ $city = isset($_GET["city"]) ? $_GET["city"] : "";
                     <div class="mt-[24px] sm:mt-0">
                         <h1 class="font-medium text-[#9D9D9D] leading-[20px] text-[14px]">City, State
                         </h1>
-                        <gmpx-api-loader key="AIzaSyA3h-EkI4_Cv126aW4jqkw6COz9PPBUAzs" solution-channel="GMP_GE_placepicker_v2">
-                        </gmpx-api-loader>
                         <div id="place-picker-box" class="mt-[6px] focus:border-black focus:border-[1px]">
                             <div id="place-picker-container">
-                                <gmpx-place-picker placeholder="Los Angeles, CA, USA"></gmpx-place-picker>
+                                <!-- populated by google.maps.places.PlaceAutocompleteElement -->
                             </div>
                         </div>
                         <div class="hidden text-[#AB4522] mt-[6px] text-[14px] leading-[20px]" id="invalidcity">
@@ -144,59 +142,48 @@ $city = isset($_GET["city"]) ? $_GET["city"] : "";
     let $city;
     let city_value;
 
-    function initAutocomplete() {
-        const interval = setInterval(() => {
-            const host = $("gmpx-place-picker")[0];
-            if (!host || !host.shadowRoot) return;
+    async function initPlaceAutocomplete() {
+        try {
+            await google.maps.importLibrary("places");
+            const container = document.getElementById("place-picker-container");
+            if (!container) return;
 
-            const $input = $(host.shadowRoot).find(".pac-target-input");
-            if ($input.length) {
-                $city = $input;
+            const el = new google.maps.places.PlaceAutocompleteElement({
+                includedPrimaryTypes: ["locality", "administrative_area_level_1", "country"],
+            });
+            el.placeholder = "Los Angeles, CA, USA";
+            el.style.width = "263px";
+            el.style.height = "44px";
+            el.style.background = "#FBFBFB";
+            el.style.borderRadius = "8px";
+            el.style.padding = "10px 14px";
+            el.style.display = "block";
 
-                // Apply styles
-                $input.css({
-                    background: "#FBFBFB",
-                    border: "none",
-                    height: "44px",
-                    display: "flex"
-                });
-                const params = new URLSearchParams(window.location.search);
-                if(params.get("city")) {
-                    city_value = params.get("city");
-                    const city_pattern = /^[A-Za-z\s]+,\s?[A-Za-z]{2}(,\s?[A-Za-z\s]+)?$/;
-                    placeIsValid = city_pattern.test(city_value);
-                    $city.val(city_value);
-                }
+            container.innerHTML = "";
+            container.appendChild(el);
 
-                // Inject focus style
-                const style = document.createElement("style");
-                style.textContent = `
-                .pac-target-input:focus {
-                    outline: 2px solid var(--gmpx-color-primary, rgb(1 2 5 / var(--tw-text-opacity, 1))) !important;
-                }
-            `;
-                host.shadowRoot.appendChild(style);
-
-                // Add input listener here
-                $city.on("change", function() {
-                    city_value = $(this).val().trim();
-                    // const city_pattern = /^[A-Za-z\s]+,\s?[A-Za-z]{2}(,\s?[A-Za-z\s]+)?$/;
-                    // const result = city_pattern.test(city_value);
-                    // placeIsValid = result;
-                    // if (!result) {
-                    //     $city.addClass("valid-border");
-                    //     $("#invalidcity").removeClass("hidden").addClass("flex");
-                    // } else {
-                    //     $("#invalidcity").removeClass("flex").addClass("hidden");
-                    //     $city.removeClass("valid-border");
-                    // }
-                });
-                clearInterval(interval);
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("city")) {
+                city_value = params.get("city");
+                placeIsValid = true;
+                // best-effort: show previous value
+                el.value = city_value;
             }
-        }, 300);
-    }
 
-    initAutocomplete();
+            el.addEventListener("gmp-select", async (event) => {
+                const prediction = event.placePrediction;
+                city_value = prediction?.text?.text || prediction?.text || "";
+                placeIsValid = !!city_value;
+            });
+
+            // If user types without selecting, keep a fallback value.
+            el.addEventListener("input", () => {
+                city_value = (el.value || "").trim();
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     $("#name").on("input", function() {
         const fullName = $(this).val().trim();
@@ -247,4 +234,7 @@ $city = isset($_GET["city"]) ? $_GET["city"] : "";
             $('#content').html(data);
         });
     });
+</script>
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3h-EkI4_Cv126aW4jqkw6COz9PPBUAzs&v=weekly&callback=initPlaceAutocomplete">
 </script>

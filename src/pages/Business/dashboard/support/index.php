@@ -9,7 +9,8 @@
                     "title" => "Priority Phone Support",
                     "content" => "Direct access to our business support specialists with guaranteed response times",
                     "href" => "",
-                    "onclick" => "show_phone()"
+                    // "onclick" => "show_phone()"
+                    "onclick" => ""
                 ],
                 [
                     "icon" => "chat",

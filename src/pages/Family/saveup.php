@@ -2,12 +2,12 @@
     <div class="py-[30px] sm:py-[100px] bg-[url('/assets/image/desktop/milestone_bg.png')] bg-cover bg-center bg-no-repeat rounded-[30px] flex justify-center items-center">
         <div class="flex flex-col items-center px-[10px]">
             <h2 class="w-[309px] sm:w-auto text-center word-wrap font-semibold text-[32px] lg:text-[48px] leading-[130%] tracking-[-0.03em] align-middle text-white">Save up to 30% off all your plans!</h2>
-            <h2 class="w-[309px] sm:w-auto mt-[32px] text-[16px] sm:text-[20px] leading-[150%] text-[#FFFFFFE5] text-center">The more you invite the greater your discount on all plans</h2>
+            <h2 class="w-[309px] sm:w-auto mt-[32px] text-[16px] sm:text-[20px] leading-[150%] text-[#FFFFFFE5] text-center">The more you add the greater your discount on all plans</h2>
             <div class="mt-[60px] bg-[#FFFFFF3D] bg-blur-[30px] rounded-[20px] lg:w-[810px]">
                 <div class="p-[13px] pb-[20px]">
                     <div class="flex items-center space-x-[5px]">
                         <?php require(BASEPATH . "/src/common/svgs/dashboard/family/close.php"); ?>
-                        <h2 class="flex-1 font-semibold text-[18px] leading-[140%] tracking-[-0.02em]  text-white">Invite members to paid plans & get <span class="font-[800] text-[#24A556]">UP TO 30% OFF</span> all your plans!</h2>
+                        <h2 class="flex-1 font-semibold text-[18px] leading-[140%] tracking-[-0.02em]  text-white">Add members to paid plans & get <span class="font-[800] text-[#24A556]">UP TO 30% OFF</span> all your plans!</h2>
                     </div>
                     <div class="mt-[20px] flex justify-center space-x-[4px]">
                         <?php

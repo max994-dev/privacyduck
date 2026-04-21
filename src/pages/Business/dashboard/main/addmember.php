@@ -105,7 +105,7 @@
                     <div class="flex items-center gap-[5px] mt-[26px]">
                         <?php require_once(BASEPATH . "/src/common/svgs/dashboard/family/close.php"); ?>
                         <p class="font-semibold text-[14px] text-[#3F3F3F]">
-                            Invite members to paid plans & get <span class="font-extrabold text-[#24A556]">UP TO 30% OFF</span> all your plans!
+                            Add members to paid plans & get <span class="font-extrabold text-[#24A556]">UP TO 30% OFF</span> all your plans!
                         </p>
                     </div>
 
@@ -158,7 +158,7 @@
                     } else if (res.status === 1) {
                         $feedback
                             .addClass("text-[#edaf2a]")
-                            .text("This email has already paid. You can invite this email as free.");
+                            .text("This email already has an active plan. You can still invite them; a one-time add-on fee applies.");
                     } else if (res.status === 2) {
                         $feedback
                             .addClass("text-[#edaf2a]")
@@ -258,39 +258,92 @@
             $("#family_invalid_email").removeClass("hidden");
             $("#family_invalid_email").removeClass("text-[#24A556] text-[#AB4522] text-[#C00000]");
             $("#family_invalid_email").html("<i class='fa fa-spinner fa-spin text-[#24A556]'></i>");
+            var stripeCheckoutWindow = window.open("about:blank", "_blank");
+            if (!stripeCheckoutWindow) {
+                toastr.error("Please allow pop-ups for this site to open checkout.");
+                $("#family_invalid_email").html("Allow pop-ups, then try again.");
+                $("#family_invalid_email").addClass("text-[#C00000]");
+                return;
+            }
             $.post("/check_status", {
                 email: $("#email").val().trim(),
-            }).then(res => {
+            }, null, "json")
+            .done(function(res) {
                 $("#family_invalid_email").removeClass("text-[#24A556] text-[#AB4522] text-[#C00000]");
                 if (res.status == 0) {
                     $("#family_invalid_email").html("Invitation Available");
                     $("#family_invalid_email").addClass("text-[#24A556]");
                 } else if (res.status == 1) {
-                    $("#family_invalid_email").html("This email have already paid. You can invite this email as free");
+                    $("#family_invalid_email").html("This email already has an active plan. You can still invite them; a one-time add-on fee applies.");
                     $("#family_invalid_email").addClass("text-[#AB4522]");
                 } else if (res.status == 2) {
                     $("#family_invalid_email").html("Invitation Available. But User already exists. So follow information will be ignored.");
                     $("#family_invalid_email").addClass("text-[#AB4522]");
                 } else if (res.status == -1) {
+                    stripeCheckoutWindow.close();
                     $("#family_invalid_email").html("Not available. You have already invited this email");
                     $("#family_invalid_email").addClass("text-[#C00000]");
                     return;
                 }
                 if (res.requirePayment) {
-                    $.get("/get_discount_price", {}, function(res) {
-                        const final_value = parseFloat(res.value) / 100 || 9775;
-                        const discount_value = 129 - final_value;
-                        $("#family_payment_price_cond").html(`Claim Family discount (${res.price})`);
-                        $("#family_payment_price_discount").html("$" + discount_value.toFixed(2));
-                        $("#family_payment_price_value").html("$" + final_value.toFixed(2));
-                        window.invite_plan_id = res.id;
-                        add_payment_show_modal();
-                    })
+                    $.get("/get_discount_price", {}, function(gp) {
+                        if (gp.error) {
+                            stripeCheckoutWindow.close();
+                            toastr.error(gp.error);
+                            return;
+                        }
+                        const d = gp.data || {};
+                        const link = d.stripe_payment_link || d.stripe_payment_link_etc;
+                        if (!link) {
+                            stripeCheckoutWindow.close();
+                            toastr.error("Checkout link is missing.");
+                            return;
+                        }
+                        window.invite_plan_id = gp.id;
+                        $.post("/invite_payment_begin_checkout", {}, function() {
+                            $.post("/invite_payment_save_pending", {
+                                first_name: $("#first_name").val().trim(),
+                                last_name: $("#last_name").val().trim(),
+                                email: $("#email").val().trim(),
+                                return_after_pay: "/business/dashboard?invite_paid=1",
+                                contacts: [{
+                                    city: $("#city").val().trim(),
+                                    state: $("#state").val().trim(),
+                                    phone: $("#phone").val().trim(),
+                                    zip: $("#zip").val().trim(),
+                                    address: $("#address").val().trim(),
+                                }],
+                            }, function() {
+                                business_add_info_close_modal();
+                                var _sep = link.indexOf("?") >= 0 ? "&" : "?";
+                                stripeCheckoutWindow.location.href = link + _sep + "prefilled_email=" + encodeURIComponent("<?php echo $_SESSION["email"] ?? ""; ?>");
+                            }, "json").fail(function(xhr) {
+                                stripeCheckoutWindow.close();
+                                var msg = "Could not save invite.";
+                                try {
+                                    var j = JSON.parse(xhr.responseText);
+                                    if (j && j.error) msg = j.error;
+                                } catch (e) {}
+                                toastr.error(msg);
+                            });
+                        }, "json").fail(function() {
+                            stripeCheckoutWindow.close();
+                            toastr.error("Could not start checkout.");
+                        });
+                    }, "json").fail(function() {
+                        stripeCheckoutWindow.close();
+                        toastr.error("Could not load checkout.");
+                    });
                 } else {
+                    stripeCheckoutWindow.close();
                     invite_member();
                 }
-
             })
+            .fail(function() {
+                stripeCheckoutWindow.close();
+                $("#family_invalid_email").removeClass("text-[#24A556] text-[#AB4522] text-[#C00000]");
+                $("#family_invalid_email").addClass("text-[#C00000]").text("Error checking email status.");
+            });
         }
 
     }

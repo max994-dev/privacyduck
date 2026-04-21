@@ -1,5 +1,7 @@
 <?php
+    require_once BASEPATH . '/src/common/odoo_removal_sync.php';
     $conn = getDBConnection();
+    odoo_removal_ensure_columns($conn);
 
     $current = isset($_GET["current"]) ? (int)$_GET["current"] : 1;
     $pageSize = isset($_GET["pageSize"]) ? (int)$_GET["pageSize"] : 10;

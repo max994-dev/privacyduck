@@ -61,7 +61,7 @@
                 } else {
                     toastr.error("Failed to delete member");
                 }
-            })
+            });
         }
     }
 
@@ -73,15 +73,36 @@
 
 
         function get_removal_status(item) {
-            if (item.pending > 0 || item.pending === null) {
+            var kind1 = parseInt(item.kind1_total, 10);
+            if (isNaN(kind1)) kind1 = 0;
+            var pending = parseInt(item.pending, 10);
+            var ongoing = parseInt(item.ongoing, 10);
+            var removed = parseInt(item.removed, 10);
+            var notfound = parseInt(item.notfound, 10);
+            if (isNaN(pending)) pending = 0;
+            if (isNaN(ongoing)) ongoing = 0;
+            if (isNaN(removed)) removed = 0;
+            if (isNaN(notfound)) notfound = 0;
+            // No broker-removal rows yet — always Pending (avoids false "Completed" right after invite).
+            if (kind1 === 0) {
                 return "Pending";
-            } else if (item.ongoing > 0) {
-                return "Ongoing";
-            } else {
-                return "Completed";
             }
+            if (pending > 0) {
+                return "Pending";
+            }
+            if (ongoing > 0) {
+                return "Ongoing";
+            }
+            if (removed === 0 && notfound === 0) {
+                return "Ongoing";
+            }
+            return "Completed";
         }
-        $.get("/get_members", {}, (res) => {
+        $.ajax({
+            url: "/get_members",
+            cache: false,
+            dataType: "json",
+            success: (res) => {
             document.getElementById("family_members_count").textContent = res.length + " Members";
             window.member_tableData = res.map((item) => {
                 return {
@@ -160,7 +181,8 @@
                     <img class="w-[191px] h-[191px]" src="/assets/image/desktop/family/no_members.png" alt="no_members" />
                 </div>`;
             }
-        })
+            }
+        });
     }
 
     memberTable();

@@ -1,5 +1,7 @@
 <?php
 include_once($_SERVER["DOCUMENT_ROOT"] . "/vendor/autoload.php");
+require_once $_SERVER["DOCUMENT_ROOT"] . "/src/common/smtp_env.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/src/common/smtp_relay_client.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -51,16 +53,11 @@ try {
         $scan_results[] = $row;
     }
     $len = count($scan_results);
+    $smtpCfg = pd_smtp_config();
     $mail = new PHPMailer(true);
-    $mail->isSMTP();
-    $mail->Host = 'mail1.privacypros.com';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'support';
-    $mail->Password = '27!Soldisonosoldi';
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 587;
+    pd_phpmailer_apply_smtp($mail, $smtpCfg, (int) $smtpCfg['port']);
 
-    $mail->setFrom('support@privacypros.com', 'Online Privacy');
+    $mail->setFrom($smtpCfg['from_email'], $smtpCfg['from_name']);
     $mail->addAddress($email);
     $mail->Subject = 'Privacyduck.com';
     $mail->AddEmbeddedImage($_SERVER['DOCUMENT_ROOT'] . "/assets/image/desktop/duck.png", 'myimage');
@@ -336,7 +333,36 @@ try {
             </div>
         </div>
         ";
-    if ($mail->send()) {
+    $relayUrl = trim((string) ($smtpCfg['relay_url'] ?? ''));
+    if ($relayUrl !== '' && ($smtpCfg['relay_secret'] ?? '') !== '') {
+        $inline = [
+            [
+                'cid' => 'myimage',
+                'path' => $_SERVER['DOCUMENT_ROOT'] . '/assets/image/desktop/duck.png',
+                'mime' => 'image/png',
+            ],
+        ];
+        foreach ($scan_results as $key => $value) {
+            $inline[] = [
+                'cid' => 'myimage' . $key,
+                'path' => $_SERVER['DOCUMENT_ROOT'] . '/assets/uploads/' . $user_id . '/scan/scan_' . $value['target_domain'] . '_' . $user_id . '.png',
+                'mime' => 'image/png',
+            ];
+        }
+        if (pd_smtp_relay_send_html(
+            $email,
+            'Privacyduck.com',
+            $mail->Body,
+            $smtpCfg['from_email'],
+            $smtpCfg['from_name'],
+            strip_tags($mail->Body),
+            $inline
+        )) {
+            echo json_encode(["status" => "success", "message" => "Email sent successfully."]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Relay send failed."]);
+        }
+    } elseif ($mail->send()) {
         echo json_encode(["status" => "success", "message" => "Email sent successfully."]);
     }
 } catch (Exception $e) {

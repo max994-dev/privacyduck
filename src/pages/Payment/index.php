@@ -129,9 +129,7 @@ no_footer();
 ?>
 <script>
     const loadingHtml = "<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class=''>Sending...</span>";
-    // const stripe = Stripe("pk_test_51RfUwfH7IMPWhKBfEedKSCoA0qbhIGXscCjrG56fOtYVXKb4vfztZOMTG2ECZAzdYyGS7dhPtl0Ji6cE5rZ7Ldlx00pQ4oNxZG");
-    const stripe = Stripe("pk_live_51NnPaLCqUk2FODuHsjoSwco3FniR1031fy4tXQT8ebrY7IkaLy0wChdhmBdSoB3MeUt25FsEQdXOYAwWBJk4ZfUD00UMCUKYaV");
-    // const stripe = Stripe("pk_test_51NnPaLCqUk2FODuHFKKs4aYRhos4gvUVpcLkIPUyUYQtKqiLDtjEwbMcbmr25NolQ4dosbAcoC5EdGRUYz4okLBI00V8d4qRVj");
+    const stripe = Stripe(<?php echo json_encode(pd_stripe_publishable_key()); ?>);
     const elements = stripe.elements();
 
     const style = {

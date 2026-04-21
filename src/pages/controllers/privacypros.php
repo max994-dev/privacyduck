@@ -1,7 +1,9 @@
 <?php
-require 'vendor/autoload.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
-\Stripe\Stripe::setApiKey('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'); // your Stripe secret key 
+\Stripe\Stripe::setApiKey(STRIPE_PRIVACYPROS_SECRET_KEY);
+\Stripe\Stripe::setApiVersion('2023-08-16');
 
 // Fetch all subscriptions (auto-paged)
 $subscriptions = \Stripe\Subscription::all([

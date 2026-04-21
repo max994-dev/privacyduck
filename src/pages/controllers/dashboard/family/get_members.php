@@ -13,7 +13,8 @@
       COALESCE(SUM(t_results.kind = '1' AND t_results.step = 1), 0) AS ongoing,
       COALESCE(SUM(t_results.kind = '1' AND t_results.step = 2), 0) AS removed,
       COALESCE(SUM(t_results.kind = '1' AND t_results.step = 3), 0) AS notfound,
-      COALESCE(SUM(t_results.kind = '0' AND t_results.step = 2), 0) AS exposed
+      COALESCE(SUM(t_results.kind = '0' AND t_results.step = 2), 0) AS exposed,
+      COALESCE(SUM(t_results.kind = '1'), 0) AS kind1_total
     FROM (
       SELECT 
         users.id AS user_id,

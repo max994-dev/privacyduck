@@ -20,7 +20,7 @@ main_header("black");
     <div class="flex items-center justify-between mt-[23px] sm:mt-[42px] ">
         <div class="md:max-w-[755px]">
             <h2 class="font-semibold text-[32px] md:text-[72px] tracking-[-0.03em] leading-[110%] text-[#010205]">
-                PrivacyDuck removes personal information from 301 websites.
+                PrivacyDuck removes personal information from 413 websites.
             </h2>
             <h2 class="mt-[24px] md:mt-[48px] text-[#010205F2] text-[14px] sm:text-[16px] font-medium leading-[180%]">
                 Because the data broker industry is growing by leaps and bounds and new people search websites appear all the time, we do everything possible to cover them on time. With PrivacyDuck you can be sure, your name, current and previous addresses, phone numbers, photos of your home, age won’t pop up on Google search any longer. Below you will find the list of websites we remove from.

@@ -98,6 +98,13 @@ function boards()
                             </h2>
                         </div>
                     <?php } ?>
+                    <label class="flex gap-x-[6px] mt-[24px] relative cursor-pointer items-start">
+                        <input type="checkbox" id="pd_book_call_optin_plans"
+                            class="relative top-[5px] w-[24px] h-[24px] shrink-0 rounded border-[#CDCDCD] text-[#24A556] focus:ring-[#24A556]" />
+                        <span class="font-medium text-[16px] text-left">
+                            <span class="text-[#24A556] font-semibold">Book call</span> — free onboarding (2:00–4:00 PM Pacific). After payment, you’ll schedule before adding your info.
+                        </span>
+                    </label>
                 </div>
             </div>
             <div class="hidden xl:block ml-[58px] border-[1px] border-[#B5B7C080] h-[275px]"></div>
@@ -195,8 +202,34 @@ function boards()
         init();
         //------------------------------------------------
 
+        async function persistBookCallIntentFromPlans() {
+            var $cb = $("#pd_book_call_optin_plans");
+            if (!$cb.length) return true;
+            var intent = $cb.is(":checked") ? 1 : 0;
+            try {
+                await $.post("/book_call_set_intent", { intent: intent });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
         $("#plans_pay").click(async function() {
+            var okIntent = await persistBookCallIntentFromPlans();
+            if (!okIntent) {
+                if (typeof toastr !== "undefined") toastr.error("Could not save Book call preference. Please try again.");
+                return;
+            }
             window.open(link + "?prefilled_email=" + "<?php echo $_SESSION["email"] ?? ""; ?>" + `${coupon?"&prefilled_promo_code="+coupon:""}`, "_blank");
-        })
+        });
+
+        (function bookCallOptinPlans() {
+            var $cb = $("#pd_book_call_optin_plans");
+            if (!$cb.length) return;
+            $cb.prop("checked", <?php echo !empty($_SESSION['pd_book_call_intent']) ? 'true' : 'false'; ?>);
+            $cb.on("change", function() {
+                $.post("/book_call_set_intent", { intent: this.checked ? 1 : 0 });
+            });
+        })();
     }
 </script>

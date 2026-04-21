@@ -74,9 +74,21 @@
     function main_isRemoval() {
         const planable = <?php echo isset($_SESSION['planable']) && $_SESSION['planable'] ? 'true' : 'false'; ?>;
         if (planable) {
-            $("#main_removal_status_label").html("Removal is ongoing, sit tight and enjoy our features");
+            const totalCount = Number(window.totalcount || 0);
+            const completedCount = Number(window.removal_progress || 0);
+            const completionPct = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+            if (completionPct >= 100) {
+                $("#main_removal_status_label").html("Removal is complete. Enjoy your protected experience.");
+                $("#main_removal_status_icon")
+                    .removeClass("fa-circle-exclamation fa-spinner fa-spin text-[#C00000]")
+                    .addClass("fa-circle-check text-[#24A556]");
+            } else {
+                $("#main_removal_status_label").html("Removal is ongoing, sit tight and enjoy our features");
+                $("#main_removal_status_icon")
+                    .removeClass("fa-circle-exclamation fa-circle-check text-[#C00000]")
+                    .addClass("fa-spinner fa-spin text-[#24A556]");
+            }
             $("#main_removal_status").addClass("hidden");
-            $("#main_removal_status_icon").removeClass("fa-circle-exclamation text-[#C00000]").addClass("fa-spinner fa-spin text-[#24A556]");
         }
     }
 

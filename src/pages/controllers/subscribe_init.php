@@ -4,10 +4,7 @@
 
     include_once($_SERVER["DOCUMENT_ROOT"] . "/vendor/autoload.php");
 
-    // \Stripe\Stripe::setApiKey('sk_test_51RfUwfH7IMPWhKBfU8k7UjIxTEIGCTHj6TRMDxmAgXkhmJkh5Fb8NlCvOLIWjcIt7iq4kVl7aSf2PfZuQZrysVPN00qApWto6m');
-    \Stripe\Stripe::setApiKey('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');
-    // \Stripe\Stripe::setApiKey('sk_test_51NnPaLCqUk2FODuHtNQscSDsITgLluZBeKbyAGnKsnBJeOtDkH58gLEMear3nxKBxieiPYOMWG6UjwdIv8Cd0byp00tLcqA3u6');
-    \Stripe\Stripe::setApiVersion('2023-08-16');
+    pd_stripe_bootstrap();
 
     function initializeProductsAndPrices(){
         $conn = getDBConnection();

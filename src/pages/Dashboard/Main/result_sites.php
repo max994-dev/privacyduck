@@ -36,22 +36,11 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
     </div>
     <div class="mt-[43px]">
         <div class="overflow-x-auto">
-            <table id="exposureTable" class="min-w-full ">
+            <table id="exposureTable" class="min-w-full">
                 <thead>
                     <tr>
                         <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
                             Website</th>
-                        <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
-                            Plan Coverage
-                        </th>
-                        <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
-                            Removal Screenshot
-                        </th>
-                        <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
-                            Removal Status
-                        </th>
-                        <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
-                            More Info</th>
                     </tr>
                 </thead>
                 <tbody id="results-table" class="divide-y ">
@@ -133,6 +122,47 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
         return text.replace(regex, match => `<span class="bg-yellow-100">${match}</span>`);
     }
 
+    function escapeHtml(s) {
+        return String(s || "").replace(/[&<>"']/g, ch => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#39;"
+        }[ch]));
+    }
+
+    if (typeof window.toggleCustomManualRemoval !== "function") {
+        window.toggleCustomManualRemoval = function(targetDomain, checked) {
+            $.post("/toggle_manual_removal", {
+                target_domain: targetDomain,
+                checked: checked ? 1 : 0
+            }, function(res) {
+                if (res && res.success) {
+                    if (typeof toastr !== "undefined") {
+                        toastr.success(checked ? "Checked and synced to Odoo." : "Unchecked.");
+                    }
+                    main_table();
+                    return;
+                }
+                if (typeof toastr !== "undefined") {
+                    toastr.error((res && res.error) ? res.error : "Could not update checklist item.");
+                }
+                main_table();
+            }, "json").fail(function(xhr) {
+                let msg = "Could not update checklist item.";
+                try {
+                    const parsed = JSON.parse(xhr.responseText || "{}");
+                    if (parsed.error) msg = parsed.error;
+                } catch (e) {}
+                if (typeof toastr !== "undefined") {
+                    toastr.error(msg);
+                }
+                main_table();
+            });
+        };
+    }
+
     function main_table() {
         setUrlForSearchOption();
         const websites = <?php echo json_encode($websites); ?>;
@@ -171,14 +201,25 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             }
             const sites = res.sites;
             const total = res.total;
-            const arrayOfDivs = sites.map(site => ({
-                logo: logos[site.target_domain] || "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=" + url(site.target_domain) + "&size=128",
-                target_domain: realUrl[site.target_domain] || site.target_domain,
-                plan: "",
-                src: `/assets/uploads/${site.user_id}/removal/removal_${site.target_domain}_${site.user_id}.png`,
-                link: websites[site.target_domain] || url(site.target_domain),
-                step: site.step || 0,
-            }))
+            const arrayOfDivs = sites.map(site => {
+                const rawDomain = String(site.target_domain || "");
+                const safeDomainAttr = rawDomain.replace(/'/g, "\\'");
+                const logo = logos[rawDomain] || "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=" + url(rawDomain) + "&size=128";
+                const displayDomain = realUrl[rawDomain] || rawDomain;
+                const removalScreenshot = `/assets/uploads/${site.user_id}/removal/removal_${rawDomain}_${site.user_id}.png`;
+                const manualDone = Number(site.manual_checklist_done || 0) === 1;
+                const step = site.step || 0;
+                return {
+                    logo,
+                    target_domain: displayDomain,
+                    rawDomain,
+                    safeDomainAttr,
+                    src: removalScreenshot,
+                    link: websites[rawDomain] || url(rawDomain),
+                    manualDone,
+                    step
+                };
+            });
 
             const tableBody = document.querySelector("#exposureTable tbody");
             if (!tableBody) return;
@@ -191,40 +232,57 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                             <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
                             `;
                 tableBody.appendChild(tr);
             });
             arrayOfDivs.forEach(row => {
                 const tr = document.createElement("tr");
-                const img = {
-                    0:`<lottie-player 
-                                    src="/assets/image/desktop/family/pending.json" background="transparent" speed="1" loop
-                                    autoplay style="width: 80px; height: 50px;"></lottie-player>`,
-                    1:`<lottie-player 
-                                    src="/assets/image/desktop/family/ongoing.json" background="transparent" speed="1" loop
-                                    autoplay style="width: 80px; height: 80px;"></lottie-player>`,
-                    2:`<img src="${row.src}" class="border border-[#24A556] cursor-pointer w-[80px] h-[40px]" onclick="showFullImage(this.src)">`,
-                    3:`<h1 class="text-yellow-500">No information found</h1>`
-                }
                 const planable = '<?php echo $_SESSION["planable"]; ?>';
+                const statusLabel = status_label[row.step] || "Not yet removed";
+                const statusClass = status_color[row.step] || "text-[#C00000]";
+                const statusPillBg = row.step >= 2 ? "bg-[#ECFFF1] border-[#BFE7C7]" : (row.step === 1 ? "bg-[#FFF7E6] border-[#FFE1A6]" : "bg-[#FFF0F0] border-[#FFC0C0]");
+                const websiteUrl = row.link ? String(row.link) : "";
+                const favicon = websiteUrl
+                    ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(websiteUrl)}&sz=64`
+                    : row.logo;
+
+                const screenshotHtml = (String(planable) && String(planable) !== "0")
+                    ? (
+                        row.step === 2
+                            ? `<img src="${row.src}" class="border border-[#24A556] cursor-pointer w-[72px] h-[40px] rounded-[8px] object-cover" onclick="showFullImage(this.src)">`
+                            : (row.step === 3
+                                ? `<span class="text-[12px] font-semibold text-[#9B9B9C]">-</span>`
+                                : `<span class="text-[12px] font-semibold text-[#9B9B9C]">-</span>`)
+                    )
+                    : `<a href="/dashboard/plans"><span class="text-[12px] font-semibold text-[#9B9B9C]">-</span></a>`;
+
+                const rowCard = `
+                    <label class="flex items-center justify-between gap-[10px] rounded-[12px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#ECFFF1]' : 'border-[#E8E8E8] bg-white'} px-[10px] py-[10px]">
+                        <div class="flex items-center gap-[10px] min-w-0">
+                            <img src="${favicon}" alt="logo" class="w-[36px] h-[36px] rounded-full object-cover border border-[#D6D6D6] bg-white"
+                                 onerror="this.outerHTML='<div class=&quot;w-[36px] h-[36px] rounded-full bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#D6D6D6]&quot;><i class=&quot;fa-solid fa-globe&quot;></i></div>'">
+                            <div class="min-w-0">
+                                <div class="text-[13px] font-semibold text-[#010205] truncate">${escapeHtml(row.target_domain || '')}</div>
+                                <div class="mt-[2px] flex items-center gap-[8px]">
+                                    <span class="inline-flex items-center px-[8px] py-[2px] rounded-full border ${statusPillBg} text-[12px] font-semibold ${statusClass}">
+                                        ${escapeHtml(statusLabel)}
+                                    </span>
+                                    ${row.manualDone ? `
+                                        <span class="text-[12px] font-semibold text-[#24A556]">
+                                            ✓ manually removed.
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-[10px] shrink-0">
+                            ${screenshotHtml}
+                            <span style="cursor:pointer;"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span>
+                        </div>
+                    </label>
+                `;
                 tr.innerHTML = `
-                        <td><img class="w-[40px] h-[40px]" src="${row.logo}" alt="logo"></td>
-                        <td class="font-semibold text-[8px] lg:text-[14px] tracking-[0.01em] text-[#010205B5]">${highlight(url(row.target_domain), searchOptions.search)}</td>
-                        <td class="font-semibold text-[8px] lg:text-[14px] tracking-[0.01em] text-[#010205B5]">
-                            ${planable ? 
-                            img[row.step] 
-                            :
-                            `<a href="/dashboard/plans"><lottie-player class="cursor-pointer" 
-                                    src="/assets/image/desktop/family/lock.json" background="transparent" speed="1" loop
-                                    autoplay style="width: 80px; height: 40px;"></lottie-player></a>` 
-                            }
-                        </td>
-                        <td class="text-[8px] lg:text-[14px] tracking-[0.01em] ${status_color[row.step]}">${status_label[row.step]}</td>
-                        <td><span style="cursor:pointer;"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span></td>
+                        <td class="py-[8px]">${rowCard}</td>
                     `;
                 tableBody.appendChild(tr);
             });
@@ -232,10 +290,6 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
                 Array(total - (beforeCnt + arrayOfDivs.length)).fill(0).forEach(() => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
                                 <td></td>
                                 `;
                     tableBody.appendChild(tr);

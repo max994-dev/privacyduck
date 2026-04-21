@@ -42,13 +42,13 @@
             </div>
         </div>
         <div class="mt-[42px]">
-            <div class="flex items-center gap-[8px]">
+            <!-- <div class="flex items-center gap-[8px]">
                 <?php require(BASEPATH . "/src/common/svgs/business/speaksales/phone.php"); ?>
                 <h1 class="text-[#9B9B9C] text-[16px] tracking-[-0.02em]">(+1) 775 443 3727</h1>
-            </div>
+            </div> -->
             <div class="flex items-center gap-[8px]">
                 <?php require(BASEPATH . "/src/common/svgs/business/speaksales/message.php"); ?>
-                <h1 class="text-[#9B9B9C] text-[16px] tracking-[-0.02em]">Removals@privacyduck.com
+                <h1 class="text-[#9B9B9C] text-[16px] tracking-[-0.02em]">hello@privacyduck.com
                 </h1>
             </div>
         </div>

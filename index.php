@@ -3,6 +3,14 @@ define("BASEPATH", $_SERVER["DOCUMENT_ROOT"]);
 include_once(BASEPATH . "/src/common/config.php");
 include_once(BASEPATH . "/src/common/utils.php");
 include_once(BASEPATH . "/src/common/database.php");
+
+// Always revalidate app responses so browser refresh gets latest server output.
+if (!headers_sent()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+}
+
 if (isset($_SESSION["isAuthenticated"]) && $_SESSION["isAuthenticated"]){
     $conn = getDBConnection();
     $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
@@ -23,6 +31,7 @@ $routes = [
     'stripe/webhook' => 'controllers/stripeWebHook.php',
     //Landing
     '' => 'Landing/index.php',
+    'new' => 'Landing/new_page.php',
     // 'api/removeperson' => 'controllers/removal_process/removeperson.php',
     // 'api/tasklist' => 'controllers/removal_process/tasklist.php',
     // 'api/init_stripe' => 'controllers/init_stripe.php',
@@ -43,6 +52,15 @@ $routes = [
     
     'freeScan'=> 'controllers/freeScan.php',
     'signupProcess'=> 'controllers/signupProcess.php',
+    'new_signup' => 'NewSignup/index.php',
+    'new_signup_process' => 'controllers/new_signup_process.php',
+    'new_signin' => 'NewSignin/index.php',
+    'new_signin_code' => 'NewSigninCode/index.php',
+    'new_signin_password' => 'controllers/new_signin_password.php',
+    'new_login_code' => 'controllers/new_login_code.php',
+    'new_forgot_password_code' => 'controllers/new_forgot_password_code.php',
+    'new_reset_password' => 'NewResetPassword/index.php',
+    'new_reset_password_save' => 'controllers/new_reset_password_save.php',
     'success'=> 'controllers/success.php',
     'verify' => 'Emailverify/index.php',
 
@@ -134,6 +152,7 @@ $routes = [
     'dashboard/content/plans'=> 'Dashboard/plans/index.php',
     'dashboard/content/family'=> 'Dashboard/Family/index.php',
     'dashboard/content/account'=> 'Dashboard/EditInfo/index.php',
+    'new_dashboard/content/account'=> 'NewDashboard/Account/index.php',
     'dashboard/content/work'=> 'Dashboard/Work/index.php',
     'dashboard/content'=> 'Dashboard/Main/index.php',
 
@@ -143,6 +162,7 @@ $routes = [
     'dashboard/content/databrokers/custom' => 'Dashboard/Main/databrokers/databrokers_custom.php',
     'dashboard/content/databrokers/face' => 'Dashboard/Main/databrokers/databrokers_face.php',
     'get_results' => 'controllers/dashboard/main/get_results.php',
+    'toggle_manual_removal' => 'controllers/dashboard/main/toggle_manual_removal.php',
     'scan_api/upload' => 'controllers/dashboard/main/upload.php',
     'removal_api/upload' => 'controllers/dashboard/main/removal_upload.php',
     'googleScan_api/upload' => 'controllers/dashboard/main/uploadGoogleScan.php',
@@ -153,6 +173,11 @@ $routes = [
     'check_status'=>'controllers/dashboard/family/check_status.php',
     'get_discount_price'=>'controllers/dashboard/family/get_discount_price.php',
     'invite_paymentverify'=>'Dashboard/Family/verify.php',
+    'invite_payment_mark_complete'=>'controllers/dashboard/family/invite_payment_mark_complete.php',
+    'invite_payment_begin_checkout'=>'controllers/dashboard/family/invite_payment_begin_checkout.php',
+    'invite_payment_save_pending'=>'controllers/dashboard/family/invite_payment_save_pending.php',
+    'invite_payment_finalize_pending'=>'controllers/dashboard/family/invite_payment_finalize_pending.php',
+    'invite_payment_stripe_return'=>'Dashboard/Family/stripe_return.php',
     //dashboard_plans
     'plans'=> 'controllers/dashboard/plans/plans.php',
     //dashboard_custom
@@ -165,6 +190,18 @@ $routes = [
     'update_user_info'=>'controllers/dashboard/editinfo/update_user_info.php',
     'add_user_address'=>'controllers/dashboard/editinfo/add_user_address.php',
     'delete_user_address'=>'controllers/dashboard/editinfo/delete_user_address.php',
+
+    'book-call'=> 'BookCall/index.php',
+    'book_call_set_intent'=> 'controllers/book_call_set_intent.php',
+    'book_call_submit'=> 'controllers/book_call_submit.php',
+    'book_call_skip'=> 'controllers/book_call_skip.php',
+    'book_call_reminders'=> 'controllers/book_call_reminders.php',
+    'smtp_health'=> 'controllers/smtp_health.php',
+    'odoo_removal_export'=> 'controllers/odoo_removal_export.php',
+    'temp_backfill_removal_sites'=> 'controllers/temp_backfill_removal_sites.php',
+    'removal_metrics'=> 'controllers/removal_metrics.php',
+
+    'new_dashboard(?:/(\w+))?'=> 'NewDashboard/index.php',
 
     'dashboard(?:/(\w+))?'=> 'Dashboard/index.php',
     
