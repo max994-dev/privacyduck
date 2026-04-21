@@ -84,7 +84,7 @@ main_head_end();
             Real people removing your Phone from everywhere it appears.
         </h1>
         <p class="mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]">
-            Our US based professional opt-out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
+            Our US based professional opt out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
         </p>
         <form action="/new_signup" method="get" class="mt-8 sm:mt-10 flex flex-col sm:flex-row w-full max-w-[520px] gap-3 sm:gap-2 sm:items-stretch" aria-label="Sign up with your email">
             <input
