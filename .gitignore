@@ -1,0 +1,35 @@
+/src/common/smtp_config.local.php
+/src/common/smtp_config.local.example.php
+
+# Environment/local secrets
+.env
+.env.*
+
+# Dependencies
+/vendor/
+
+# Runtime logs/cache
+/storage/logs/
+*.log
+__pycache__/
+*.pyc
+
+# User-generated uploads (keep out of git history)
+/assets/uploads/
+
+# Local testing/debug files
+missing*.txt
+smtp_test*.php
+
+# Archives/temp artifacts
+*.rar
+*.zip
+*.tar
+*.gz
+*.tmp
+*.cache
+
+# Editor/system files
+.vscode/
+.DS_Store
+Thumbs.db
