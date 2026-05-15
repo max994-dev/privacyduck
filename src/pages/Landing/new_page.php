@@ -8,11 +8,7 @@ require_once __DIR__ . "/landing_header.php";
 
 main_head_start();
 ?>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<?php /* Inter, DM Sans, Poppins already loaded by main_head_start() consolidated font request */ ?>
 <style>
     .np-ph { background: #e5e2da; border-radius: 28px; }
     :root { --np-brand: #77B248; --np-ink: #141414; }
@@ -513,7 +509,7 @@ main_head_end();
     </section>
 
     <!-- 8 Pricing -->
-    <section class="new-landing-section bg-white px-5 md:px-10 pb-16 pt-6 md:pt-10" data-header="dark" id="np-pricing">
+    <section class="new-landing-section bg-white px-5 md:px-10 pb-16 pt-6 md:pt-10 scroll-mt-[120px]" data-header="dark" id="np-pricing">
         <div class="max-w-[960px] mx-auto text-center mb-10">
             <span class="inline-block rounded-full np-brand-bg text-white text-sm font-semibold px-5 py-2">Pricing</span>
             <h2 class="np-poppins mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">The Right Price For You, Whoever You Are</h2>

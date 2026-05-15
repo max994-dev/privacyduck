@@ -82,6 +82,11 @@ if ($result->num_rows == 0) {
                     echo json_encode([
                         "success" => "verify"
                     ]);
+                } else {
+                    error_log('loginProcess: sendVerificationCodeEmail failed for ' . $email);
+                    echo json_encode([
+                        "error" => "Could not send verification email. Please try again in a few minutes or contact support."
+                    ]);
                 }
             }
         }

@@ -7,7 +7,7 @@ $meta_url = 'https://privacyduck.com/new_signin_code';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';
 
 include_once(BASEPATH . '/src/common/meta.php');
-main_head_start();
+main_head_start(['slim' => true]);
 ?>
 <meta name="robots" content="noindex, nofollow">
 <style>
@@ -162,5 +162,5 @@ main_head_end();
 })();
 </script>
 <?php
-no_footer();
+no_footer(['skip_tawk' => true]);
 

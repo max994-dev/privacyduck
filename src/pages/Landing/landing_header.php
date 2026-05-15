@@ -9,6 +9,7 @@ function landing_logout_header($x = "white")
     $path = trim(parse_url($_SERVER["REQUEST_URI"] ?? "/", PHP_URL_PATH), "/");
     $featHref = ($path === "new") ? "/new#features" : "/#features";
     $faqHref = ($path === "new") ? "/new#np-faq" : "/#np-faq";
+    $pricingHref = ($path === "new") ? "/new#np-pricing" : "/#np-pricing";
     $helpDeskUrl = "https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0";
 
     $textMain = $dark ? "text-[#010205]" : "text-white";
@@ -19,9 +20,7 @@ function landing_logout_header($x = "white")
         : "text-white font-semibold text-[14px] px-3 py-2.5 hover:opacity-90";
     $getStartedClass = "font-semibold text-[14px] bg-gradient-to-r from-[#77B248] to-[#24A556] rounded-full text-white px-6 py-2.5 shadow-[0px_4px_4px_0px_#24A5561A] hover:opacity-95 transition-opacity inline-flex items-center justify-center";
     ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <?php /* Poppins already loaded by main_head_start() consolidated font request */ ?>
     <style>
         .np-landing-header-nav {
             font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
@@ -63,6 +62,13 @@ function landing_logout_header($x = "white")
                 transition: none;
             }
         }
+
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+                scroll-padding-top: 96px;
+            }
+        }
     </style>
     <input type="checkbox" id="<?php echo $menuId; ?>" class="hidden peer" />
     <div class="np-top-overlay fixed w-full h-[96px] z-20 pointer-events-none"></div>
@@ -83,7 +89,7 @@ function landing_logout_header($x = "white")
                 <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium <?php echo $textMuted; ?>">
                     <li><a href="<?php echo htmlspecialchars($featHref, ENT_QUOTES, "UTF-8"); ?>" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Features</a></li>
                     <li><a href="/business" class="font-bold underline decoration-1 underline-offset-2 hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Business</a></li>
-                    <li><a href="/pricing" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Pricing</a></li>
+                    <li><a href="<?php echo htmlspecialchars($pricingHref, ENT_QUOTES, "UTF-8"); ?>" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Pricing</a></li>
                     <li><a href="/sites-we-cover" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Sites We Cover</a></li>
                     <li><a href="/personalized-service" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Personalized Service</a></li>
                     <li><a href="/family" class="hover:text-[var(--np-brand,#24A556)] <?php echo $dark ? "" : "hover:text-white"; ?>">Family</a></li>
@@ -107,10 +113,10 @@ function landing_logout_header($x = "white")
                 </label>
             </div>
         </div>
-        <div class="flex flex-col gap-4 text-[16px] font-medium py-[24px] px-[24px] text-[#010205]">
+        <div class="np-landing-mobile-drawer-links flex flex-col gap-4 text-[16px] font-medium py-[24px] px-[24px] text-[#010205]">
             <a href="<?php echo htmlspecialchars($featHref, ENT_QUOTES, "UTF-8"); ?>" class="hover:text-[var(--np-brand,#24A556)]">Features</a>
             <a href="/business" class="font-bold underline hover:text-[var(--np-brand,#24A556)]">Business</a>
-            <a href="/pricing" class="hover:text-[var(--np-brand,#24A556)]">Pricing</a>
+            <a href="<?php echo htmlspecialchars($pricingHref, ENT_QUOTES, "UTF-8"); ?>" class="hover:text-[var(--np-brand,#24A556)]">Pricing</a>
             <a href="/sites-we-cover" class="hover:text-[var(--np-brand,#24A556)]">Sites We Cover</a>
             <a href="/personalized-service" class="hover:text-[var(--np-brand,#24A556)]">Personalized Service</a>
             <a href="/family" class="hover:text-[var(--np-brand,#24A556)]">Family</a>
@@ -122,6 +128,54 @@ function landing_logout_header($x = "white")
             <a href="/login" class="block w-full text-center text-[#010205] font-semibold py-3 border-2 border-[var(--np-brand,#24A556)] rounded-full text-[var(--np-brand,#24A556)]">Log In</a>
         </div>
     </div>
+    <script>
+    (function () {
+        function closeLandingMobileMenus() {
+            ['landing-menu-toggle-light', 'landing-menu-toggle-dark'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.checked = false;
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.np-landing-mobile-drawer-links a').forEach(function (a) {
+                a.addEventListener('click', closeLandingMobileMenus);
+            });
+        });
+
+        document.addEventListener('click', function (ev) {
+            var a = ev.target.closest && ev.target.closest('a[href*="#np-pricing"]');
+            if (!a) {
+                return;
+            }
+            try {
+                var raw = a.getAttribute('href');
+                if (!raw) {
+                    return;
+                }
+                var u = new URL(raw, window.location.href);
+                if (u.hash !== '#np-pricing') {
+                    return;
+                }
+                var cur = window.location.pathname.replace(/\/$/, '') || '/';
+                var dest = u.pathname.replace(/\/$/, '') || '/';
+                if (dest !== cur) {
+                    return;
+                }
+                var el = document.getElementById('np-pricing');
+                if (!el) {
+                    return;
+                }
+                ev.preventDefault();
+                closeLandingMobileMenus();
+                var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+                history.replaceState(null, '', u.pathname + u.hash);
+            } catch (e) {}
+        }, true);
+    })();
+    </script>
     <?php
 }
 

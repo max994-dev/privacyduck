@@ -1,9 +1,38 @@
 <?php
-// $meta_title = "Family Privacy Protection Services in USA | Remove Kids' Info Online";
-// $meta_description = "Protect your family’s privacy online with PrivacyDuck. We specialize in removing kids’ personal information from the internet. Trusted family data privacy services in the USA.";
-// $meta_url = "https://privacyduck.com/family";
-// $meta_keywords = "family privacy protection service, remove kids personal info online, family personal data removal from internet, family privacy services in USA";
-// include_once(BASEPATH . "/src/common/meta.php");
+$meta_title = "Personal Data Removal: A Core Cybersecurity Measure | PrivacyDuck";
+$meta_description = "Learn why removing employee and executive personal data from data broker sites is an essential cybersecurity measure, not just a privacy benefit. Download our free e-booklet.";
+$meta_url = "https://privacyduck.com/blog/detail";
+$meta_keywords = "personal data removal, data broker removal, cybersecurity, employee data privacy, executive data protection";
+$json_ld = [
+    "@context" => "https://schema.org",
+    "@type" => "Article",
+    "headline" => "Personal Data Removal: A Core Cybersecurity Measure",
+    "description" => "Personal data exposure is the biggest cyber threat to organizations today. Learn why removing employee and executive data from data broker sites is an essential security measure.",
+    "url" => "https://privacyduck.com/blog/detail",
+    "datePublished" => "2024-12-15",
+    "dateModified" => "2025-03-01",
+    "image" => "https://privacyduck.com/assets/image/pageSEO/og-default.png",
+    "inLanguage" => "en-US",
+    "author" => [
+        "@type" => "Organization",
+        "name" => "PrivacyDuck",
+        "url" => "https://privacyduck.com"
+    ],
+    "publisher" => [
+        "@type" => "Organization",
+        "@id" => "https://privacyduck.com/#organization",
+        "name" => "PrivacyDuck",
+        "logo" => [
+            "@type" => "ImageObject",
+            "url" => "https://privacyduck.com/assets/image/desktop/logo.svg"
+        ]
+    ],
+    "mainEntityOfPage" => [
+        "@type" => "WebPage",
+        "@id" => "https://privacyduck.com/blog/detail"
+    ]
+];
+include_once(BASEPATH . "/src/common/meta.php");
 main_head_start();
 ?>
 <style>

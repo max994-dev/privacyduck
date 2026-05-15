@@ -2,8 +2,8 @@
 // Default meta values
 $meta_title = $meta_title ?? "Remove Personal Information from the Internet | PrivacyDuck";
 $meta_description = $meta_description ?? "Remove personal information from major data brokers with PrivacyDuck. Protect your privacy and limit exposure across multiple online platforms safely.";
-$meta_url = $meta_url ?? "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$meta_image = $meta_image ?? "https://privacyduck.com/assets/page/og-default.jpg";
+$meta_url = $meta_url ?? "https://" . $_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$meta_image = $meta_image ?? "https://privacyduck.com/assets/image/pageSEO/og-default.png";
 $meta_keywords = $meta_keywords ?? "best online privacy protection";
 ?>
 <!DOCTYPE html>
@@ -38,4 +38,11 @@ $meta_keywords = $meta_keywords ?? "best online privacy protection";
 
     <!-- Favicons -->
     <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+
+    <!-- Structured Data (JSON-LD) -->
+    <?php if (!empty($json_ld)): ?>
+    <script type="application/ld+json">
+    <?= json_encode($json_ld, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>
+    </script>
+    <?php endif; ?>
 </head>

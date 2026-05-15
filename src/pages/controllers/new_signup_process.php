@@ -2,13 +2,24 @@
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/config.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/utils.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/database.php');
-include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/stripe_signup_sync.php');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/auth_redirect.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/new_signup_insert.php';
 
 function new_signup_redirect_error(string $msg): void
 {
     header('Location: ' . WEB_DOMAIN . '/new_signup?err=' . rawurlencode($msg));
     exit;
+}
+
+function new_signup_clear_pending_session(): void
+{
+    unset(
+        $_SESSION['verify_code'],
+        $_SESSION['auth_flow'],
+        $_SESSION['new_signup_password_hash'],
+        $_SESSION['new_signup_agree_marketing'],
+        $_SESSION['new_signup_profile']
+    );
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -20,7 +31,6 @@ $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';
 $agreeTerms = isset($_POST['agree_terms']) && (string) $_POST['agree_terms'] === '1';
 $agreeMarketing = isset($_POST['agree_marketing']) && (string) $_POST['agree_marketing'] === '1';
-$facePhoto = $_FILES['face_photo'] ?? null;
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     new_signup_redirect_error('Please enter a valid email.');
@@ -34,61 +44,12 @@ if (!is_string($passwordConfirm) || $passwordConfirm === '' || $passwordConfirm 
 if (!$agreeTerms) {
     new_signup_redirect_error('You must agree to the Privacy Policy and Terms of Service to create an account.');
 }
-if (!is_array($facePhoto) || (int) ($facePhoto['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-    new_signup_redirect_error('Face photo is required.');
-}
 
-$facePhotoTmp = (string) ($facePhoto['tmp_name'] ?? '');
-$facePhotoSize = (int) ($facePhoto['size'] ?? 0);
-if ($facePhotoTmp === '' || !is_uploaded_file($facePhotoTmp)) {
-    new_signup_redirect_error('Invalid face photo upload.');
+$parsed = pd_new_signup_parse_profile_from_post($_POST);
+if (!$parsed['ok']) {
+    new_signup_redirect_error($parsed['error']);
 }
-if ($facePhotoSize <= 0 || $facePhotoSize > 5 * 1024 * 1024) {
-    new_signup_redirect_error('Face photo must be 5MB or less.');
-}
-$faceMime = (string) mime_content_type($facePhotoTmp);
-$allowedMimes = [
-    'image/jpeg' => 'jpg',
-    'image/png' => 'png',
-    'image/webp' => 'webp',
-    'image/gif' => 'gif',
-];
-if (!isset($allowedMimes[$faceMime])) {
-    new_signup_redirect_error('Face photo must be a valid image file.');
-}
-$faceExtension = $allowedMimes[$faceMime];
-$safeEmailPart = preg_replace('/[^a-zA-Z0-9_\-]/', '_', strtolower($email));
-$faceFilename = 'img_' . $safeEmailPart . '_' . bin2hex(random_bytes(4)) . '.' . $faceExtension;
-$faceUploadDir = BASEPATH . '/assets/uploads/specialinfo';
-if (!is_dir($faceUploadDir) && !mkdir($faceUploadDir, 0775, true) && !is_dir($faceUploadDir)) {
-    new_signup_redirect_error('Could not create upload directory.');
-}
-$faceTargetPath = $faceUploadDir . '/' . $faceFilename;
-if (!move_uploaded_file($facePhotoTmp, $faceTargetPath)) {
-    new_signup_redirect_error('Could not store face photo. Please try again.');
-}
-
-// PASSWORD_DEFAULT uses bcrypt/Argon2 — suitable for password storage (not MD5/SHA1).
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-$firstname = 'Member';
-$lastname = 'User';
-$phone = '';
-$address = '';
-$city = '';
-$state = '';
-$zip = '';
-$age = 0;
-$contacts = [[
-    'city' => '',
-    'state' => '',
-    'phone' => '',
-    'zip' => '',
-    'address' => '',
-    // Marketing consent is stored in `contacts` so we don't need a DB migration right now.
-    'marketing_opt_in' => $agreeMarketing ? 1 : 0,
-]];
-$contactsJson = json_encode($contacts);
-$createdAt = date('Y-m-d H:i:s');
+$signupProfile = $parsed['data'];
 
 $conn = getDBConnection();
 $stmt = $conn->prepare('SELECT id FROM users WHERE LOWER(TRIM(email)) = LOWER(?)');
@@ -100,49 +61,40 @@ if ($stmt->get_result()->num_rows > 0) {
     new_signup_redirect_error('That email is already registered.');
 }
 $stmt->close();
-
-$stmt = $conn->prepare(
-    'INSERT INTO users (email, firstname, lastname, phone, city, zip, state, age, address, contacts, role, created_at, password, url) '
-    . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)'
-);
-$stmt->bind_param(
-    'sssssssisssss',
-    $email,
-    $firstname,
-    $lastname,
-    $phone,
-    $city,
-    $zip,
-    $state,
-    $age,
-    $address,
-    $contactsJson,
-    $createdAt,
-    $passwordHash,
-    $faceFilename
-);
-
-if (!$stmt->execute()) {
-    $stmt->close();
-    $conn->close();
-    new_signup_redirect_error('Could not create account. Please try again.');
-}
-$userId = (int) $conn->insert_id;
-$stmt->close();
-
-stripe_sync_privacyduck_subscription_for_email($conn, $email, true);
-
-$stmt = $conn->prepare('SELECT * FROM users WHERE id = ?');
-$stmt->bind_param('i', $userId);
-$stmt->execute();
-$data = $stmt->get_result()->fetch_assoc();
-$stmt->close();
 $conn->close();
 
-if (!$data) {
-    new_signup_redirect_error('Account created but session failed. Please log in.');
+$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+if (email_verification_bypassed($email)) {
+    $data = pd_insert_new_signup_user($email, $passwordHash, $agreeMarketing ? 1 : 0, $signupProfile);
+    if (!$data) {
+        new_signup_redirect_error('Could not create account. Please try again.');
+    }
+    pd_apply_user_session_from_row($data, $email);
+    header('Location: ' . pd_new_landing_post_auth_redirect_url($data));
+    exit;
 }
 
-pd_apply_user_session_from_row($data, $email);
-header('Location: ' . pd_new_landing_post_auth_redirect_url($data));
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/mailer.php';
+
+$verificationCode = random_int(100000, 999999);
+$_SESSION['verify_code'] = $verificationCode;
+$_SESSION['email'] = $email;
+$_SESSION['auth_flow'] = 'new_signup';
+$_SESSION['new_signup_password_hash'] = $passwordHash;
+$_SESSION['new_signup_agree_marketing'] = $agreeMarketing ? 1 : 0;
+$_SESSION['new_signup_profile'] = $signupProfile;
+
+if (!sendVerificationCodeEmail(
+    $email,
+    $verificationCode,
+    'PrivacyDuck.com',
+    'Verification for Privacyduck.com',
+    'Verify your PrivacyDuck account'
+)) {
+    new_signup_clear_pending_session();
+    new_signup_redirect_error('Could not send verification email. Please try again.');
+}
+
+header('Location: ' . WEB_DOMAIN . '/verify');
 exit;

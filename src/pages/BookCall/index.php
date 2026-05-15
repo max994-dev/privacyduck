@@ -127,7 +127,7 @@ main_head_end();
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
 <script>
 var BOOK_CALL_TODAY_PT = <?= json_encode($todayPt) ?>;
 var BOOK_CALL_NOW_MINUTES_PT = <?= (int) $nowMinutesPt ?>;

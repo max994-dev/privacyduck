@@ -44,12 +44,12 @@ function new_dashboard_fixed_menu()
 {
     $faceImage = $GLOBALS["pdHeaderFaceImage"] ?? '';
     ?>
-    <div class="hidden xl:flex justify-between py-[16px] px-[48px] items-center">
+    <div class="pd-dashboard-desktop-topbar justify-between py-[16px] px-[48px] items-center">
         <div class="flex items-center min-w-0">
             <button type="button" id="dashboard-desktop-sidebar-show"
-                class="hidden items-center justify-center w-10 h-10 rounded-full text-[#010205] hover:bg-[#F0F0F0] mr-3 shrink-0"
+                class="pd-dashboard-sidebar-show-btn inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-full border border-[#24A55633] bg-[#24A55614] text-[#24A556] hover:bg-[#24A55622] mr-3"
                 aria-label="Show sidebar" title="Show sidebar">
-                <?php require_once BASEPATH . '/src/common/svgs/dashboard/sidebar/menu.php'; ?>
+                <i class="fa-solid fa-angles-right text-[14px]" aria-hidden="true"></i>
             </button>
             <div id="dashboard_header_contact" class="flex items-center gap-[16px] min-w-0">
                 <div class="flex items-center gap-[8px]">
@@ -107,7 +107,25 @@ function new_dashboard_fixed_menu()
     body {
         overflow-x: hidden;
     }
+    .pd-dashboard-desktop-sidebar {
+        display: none;
+    }
+    .pd-dashboard-mobile-bar {
+        display: block;
+    }
+    .pd-dashboard-desktop-topbar {
+        display: none;
+    }
     @media (min-width: 1280px) {
+        .pd-dashboard-desktop-sidebar {
+            display: block;
+        }
+        .pd-dashboard-mobile-bar {
+            display: none !important;
+        }
+        .pd-dashboard-desktop-topbar {
+            display: flex !important;
+        }
         #dashboard-desktop-sidebar-aside {
             width: 307px;
             flex-shrink: 0;
@@ -118,11 +136,19 @@ function new_dashboard_fixed_menu()
             border: none;
             pointer-events: none;
         }
+        #pd-dashboard-main #dashboard-desktop-sidebar-show {
+            display: none !important;
+        }
+        #pd-dashboard-main.pd-sidebar-rail-collapsed #dashboard-desktop-sidebar-show {
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
     }
 </style>
 <div class="xl:flex xl:flex-row xl:min-h-screen w-full">
     <?php require_once BASEPATH . '/src/pages/Dashboard/Family/add_info.php'; ?>
-    <div class="fixed z-[1000] top-0 left-0 w-full h-[72px] bg-white border-b border-[#F1F1F1]">
+    <div class="pd-dashboard-mobile-bar fixed z-[1000] top-0 left-0 w-full h-[72px] bg-white border-b border-[#F1F1F1]">
         <div class="px-[16px] py-[12px] flex justify-between items-center">
             <div class="flex items-center gap-[10px]">
                 <label id="menu-toggle-label"
@@ -151,7 +177,7 @@ function new_dashboard_fixed_menu()
             </div>
         </div>
     </div>
-    <aside id="dashboard-desktop-sidebar-aside" class="hidden overflow-hidden">
+    <aside id="dashboard-desktop-sidebar-aside" class="pd-dashboard-desktop-sidebar overflow-hidden">
         <?php require BASEPATH . '/src/pages/NewDashboard/Sidebar/sidebar.php'; ?>
     </aside>
     <div id="mobile-sidebar-overlay"
@@ -160,9 +186,9 @@ function new_dashboard_fixed_menu()
             <?php require_once BASEPATH . '/src/pages/NewDashboard/Sidebar/sidebar_mobile.php'; ?>
         </div>
     </div>
-    <div class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
+    <div id="pd-dashboard-main" class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         <?php new_dashboard_fixed_menu(); ?>
-        <div id="content" class="min-h-[calc(100vh-146px)] mt-[72px] xl:mt-[72px] px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
+        <div id="content" class="min-h-[calc(100vh-146px)] mt-[72px] xl:mt-0 px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
             <?php if ($showSignup): ?>
                 <?php require BASEPATH . '/src/pages/Dashboard/signup_info.php'; ?>
             <?php else: ?>
@@ -186,17 +212,19 @@ function new_dashboard_fixed_menu()
         const overlay = document.getElementById('mobile-sidebar-overlay');
         const drawer = document.getElementById('mobile-sidebar-drawer');
         const label = document.getElementById('menu-toggle-label');
-        const desktopBtn = document.getElementById('dashboard-desktop-sidebar-show');
+        const desktopShow = document.getElementById('dashboard-desktop-sidebar-show');
 
         const clickedLabel = label && label.contains(event.target);
-        const clickedDesktopBtn = desktopBtn && desktopBtn.contains(event.target);
+        const clickedDesktopShow = desktopShow && desktopShow.contains(event.target);
         const clickedSidebar = drawer && drawer.contains(event.target);
+        const isNarrow = window.innerWidth < 1280;
+        const openMobile = clickedLabel || (isNarrow && clickedDesktopShow);
 
-        if (!sidebarVisible && (clickedLabel || clickedDesktopBtn)) {
+        if (!sidebarVisible && openMobile) {
             sidebarVisible = true;
             overlay.classList.remove('hidden');
             if (label) label.classList.add('hidden');
-        } else if (sidebarVisible && !clickedSidebar && !clickedLabel && !clickedDesktopBtn) {
+        } else if (sidebarVisible && !clickedSidebar && !clickedLabel && !(isNarrow && clickedDesktopShow)) {
             sidebarVisible = false;
             overlay.classList.add('hidden');
             if (label) label.classList.remove('hidden');
@@ -206,16 +234,18 @@ function new_dashboard_fixed_menu()
     window.addEventListener('resize', function() {
         const overlay = document.getElementById('mobile-sidebar-overlay');
         const label = document.getElementById('menu-toggle-label');
-        if (!sidebarVisible) return;
-        if (overlay.classList.contains('hidden')) return;
-        if (label) label.classList.add('hidden');
+        if (window.innerWidth >= 1280) {
+            sidebarVisible = false;
+            overlay.classList.add('hidden');
+            if (label) label.classList.remove('hidden');
+        }
     });
 
     (function newDashboardDesktopSidebarCollapse() {
         const aside = document.getElementById('dashboard-desktop-sidebar-aside');
         const showBtn = document.getElementById('dashboard-desktop-sidebar-show');
         const hideBtn = document.getElementById('dashboard-desktop-sidebar-hide');
-        if (!aside || !showBtn || !hideBtn) return;
+        if (!aside || !showBtn) return;
         const KEY = 'pd_new_dashboard_sidebar_collapsed';
 
         function readCollapsed() {
@@ -226,14 +256,16 @@ function new_dashboard_fixed_menu()
             }
         }
 
+        const main = document.getElementById('pd-dashboard-main');
+
         function apply(collapsed) {
             if (window.innerWidth < 1280) {
                 aside.classList.remove('is-collapsed');
-                showBtn.classList.add('hidden');
+                if (main) main.classList.remove('pd-sidebar-rail-collapsed');
                 return;
             }
             aside.classList.toggle('is-collapsed', collapsed);
-            showBtn.classList.toggle('hidden', !collapsed);
+            if (main) main.classList.toggle('pd-sidebar-rail-collapsed', collapsed);
             try {
                 localStorage.setItem(KEY, collapsed ? '1' : '0');
             } catch (e) {}
@@ -243,9 +275,11 @@ function new_dashboard_fixed_menu()
         window.addEventListener('resize', function() {
             apply(readCollapsed());
         });
-        hideBtn.addEventListener('click', function() {
-            apply(true);
-        });
+        if (hideBtn) {
+            hideBtn.addEventListener('click', function() {
+                apply(true);
+            });
+        }
         showBtn.addEventListener('click', function() {
             apply(false);
         });

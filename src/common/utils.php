@@ -39,104 +39,118 @@ function pd_user_may_login(array $user): bool
     return (int) $r >= 1;
 }
 
-function main_head_start()
-{ ?>
-    <meta charset="UTF-8">
+/**
+ * @param array{slim?: bool} $opts Pass ['slim' => true] on lightweight auth pages to skip heavy third-party
+ *                                 scripts (Stripe.js, GTM, maps, …) — faster load, fewer console/CSP warnings.
+ *                                 Pair with no_footer(['skip_tawk' => true]) when you do not need the chat widget.
+ */
+function main_head_start(array $opts = [])
+{
+    // Route-based conditional loading: avoids shipping dashboard-only libs to public pages.
+    $req = $GLOBALS['request'] ?? trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+    $isDashboard    = (bool) preg_match('#^(dashboard|new_dashboard|business/(?:dashboard|content/dashboard))#', $req);
+    $isPayment      = (bool) preg_match('#^(payment|paymentverify|invite_payment|dashboard/family|business/dashboard)#', $req);
+    $isSignup       = (bool) preg_match('#^(signup|signupinfo|freescaning|new_signup|result)#', $req);
+    $isPersonalized = ($req === 'personalized-service');
 
+    if (!empty($opts['slim'])) {
+        $assetV = defined('VERISON') ? rawurlencode((string) VERISON) : (string) time();
+        ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet" />
+    <link href="/vendor/flowbite/flowbite-2.3.0.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+        <?php
+        return;
+    }
+
+    $assetV = defined('VERISON') ? rawurlencode((string) VERISON) : (string) time();
+    ?>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="IsaNzKjoHBwx870MEenhIdXssc8XIkH_mMcxLb0pkes" />
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+    <!-- Preconnect only for CDNs still used (Tailwind CDN, GTM, Stripe, Maps) -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
     <?php $assetV = defined('VERISON') ? rawurlencode((string) VERISON) : (string) time(); ?>
     <link href="/assets/css/animate.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/splash.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <!-- Core UI libs (all pages) — served locally -->
+    <link href="/vendor/flowbite/flowbite-2.3.0.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="/vendor/toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/vendor/fonts/fonts.css" />
+    <link rel="stylesheet" href="/vendor/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="/vendor/flickity/flickity.min.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Alatsi&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css' rel='stylesheet' />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
+    <!-- Dashboard-only CSS (DataTables, Tabulator) — served locally -->
+    <?php if ($isDashboard): ?>
+    <link rel="stylesheet" href="/vendor/datatables/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/vendor/tabulator/tabulator.min.css">
+    <?php endif; ?>
 
+    <!-- AOS (Animate On Scroll) — personalized-service page only -->
+    <?php if ($isPersonalized): ?>
+    <link rel="stylesheet" href="/vendor/aos/aos.css" />
+    <?php endif; ?>
 
+    <!-- Core scripts (all pages) — served locally; jQuery must be synchronous -->
+    <script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/vendor/toastr/toastr.min.js" defer></script>
+    <script src="/vendor/flowbite/flowbite-2.3.0.min.js" defer></script>
+    <script src="/vendor/swiper/swiper-bundle.min.js" defer></script>
+    <script src="/vendor/flickity/flickity.pkgd.min.js" defer></script>
+    <script src="/vendor/lottie/lottie-player.js" defer></script>
+
+    <!-- Stripe.js — payment pages only (PCI compliance: must stay on js.stripe.com) -->
+    <?php if ($isPayment): ?>
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
-    <script src='https://cdn.tailwindcss.com'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <?php endif; ?>
+
+    <!-- Dashboard-only scripts (DataTables, Tabulator, Chart.js) — served locally -->
+    <?php if ($isDashboard): ?>
+    <script src="/vendor/datatables/jquery.dataTables.min.js" defer></script>
+    <script src="/vendor/tabulator/tabulator.min.js" defer></script>
+    <script src="/vendor/chartjs/chart.umd.min.js" defer></script>
+    <?php endif; ?>
+
+    <!-- GSAP + AOS — personalized-service page only -->
+    <?php if ($isPersonalized): ?>
+    <script src="/vendor/gsap/gsap.min.js" defer></script>
+    <script src="/vendor/aos/aos.js" defer></script>
+    <?php endif; ?>
+
+    <!-- Google Maps — signup pages only (cannot be localized, requires Google API) -->
+    <?php if ($isSignup): ?>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <?php endif; ?>
+
+    <!-- Socket.io — authenticated users only — served locally -->
+    <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true): ?>
+    <script src="/vendor/socketio/socket.io.min.js" defer></script>
+    <?php endif; ?>
+
+    <!-- Google Tag Manager + GA4 (async — non-blocking) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6WKNFG8FS"></script>
-    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
-    <!-- <script src="https://analytics.ahrefs.com/analytics.js" data-key="InYjlKfAfcPiKMQbKt7zUQ" async></script> -->
     <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-P679J6HD');
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P679J6HD');
+        window.dataLayer=window.dataLayer||[];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js',new Date());gtag('config','G-P6WKNFG8FS');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'G-P6WKNFG8FS');
-    </script>
-    <!-- <script type="text/javascript">
-        (function() {
-            var options = {
-                whatsapp: "+17754433727", // Your WhatsApp number
-                call_to_action: "Message us on WhatsApp", // Button text
-                position: "right", // Position: 'right' or 'left'
-                pre_filled_message: "Hi! I’d like to request a Privacy Report or Data Removal.", // Default message
-            };
-            var proto = document.location.protocol,
-                host = "getbutton.io",
-                url = proto + "//static." + host;
-            var s = document.createElement('script');
-            s.type = 'text/javascript';
-            s.async = true;
-            s.src = url + '/widget-send-button/js/init.js';
-            s.onload = function() {
-                WhWidgetSendButton.init(host, proto, options);
-            };
-            var x = document.getElementsByTagName('script')[0];
-            x.parentNode.insertBefore(s, x);
-        })();
-    </script> -->
     <link rel="icon" type="image/png" href="/assets/favicon.png">
-    <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true) {
-    ?>
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <?php
-    } ?>
     <script>
         window.loadingHtml = "<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class='font-semibold text-[12px] leading-[130%] tracking-[-0.02em]'>Saving...</span>";
         window.loadingHtml2 = "<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class='font-semibold text-[12px] leading-[130%] tracking-[-0.02em]'>Loading...</span>";
@@ -334,7 +348,6 @@ function main_logout_header($x)
                                         <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">About Us</a></li>
                                         <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">OPT OUT Guides</a></li>
                                         <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">Product Updates</a></li> -->
-                                        <!-- <li><a href="https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0" target="_blank" class="block text-[16px] font-semibold hover:text-[#24A556]">Customer Reviews</a></li> -->
                                     </ul>
                                 </div>
                             </li>
@@ -392,7 +405,6 @@ function main_logout_header($x)
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">About Us</a>
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">OPT OUT Guides</a>
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">Product Updates</a> -->
-                            <!-- <a href="https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0" target="_blank" class="block text-[16px] font-semibold hover:text-[#24A556]">Customer Reviews</a> -->
                         </ul>
                     </div>
                 </div>
@@ -449,7 +461,6 @@ function main_login_header($x)
                                             <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">About Us</a></li>
                                             <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">OPT OUT Guides</a></li>
                                             <li><a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">Product Updates</a></li> -->
-                                            <!-- <li><a href="https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0" target="_blank" class="block text-[16px] font-semibold hover:text-[#24A556]">Customer Reviews</a></li> -->
                                         </ul>
                                     </div>
                                 </li>
@@ -509,7 +520,6 @@ function main_login_header($x)
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">About Us</a>
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">OPT OUT Guides</a>
                             <a href="#" class="block text-[16px] font-semibold hover:text-[#24A556]">Product Updates</a> -->
-                            <!-- <a href="https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0" target="_blank" class="block text-[16px] font-semibold hover:text-[#24A556]">Customer Reviews</a> -->
                         </ul>
                     </div>
                 </div>
@@ -556,8 +566,18 @@ function main_footer()
     </html>
 <?php }
 
-function no_footer()
+/**
+ * @param array{skip_tawk?: bool} $opts Pass ['skip_tawk' => true] on lightweight pages to avoid loading the chat widget.
+ */
+function no_footer(array $opts = [])
 {
+    if (!empty($opts['skip_tawk'])) {
+        echo <<<'EOT'
+            </body>
+        </html>
+EOT;
+        return;
+    }
     $content = <<<EOT
                 <script type="text/javascript">
                     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();

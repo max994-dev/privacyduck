@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
-<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
+<link rel="stylesheet" href="/vendor/flickity/flickity.min.css">
+<script src="/vendor/flickity/flickity.pkgd.min.js"></script>
 <style>
     .page-number {
         text-align: center;

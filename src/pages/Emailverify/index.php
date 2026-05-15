@@ -4,6 +4,7 @@ include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/utils.php");
 include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/database.php");
 include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/stripe_signup_sync.php");
 require_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/auth_redirect.php");
+require_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/new_signup_insert.php");
 
 pd_normalize_post_request();
 
@@ -18,8 +19,34 @@ $isSigninCodeFlow = ($authFlow === 'new_landing');
 $isPasswordSetupFlow = ($authFlow === 'password_setup');
 $isPasswordResetFlowOnly = ($authFlow === 'password_reset');
 $isPasswordGateFlow = $isPasswordSetupFlow || $isPasswordResetFlowOnly;
+$isNewSignupFlow = ($authFlow === 'new_signup');
 
 if (email_verification_bypassed($verifyEmail)) {
+    if ($isNewSignupFlow) {
+        $pendingHash = $_SESSION['new_signup_password_hash'] ?? null;
+        if (!is_string($pendingHash) || $pendingHash === '') {
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Your signup session expired. Please try again.'));
+            exit;
+        }
+        $marketing = (int) ($_SESSION['new_signup_agree_marketing'] ?? 0);
+        $nsProfile = $_SESSION['new_signup_profile'] ?? null;
+        $created = pd_insert_new_signup_user(
+            $verifyEmail,
+            $pendingHash,
+            $marketing,
+            is_array($nsProfile) ? $nsProfile : null
+        );
+        if (!$created) {
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Could not create account. That email may already be registered.'));
+            exit;
+        }
+        pd_apply_user_session_from_row($created, $verifyEmail);
+        unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+        header("Location: " . pd_new_landing_post_auth_redirect_url($created));
+        exit;
+    }
     if ($isSigninCodeFlow) {
         $conn = getDBConnection();
         $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
@@ -154,6 +181,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
             exit;
         }
 
+        if ($isNewSignupFlow) {
+            $pendingHash = $_SESSION['new_signup_password_hash'] ?? null;
+            if (!is_string($pendingHash) || $pendingHash === '') {
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['email']);
+                header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Your signup session expired. Please try again.'));
+                exit;
+            }
+            $marketing = (int) ($_SESSION['new_signup_agree_marketing'] ?? 0);
+            $nsProfile = $_SESSION['new_signup_profile'] ?? null;
+            $created = pd_insert_new_signup_user(
+                $verifyEmail,
+                $pendingHash,
+                $marketing,
+                is_array($nsProfile) ? $nsProfile : null
+            );
+            if (!$created) {
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+                header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Could not create account. That email may already be registered.'));
+                exit;
+            }
+            pd_apply_user_session_from_row($created, $verifyEmail);
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
+            header("Location: " . pd_new_landing_post_auth_redirect_url($created));
+            exit;
+        }
+
         //Insert the data(verified email, firstname, lastname) to the MYSQL database (Table users)
         $conn = getDBConnection();
         $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
@@ -224,7 +278,7 @@ $meta_url = "https://privacyduck.com/";
 $meta_image = "https://privacyduck.com/assets/pageSEO/landing.jpg";
 
 include_once(BASEPATH . "/src/common/meta.php");
-main_head_start();
+main_head_start(['slim' => true]);
 main_head_end();
 ?>
 <style>
@@ -243,6 +297,14 @@ main_head_end();
         box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
     }
 </style>
+
+<div id="verify-loading-overlay" class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/35" style="display: none;" aria-hidden="true">
+    <div class="mx-4 rounded-lg bg-white px-10 py-8 shadow-lg text-center max-w-sm">
+        <div class="mx-auto mb-4 h-9 w-9 animate-spin rounded-full border-2 border-[#24A556] border-t-transparent" aria-hidden="true"></div>
+        <p class="text-[15px] font-semibold text-[#010205]">Please wait…</p>
+        <p class="mt-2 text-[13px] text-[#010205]/70">Verifying your code.</p>
+    </div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -287,6 +349,14 @@ main_head_end();
             }
             e.preventDefault();
         });
+
+        const submitOverlay = document.getElementById('verify-loading-overlay');
+        if (form && submitOverlay) {
+            form.addEventListener('submit', function() {
+                submitOverlay.style.display = 'flex';
+                submitOverlay.setAttribute('aria-hidden', 'false');
+            });
+        }
     });
 </script>
 
@@ -302,7 +372,8 @@ main_head_end();
                     <h1 class="text-[16px] leading-[24px] text-[#010205]"><?php if ($isSigninCodeFlow): ?>We sent a login code to
                         <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code to sign in. If you don’t see it, check your spam folder.<?php elseif ($isPasswordSetupFlow): ?>We sent a code to
                         <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter it to verify your email and set your password. Check spam if you don’t see it.<?php elseif ($isPasswordResetFlowOnly): ?>We sent a reset code to
-                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code from your email to continue. If you don’t see it, check your spam folder.<?php else: ?>We sent an email to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code from your email to continue. If you don’t see it, check your spam folder.<?php elseif ($isNewSignupFlow): ?>We sent a verification code to
+                        <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Enter the code to finish creating your account. If you don’t see it, check your spam folder.<?php else: ?>We sent an email to
                         <span class="font-bold"><?= htmlspecialchars($_SESSION['email']); ?>.</span> Please enter the verification code in the email to confirm your address and
                         proceed. If you don’t see the email, check your spam folder.<?php endif; ?>
                     </h1>
@@ -344,5 +415,5 @@ main_head_end();
     </div>
 </div>
 <?php
-no_footer();
+no_footer(['skip_tawk' => true]);
 ?>

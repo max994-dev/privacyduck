@@ -18,12 +18,12 @@ common_splash();
 function fixed_menu()
 {
 ?>
-    <div class="hidden xl:flex justify-between py-[16px] px-[48px] items-center">
+    <div class="pd-dashboard-desktop-topbar justify-between py-[16px] px-[48px] items-center">
         <div class="flex items-center min-w-0">
             <button type="button" id="dashboard-desktop-sidebar-show"
-                class="hidden inline-flex items-center justify-center w-10 h-10 rounded-full text-[#010205] hover:bg-[#F0F0F0] mr-3 shrink-0"
+                class="pd-dashboard-sidebar-show-btn inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-full border border-[#24A55633] bg-[#24A55614] text-[#24A556] hover:bg-[#24A55622] mr-3"
                 aria-label="Show sidebar" title="Show sidebar">
-                <?php require_once(BASEPATH . "/src/common/svgs/dashboard/sidebar/menu.php"); ?>
+                <i class="fa-solid fa-angles-right text-[14px]" aria-hidden="true"></i>
             </button>
             <div id="dashboard_header_contact" class="flex items-center gap-[16px] min-w-0">
                 <div class="flex items-center gap-[8px]">
@@ -75,7 +75,26 @@ function fixed_menu()
     body {
         overflow-x: hidden;
     }
+    /* Do not rely on Tailwind xl: alone for chrome — if CDN utilities fail, users get no nav and no hamburger. */
+    .pd-dashboard-desktop-sidebar {
+        display: none;
+    }
+    .pd-dashboard-mobile-bar {
+        display: block;
+    }
+    .pd-dashboard-desktop-topbar {
+        display: none;
+    }
     @media (min-width: 1280px) {
+        .pd-dashboard-desktop-sidebar {
+            display: block;
+        }
+        .pd-dashboard-mobile-bar {
+            display: none !important;
+        }
+        .pd-dashboard-desktop-topbar {
+            display: flex !important;
+        }
         #dashboard-desktop-sidebar-aside {
             width: 307px;
             flex-shrink: 0;
@@ -86,12 +105,21 @@ function fixed_menu()
             border: none;
             pointer-events: none;
         }
+        /* Visibility tied to #pd-dashboard-main class (set in JS) — avoids fighting Tailwind .hidden */
+        #pd-dashboard-main #dashboard-desktop-sidebar-show {
+            display: none !important;
+        }
+        #pd-dashboard-main.pd-sidebar-rail-collapsed #dashboard-desktop-sidebar-show {
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
     }
 </style>
 <div class="xl:flex xl:flex-row xl:min-h-screen w-full">
     <!-- Sidebar -->
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Family/add_info.php"); ?>
-    <div class="fixed z-[1000] top-0 left-0 w-full h-[72px] bg-white text-white xl:hidden">
+    <div class="pd-dashboard-mobile-bar fixed z-[1000] top-0 left-0 w-full h-[72px] bg-white text-white">
         <div class="px-[16px] py-[12px] flex justify-between items-center">
             <a href="/"><img src="/assets/image/desktop/duck.svg" alt="duck" /></a>
             <div class="flex items-center space-x-[16px]">
@@ -104,7 +132,7 @@ function fixed_menu()
             </div>
         </div>
     </div>
-    <aside id="dashboard-desktop-sidebar-aside" class="hidden xl:block overflow-hidden">
+    <aside id="dashboard-desktop-sidebar-aside" class="pd-dashboard-desktop-sidebar overflow-hidden">
         <?php require(BASEPATH . "/src/pages/Dashboard/Sidebar/sidebar.php"); ?>
     </aside>
     <div id="mobile-sidebar-overlay"
@@ -112,7 +140,7 @@ function fixed_menu()
         <?php require_once(BASEPATH . "/src/pages/Dashboard/Sidebar/sidebar_mobile.php"); ?>
     </div>
     <!-- Content -->
-    <div class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
+    <div id="pd-dashboard-main" class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         <?php fixed_menu(); ?>
         <div id="content" class="min-h-[calc(100vh-146px)] mt-[72px] xl:mt-0 px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
 		  <?php if ($showSignup): ?>
@@ -140,18 +168,23 @@ function fixed_menu()
     document.addEventListener('click', function(event) {
         const overlay = document.getElementById('mobile-sidebar-overlay');
         const label = document.getElementById('menu-toggle-label');
+        const desktopShow = document.getElementById('dashboard-desktop-sidebar-show');
 
-        const clickedLabel = label.contains(event.target);
-        const clickedSidebar = overlay.contains(event.target);
+        const clickedLabel = label && label.contains(event.target);
+        const clickedDesktopShow = desktopShow && desktopShow.contains(event.target);
+        const clickedSidebar = overlay && overlay.contains(event.target);
+        const isNarrow = window.innerWidth < 1280;
+        // Desktop "show sidebar" only expands the aside (separate handler); do not toggle mobile drawer on xl+.
+        const openMobile = clickedLabel || (isNarrow && clickedDesktopShow);
 
-        if (!sidebarVisible && clickedLabel) {
+        if (!sidebarVisible && openMobile) {
             sidebarVisible = true;
             overlay.classList.remove('hidden');
-            label.classList.add('hidden');
-        } else if (sidebarVisible && !clickedSidebar && !clickedLabel) {
+            if (label) label.classList.add('hidden');
+        } else if (sidebarVisible && !clickedSidebar && !clickedLabel && !(isNarrow && clickedDesktopShow)) {
             sidebarVisible = false;
             overlay.classList.add('hidden');
-            label.classList.remove('hidden');
+            if (label) label.classList.remove('hidden');
         }
     });
 
@@ -161,7 +194,7 @@ function fixed_menu()
         if (window.innerWidth >= 1280) {
             sidebarVisible = false;
             overlay.classList.add('hidden');
-            label.classList.remove('hidden');
+            if (label) label.classList.remove('hidden');
         }
     });
 
@@ -169,7 +202,7 @@ function fixed_menu()
         const aside = document.getElementById('dashboard-desktop-sidebar-aside');
         const showBtn = document.getElementById('dashboard-desktop-sidebar-show');
         const hideBtn = document.getElementById('dashboard-desktop-sidebar-hide');
-        if (!aside || !showBtn || !hideBtn) return;
+        if (!aside || !showBtn) return;
         const KEY = 'pd_dashboard_sidebar_collapsed';
 
         function readCollapsed() {
@@ -180,14 +213,16 @@ function fixed_menu()
             }
         }
 
+        const main = document.getElementById('pd-dashboard-main');
+
         function apply(collapsed) {
             if (window.innerWidth < 1280) {
                 aside.classList.remove('is-collapsed');
-                showBtn.classList.add('hidden');
+                if (main) main.classList.remove('pd-sidebar-rail-collapsed');
                 return;
             }
             aside.classList.toggle('is-collapsed', collapsed);
-            showBtn.classList.toggle('hidden', !collapsed);
+            if (main) main.classList.toggle('pd-sidebar-rail-collapsed', collapsed);
             try {
                 localStorage.setItem(KEY, collapsed ? '1' : '0');
             } catch (e) {}
@@ -197,9 +232,11 @@ function fixed_menu()
         window.addEventListener('resize', function() {
             apply(readCollapsed());
         });
-        hideBtn.addEventListener('click', function() {
-            apply(true);
-        });
+        if (hideBtn) {
+            hideBtn.addEventListener('click', function() {
+                apply(true);
+            });
+        }
         showBtn.addEventListener('click', function() {
             apply(false);
         });

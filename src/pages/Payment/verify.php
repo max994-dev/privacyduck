@@ -71,7 +71,7 @@ $meta_url = "https://privacyduck.com/";
 $meta_image = "https://privacyduck.com/assets/pageSEO/landing.jpg";
 
 include_once(BASEPATH . "/src/common/meta.php");
-main_head_start();
+main_head_start(['slim' => true]);
 main_head_end();
 ?>
 
@@ -131,9 +131,11 @@ main_head_end();
                 // Automatically submit the form after pasting
                 if (Array.from(inputs).every(input => input.value.length === 1)) {
                     form.submit();
-                    const but = `<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class=''>Sending...</span>`;
-                    $("#send").html(but);
-                    $("#send").prop("disabled", true);
+                    const sendBtn = document.getElementById('send');
+                    if (sendBtn) {
+                        sendBtn.innerHTML = `<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class=''>Sending...</span>`;
+                        sendBtn.disabled = true;
+                    }
                 }
             }
             e.preventDefault();
@@ -191,5 +193,5 @@ main_head_end();
     </div>
 </div>
 <?php
-no_footer();
+no_footer(['skip_tawk' => true]);
 ?>

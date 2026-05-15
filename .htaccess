@@ -1,18 +1,18 @@
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
-#Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
 RewriteEngine On
 RewriteBase /
 
-# 🔁 Redirect HTTP to HTTPS
-#RewriteCond %{HTTPS} off
-#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# NOTE: HTTPS is terminated by Nginx (reverse proxy). Do NOT redirect here —
+# Apache always sees plain HTTP from the proxy and would loop infinitely.
+# HTTP→HTTPS enforcement is handled at the Nginx level.
 
-# 🔁 Redirect www to non-www
-#RewriteCond %{HTTP_HOST} ^www\.privacyduck\.com$ [NC]
-#RewriteRule ^ https://privacyduck.com%{REQUEST_URI} [L,R=301]
+# Redirect www to non-www (safe — uses explicit domain match, not HTTPS check)
+RewriteCond %{HTTP_HOST} ^www\.privacyduck\.com$ [NC]
+RewriteRule ^ https://privacyduck.com%{REQUEST_URI} [L,R=301]
 
 # Route /admin and /admin/... to admin.php (even if /admin is a folder)
 RewriteRule ^super/admin(?:/.*)?$ admin.php [QSA,L]

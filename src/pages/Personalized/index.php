@@ -3,6 +3,21 @@ $meta_title = "Remove Personal Info from Google | Expert Help by PrivacyDuck ";
 $meta_description = "Remove personal data from Google with PrivacyDuck. Get expert, personalized help to protect your privacy and control what appears in search results.";
 $meta_url = "https://privacyduck.com/personalized-service";
 $meta_keywords = "personalized data removal form google, personalized data removal form google in usa, please provide your rationale below, privacyduck personalized service in usa, personalized privacy removal in usa, personalized data remove service";
+$json_ld = [
+    "@context" => "https://schema.org",
+    "@type" => "Service",
+    "name" => "Personalized Google Data Removal Service",
+    "provider" => [
+        "@type" => "Organization",
+        "@id" => "https://privacyduck.com/#organization",
+        "name" => "PrivacyDuck",
+        "url" => "https://privacyduck.com"
+    ],
+    "description" => "Expert, hands-on help removing your personal information from Google search results. PrivacyDuck's US-based team handles custom opt-out requests tailored to your situation.",
+    "url" => "https://privacyduck.com/personalized-service",
+    "areaServed" => "US",
+    "serviceType" => "Personal Data Removal"
+];
 include_once(BASEPATH . "/src/common/meta.php");
 main_head_start();
 main_head_end();

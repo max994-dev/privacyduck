@@ -16,7 +16,7 @@ $meta_url = 'https://privacyduck.com/new_signup';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';
 
 include_once(BASEPATH . '/src/common/meta.php');
-main_head_start();
+main_head_start(['slim' => true]);
 ?>
 <meta name="robots" content="noindex, nofollow">
 <style>
@@ -25,57 +25,126 @@ main_head_start();
 <?php
 main_head_end();
 ?>
-<div class="mx-auto max-w-lg px-4 py-12">
+<div class="mx-auto max-w-2xl px-4 py-10">
     <div class="mb-8 text-center">
         <a href="/new" class="inline-block"><img class="mx-auto h-9 w-auto" src="/assets/image/desktop/logo4.svg" alt="PrivacyDuck"></a>
         <h1 class="mt-6 text-xl font-semibold text-slate-900">Create your account</h1>
-        <p class="mt-2 text-sm text-slate-600">Create your account with email and password. If you already paid through Stripe, your plan will be linked automatically.</p>
+        <p class="mt-2 text-sm text-slate-600">Enter the personal details we use for removals (similar to our legacy signup). We will email you a code to verify your address. If you already paid through Stripe, your plan will be linked automatically.</p>
     </div>
 
     <?php if ($err !== ''): ?>
         <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data" action="<?= htmlspecialchars(WEB_DOMAIN . '/new_signup_process', ENT_QUOTES, 'UTF-8'); ?>" class="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div>
-            <label class="block text-xs font-medium text-slate-700">Face Photo <span class="text-red-600">*</span></label>
-            <div class="mt-1">
-                <label for="ns-face-photo"
-                    class="group block w-full max-w-[220px] mx-auto overflow-hidden rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 focus-within:ring-1 focus-within:ring-emerald-600 cursor-pointer">
-                    <div style="aspect-ratio: 1 / 1;" class="w-full flex items-center justify-center relative">
-                        <img id="ns-face-preview-img" alt="Face preview" class="hidden absolute inset-0 w-full h-full object-cover" />
-                        <div id="ns-face-preview-placeholder" class="p-6 text-center">
-                            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 3a4 4 0 0 1 4 4c0 1.66-1.34 3-3 3h-2c-1.66 0-3-1.34-3-3a4 4 0 0 1 4-4z" />
-                                    <path d="M4 21a8 8 0 0 1 16 0" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-semibold text-emerald-700">Choose a face photo</p>
-                            <p class="mt-1 text-xs text-slate-500">Square preview. Max 5MB.</p>
-                        </div>
-                        <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-4 py-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <p class="text-xs font-semibold text-white">Click to change</p>
-                        </div>
-                    </div>
-                </label>
-                <input
-                    name="face_photo"
-                    id="ns-face-photo"
-                    type="file"
-                    accept="image/*"
-                    required
-                    class="hidden"
-                />
-            </div>
-            <p class="mt-1 text-xs text-slate-500">Upload a clear face image for PimEyes/manual removal work.</p>
+    <div id="ns-loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px]" style="display: none;" aria-hidden="true" aria-busy="false">
+        <div class="mx-4 flex min-w-[240px] flex-col items-center rounded-xl bg-white px-8 py-6 shadow-lg">
+            <svg class="h-8 w-8 animate-spin text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-center text-sm font-medium text-slate-800">Creating your session…</p>
+            <p class="mt-1 text-center text-xs text-slate-500">Sending verification email if needed.</p>
         </div>
+    </div>
+
+    <form id="ns-signup-form" method="post" action="<?= htmlspecialchars(WEB_DOMAIN . '/new_signup_process', ENT_QUOTES, 'UTF-8'); ?>" class="relative space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <fieldset class="space-y-4 border-0 p-0 m-0">
+            <legend class="text-sm font-semibold text-slate-800">Personal information</legend>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700">First name <span class="text-red-600">*</span></label>
+                    <input name="firstname" type="text" required autocomplete="given-name" maxlength="200"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700">Last name <span class="text-red-600">*</span></label>
+                    <input name="lastname" type="text" required autocomplete="family-name" maxlength="200"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700">Country <span class="text-red-600">*</span></label>
+                <select name="country" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600">
+                    <option value="US" selected>United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="EU">European Union</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700">Street address <span class="text-red-600">*</span></label>
+                <input name="address" type="text" required autocomplete="street-address" maxlength="500"
+                    placeholder="Street, apartment, suite, etc."
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700">City <span class="text-red-600">*</span></label>
+                    <input name="city" type="text" required autocomplete="address-level2" maxlength="120"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700">State / province / region <span class="text-red-600">*</span></label>
+                    <input name="state" type="text" required autocomplete="address-level1" maxlength="120"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700">ZIP / postal code <span class="text-red-600">*</span></label>
+                <input name="zip" type="text" required autocomplete="postal-code" maxlength="32"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700">Name &amp; address variations <span class="text-slate-500 font-normal">(optional)</span></label>
+                <textarea name="name_variations" rows="3" maxlength="4000" placeholder="Up to five alternate spellings, maiden names, or address variants, separated by commas."
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700">Date of birth <span class="text-red-600">*</span></label>
+                <input name="birth_date" type="date" required max="<?= htmlspecialchars(date('Y-m-d'), ENT_QUOTES, 'UTF-8'); ?>"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+        </fieldset>
+
+        <div class="border-t border-slate-200 pt-4 space-y-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Account</p>
         <div>
             <label class="block text-xs font-medium text-slate-700">Email <span class="text-red-600">*</span></label>
             <input name="email" type="email" required autocomplete="email"
                 value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8'); ?>"
                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
         </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div>
+                <label class="block text-xs font-medium text-slate-700">Phone country <span class="text-red-600">*</span></label>
+                <select name="phone_country" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600">
+                    <option value="US">United States (+1)</option>
+                    <option value="CA">Canada (+1)</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="SE">Sweden</option>
+                </select>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-xs font-medium text-slate-700">Phone number <span class="text-red-600">*</span></label>
+                <input name="phone" type="tel" required autocomplete="tel" inputmode="tel"
+                    placeholder="Include area code"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+        </div>
+
         <div>
             <label class="block text-xs font-medium text-slate-700">Password <span class="text-red-600">*</span></label>
             <div class="relative mt-1">
@@ -141,6 +210,7 @@ main_head_end();
             </div>
             <p id="ns-pw-match-hint" class="mt-1 text-xs text-slate-500"></p>
         </div>
+        </div>
 
         <div class="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
             <label class="flex items-start gap-3">
@@ -187,10 +257,6 @@ main_head_end();
         var pw = document.getElementById('ns-password');
         var pw2 = document.getElementById('ns-password-confirm');
         var hint = document.getElementById('ns-pw-match-hint');
-        var faceInput = document.getElementById('ns-face-photo');
-        var faceImg = document.getElementById('ns-face-preview-img');
-        var facePlaceholder = document.getElementById('ns-face-preview-placeholder');
-
         function setHint() {
             if (!hint || !pw || !pw2) return;
             if (!pw2.value) {
@@ -236,18 +302,16 @@ main_head_end();
         wireToggle('ns-toggle-password', 'ns-password', 'ns-eye-open', 'ns-eye-closed');
         wireToggle('ns-toggle-password-confirm', 'ns-password-confirm', 'ns-eye-open-confirm', 'ns-eye-closed-confirm');
 
-        if (faceInput && faceImg && facePlaceholder) {
-            faceInput.addEventListener('change', function() {
-                var f = faceInput.files && faceInput.files[0] ? faceInput.files[0] : null;
-                if (!f) return;
-                if (!f.type || f.type.indexOf('image/') !== 0) return;
-                var url = URL.createObjectURL(f);
-                faceImg.src = url;
-                faceImg.classList.remove('hidden');
-                facePlaceholder.classList.add('hidden');
+        var form = document.getElementById('ns-signup-form');
+        var overlay = document.getElementById('ns-loading-overlay');
+        if (form && overlay) {
+            form.addEventListener('submit', function() {
+                overlay.style.display = 'flex';
+                overlay.setAttribute('aria-hidden', 'false');
+                overlay.setAttribute('aria-busy', 'true');
             });
         }
     })();
 </script>
 <?php
-no_footer();
+no_footer(['skip_tawk' => true]);

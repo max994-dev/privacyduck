@@ -4,11 +4,26 @@ include_once(BASEPATH . "/src/common/config.php");
 include_once(BASEPATH . "/src/common/utils.php");
 include_once(BASEPATH . "/src/common/database.php");
 
-// Always revalidate app responses so browser refresh gets latest server output.
+$request = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+
+// Prevent caching on authenticated/private routes only.
+// Public marketing pages are safe to cache for a short period.
+$privateRoutePrefixes = ['dashboard', 'new_dashboard', 'business/dashboard', 'business/content/dashboard', 'payment'];
+$isPrivateRoute = false;
+foreach ($privateRoutePrefixes as $prefix) {
+    if ($request === $prefix || strpos($request, $prefix . '/') === 0) {
+        $isPrivateRoute = true;
+        break;
+    }
+}
 if (!headers_sent()) {
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header('Expires: 0');
+    if ($isPrivateRoute) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+    } else {
+        header('Cache-Control: public, max-age=600, must-revalidate');
+    }
 }
 
 if (isset($_SESSION["isAuthenticated"]) && $_SESSION["isAuthenticated"]){
@@ -26,7 +41,6 @@ if (isset($_SESSION["isAuthenticated"]) && $_SESSION["isAuthenticated"]){
     }
 }
 
-$request = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $routes = [
     'stripe/webhook' => 'controllers/stripeWebHook.php',
     //Landing

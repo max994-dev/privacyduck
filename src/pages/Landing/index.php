@@ -3,6 +3,37 @@ $meta_title = "Remove Personal Information Online | PrivacyDuck";
 $meta_description = "Erase your digital footprint. PrivacyDuck removes your personal info from Google, people search sites & 500+ data brokers. Try a free scan today.";
 $meta_url = "https://privacyduck.com/";
 $meta_keywords = "remove employee data, employee privacy protection, delete employee info from google, business data removal, executive privacy";
+$json_ld = [
+    "@context" => "https://schema.org",
+    "@graph" => [
+        [
+            "@type" => "Organization",
+            "@id" => "https://privacyduck.com/#organization",
+            "name" => "PrivacyDuck",
+            "url" => "https://privacyduck.com",
+            "logo" => [
+                "@type" => "ImageObject",
+                "url" => "https://privacyduck.com/assets/image/desktop/logo.svg"
+            ],
+            "description" => "US-based personal data removal service that removes your information from 400+ data brokers, people search sites, and Google. Protecting privacy since 2019.",
+            "foundingDate" => "2019",
+            "areaServed" => "US",
+            "sameAs" => ["https://x.com/antisystemduck"],
+            "contactPoint" => [
+                "@type" => "ContactPoint",
+                "contactType" => "customer support",
+                "url" => "https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0"
+            ]
+        ],
+        [
+            "@type" => "WebSite",
+            "@id" => "https://privacyduck.com/#website",
+            "url" => "https://privacyduck.com",
+            "name" => "PrivacyDuck",
+            "publisher" => ["@id" => "https://privacyduck.com/#organization"]
+        ]
+    ]
+];
 include_once(BASEPATH . "/src/common/meta.php");
 require_once __DIR__ . "/landing_header.php";
 main_head_start();
@@ -12,6 +43,7 @@ main_head_start();
 
 <link href="/assets/css/landing.css" rel="stylesheet">
 <link href="/assets/css/landingMobileAnimation.css" rel="stylesheet">
+<?php /* DM Sans already loaded by main_head_start() consolidated font request */ ?>
 <style>
     .call-button {
         position: fixed;
@@ -154,6 +186,63 @@ main_head_end();
         <?php
         require("testimonial.php");
         ?>
+    </div>
+    <div class="landing-section scroll-mt-[120px]" data-header="dark" id="np-pricing">
+        <section class="bg-white px-5 md:px-10 pb-16 pt-6 md:pt-10">
+            <div class="max-w-[960px] mx-auto text-center mb-10">
+                <span class="inline-block rounded-full np-bg-green text-white text-sm font-semibold px-5 py-2">Pricing</span>
+                <h2 class="mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">
+                    The Right Price For You, Whoever You Are
+                </h2>
+                <p class="mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">
+                    Our subscription covers 300+ sites and continues to delete your data from data broker sites year after year
+                </p>
+            </div>
+            <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8" style="font-family: 'DM Sans', system-ui, sans-serif;">
+                <article class="rounded-[20px] border-2 border-[#77B248] bg-white p-6 sm:p-8 md:p-10 flex flex-col shadow-[0_0_0_1px_rgba(119,178,72,0.2)]">
+                    <div class="text-[#77B248] font-bold text-[34px] sm:text-[40px] md:text-[52px] leading-none sm:leading-[1.05] flex items-center justify-center">
+                        PRO
+                    </div>
+                    <p class="mt-2 text-[#141414] font-normal text-[18px] sm:text-[21px] leading-[30px] sm:leading-[38px] min-h-[90px]">
+                        Get your data deleted from the internet, right away!
+                    </p>
+                    <div class="rounded-[14px] mt-5 px-1 py-2 flex items-end">
+                        <span class="font-bold text-[30px] sm:text-[38px] leading-[1.2]">$299.99</span>
+                        <span class="ml-2 font-normal text-[13px] sm:text-[16px] leading-[20px] pb-[4px]">/year</span>
+                    </div>
+                    <a href="/pricing" class="mt-5 inline-flex rounded-full np-bg-green text-white font-semibold px-8 py-4 min-h-[64px] hover:opacity-95 w-full justify-center items-center">
+                        Get Started Now
+                    </a>
+                    <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>
+                    <ul class="mt-4 space-y-3 text-[15px] text-[#141414]/90 text-left">
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> 300+ Sites Opted Out</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Dark Web Monitoring &amp; Privacy Concierge Support Included</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Custom Support Through Our Concierge</li>
+                    </ul>
+                </article>
+                <article class="rounded-[20px] border border-slate-200 bg-white p-6 sm:p-8 md:p-10 flex flex-col">
+                    <div class="text-[#77B248] font-bold text-[30px] sm:text-[36px] md:text-[50px] leading-none sm:leading-[1.05] flex items-center justify-center text-center">
+                        ENTERPRISE
+                    </div>
+                    <p class="mt-2 text-[#141414] font-normal text-[18px] sm:text-[21px] leading-[30px] sm:leading-[38px] min-h-[90px]">
+                        Dedicated support and employee / employer protection for your company.
+                    </p>
+                    <div class="rounded-[14px] mt-5 px-1 py-2 flex items-end">
+                        <span class="font-bold text-[30px] sm:text-[38px] leading-[1.2]">Custom</span>
+                    </div>
+                    <a href="/business" class="mt-5 inline-flex rounded-full np-bg-green text-white font-semibold px-8 py-4 min-h-[64px] hover:opacity-95 w-full justify-center items-center">
+                        Contact Us Now
+                    </a>
+                    <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>
+                    <ul class="mt-4 space-y-3 text-[15px] text-[#141414]/90 text-left">
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Priority support</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Unlimited Team Members</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Custom Solutions</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Special Enterprise Dashboard</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
     </div>
     <div class="landing-section" data-header="dark">
         <?php

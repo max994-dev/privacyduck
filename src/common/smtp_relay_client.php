@@ -75,8 +75,10 @@ if (!function_exists('pd_smtp_relay_send_html')) {
                 'Authorization: Bearer ' . $secret,
             ],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_TIMEOUT => min(120, max(15, (int) ($cfg['timeout'] ?? 60) + 30)),
+            CURLOPT_CONNECTTIMEOUT => 8,
+            // Keep well below typical reverse-proxy read timeouts (e.g. nginx 60s) so login/mail
+            // can fall back to direct SMTP instead of hanging the request.
+            CURLOPT_TIMEOUT => min(25, max(8, (int) ($cfg['timeout'] ?? 30))),
         ];
         if (defined('CURL_IPRESOLVE_V4')) {
             $opts[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
