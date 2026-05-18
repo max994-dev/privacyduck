@@ -78,3 +78,33 @@ function pd_stripe_bootstrap(): void
     \Stripe\Stripe::setApiKey(pd_stripe_secret_key());
     \Stripe\Stripe::setApiVersion('2023-08-16');
 }
+
+/** PRO annual ($299.99) hosted checkout URL; optional prefilled_email query param. */
+function pd_pro_plan_stripe_payment_link(string $prefilledEmail = ''): string
+{
+    $base = defined('PRO_PLAN_STRIPE_PAYMENT_LINK')
+        ? (string) PRO_PLAN_STRIPE_PAYMENT_LINK
+        : 'https://buy.stripe.com/14AfZg7jJa0CbKcf18dwc0Y';
+    $email = trim($prefilledEmail);
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $sep = str_contains($base, '?') ? '&' : '?';
+        return $base . $sep . 'prefilled_email=' . rawurlencode($email);
+    }
+    return $base;
+}
+
+/** Apply config payment link to standard 1-year PRO plan rows (value 29999 cents). */
+function pd_plan_apply_pro_stripe_link(array &$plan): void
+{
+    $link = pd_pro_plan_stripe_payment_link();
+    if ($link === '') {
+        return;
+    }
+    $value = (int) ($plan['value'] ?? 0);
+    $isProAnnual = $value === 29999
+        || ((($plan['year'] ?? '') === 'one') && (($plan['person'] ?? '') === 'single'));
+    if ($isProAnnual) {
+        $plan['stripe_payment_link'] = $link;
+        $plan['stripe_payment_link_etc'] = $link;
+    }
+}

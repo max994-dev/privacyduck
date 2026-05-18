@@ -58,10 +58,11 @@ function main_head_start(array $opts = [])
         ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link href="/assets/css/tailwind-built.css?v=<?= $assetV ?>" rel="stylesheet" />
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet" />
-    <link href="/vendor/flowbite/flowbite-2.3.0.min.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <?php /* Slim auth pages use Tailwind from tailwind-built.css only; do not load
+       flowbite-2.3.0.min.css here — it ships a second Tailwind preflight and resets
+       <button> / submit styles after our utilities (e.g. invisible “Sign up” button). */ ?>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
         <?php
         return;
@@ -73,17 +74,18 @@ function main_head_start(array $opts = [])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="IsaNzKjoHBwx870MEenhIdXssc8XIkH_mMcxLb0pkes" />
 
-    <!-- Preconnect only for CDNs still used (Tailwind CDN, GTM, Stripe, Maps) -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <!-- Resource hints -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
 
-    <?php $assetV = defined('VERISON') ? rawurlencode((string) VERISON) : (string) time(); ?>
     <link href="/assets/css/animate.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/splash.css?v=<?= $assetV ?>" rel="stylesheet">
+    <link href="/assets/css/tailwind-built.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet">
 
+    <?php /* Flowbite styles come from tailwind-built.css (flowbite Tailwind plugin). Do not load
+       flowbite-2.3.0.min.css — it is a full second Tailwind build and reapplies preflight after our
+       utilities, which breaks grids/layout (e.g. landing). Flowbite JS stays deferred below. */ ?>
     <!-- Core UI libs (all pages) — served locally -->
-    <link href="/vendor/flowbite/flowbite-2.3.0.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="/vendor/toastr/toastr.min.css" />
     <link rel="stylesheet" href="/vendor/fonts/fonts.css" />
@@ -103,11 +105,11 @@ function main_head_start(array $opts = [])
 
     <!-- Core scripts (all pages) — served locally; jQuery must be synchronous -->
     <script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/vendor/toastr/toastr.min.js" defer></script>
+    <?php /* Toastr + Flickity: no defer — inline head/body scripts use them before document parse completes. */ ?>
+    <script src="/vendor/toastr/toastr.min.js"></script>
     <script src="/vendor/flowbite/flowbite-2.3.0.min.js" defer></script>
     <script src="/vendor/swiper/swiper-bundle.min.js" defer></script>
-    <script src="/vendor/flickity/flickity.pkgd.min.js" defer></script>
+    <script src="/vendor/flickity/flickity.pkgd.min.js"></script>
     <script src="/vendor/lottie/lottie-player.js" defer></script>
 
     <!-- Stripe.js — payment pages only (PCI compliance: must stay on js.stripe.com) -->

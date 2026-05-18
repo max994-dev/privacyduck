@@ -243,7 +243,7 @@ main_head_end();
         </div>
 
         <button type="submit"
-            class="mt-4 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+            class="mt-4 w-full rounded-lg border border-emerald-700 bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
             Sign up
         </button>
         <p class="text-center text-sm text-slate-600">

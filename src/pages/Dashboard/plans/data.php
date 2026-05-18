@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/stripe_config.php';
 
 $conn = getDBConnection();
 $stmt = $conn->prepare("SELECT * FROM plans where show_dashboard = 1");
@@ -10,6 +11,7 @@ if ($result->num_rows > 0) {
     $tmpData = $result->fetch_all(MYSQLI_ASSOC);
     foreach ($tmpData as $key => $value) {
         $value['stripe_payment_link'] = $value['stripe_payment_link_etc'] ?? '';
+        pd_plan_apply_pro_stripe_link($value);
         if (!isset($dataa[$value['year']])) {
             $dataa[$value['year']] = [];
         }

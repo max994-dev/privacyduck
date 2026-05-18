@@ -13,6 +13,7 @@ if ($result->num_rows > 0) {
     $tmpData = $result->fetch_all(MYSQLI_ASSOC);
     foreach ($tmpData as $key => $value) {
         $value['stripe_payment_link'] = $value['stripe_payment_link_etc'] ?? '';
+        pd_plan_apply_pro_stripe_link($value);
         if (!isset($data[$value['year']])) {
             $data[$value['year']] = [];
         }

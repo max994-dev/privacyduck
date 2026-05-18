@@ -78,6 +78,12 @@
 </div>
 <script>
     function landing_inbound_init() {
+        const proStripeCheckoutUrl = (addr) => {
+            const base = <?= json_encode(pd_pro_plan_stripe_payment_link(''), JSON_UNESCAPED_SLASHES) ?>;
+            if (!addr) return base;
+            const sep = base.indexOf('?') >= 0 ? '&' : '?';
+            return base + sep + 'prefilled_email=' + encodeURIComponent(addr);
+        };
         function setCookie(name, value, days) {
             let expires = "";
             if (days) {
@@ -169,7 +175,7 @@
                     } else if (res["warning"]) {
                         toastr.warning(res["warning"])
                     } else {
-                        window.open("https://buy.stripe.com/5kQ5kC5bBegS01u6uCdwc0M?prefilled_email=" + email + "&prefilled_promo_code=ARTDECO", "_blank");
+                        window.open(proStripeCheckoutUrl(email), "_blank");
                         // toastr.success(`${email} has been successfully submitted.`)
                     }
                 });

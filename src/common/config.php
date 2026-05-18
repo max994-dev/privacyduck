@@ -25,6 +25,10 @@
     if (!defined('FAMILY_MEMBER_ADDON_STRIPE_LINK')) {
         define('FAMILY_MEMBER_ADDON_STRIPE_LINK', 'https://buy.stripe.com/00w4gy1Zp3Ce15ybOWdwc0W');
     }
+    /** Stripe Payment Link for PRO annual ($299.99) — overrides DB link for matching plans. */
+    if (!defined('PRO_PLAN_STRIPE_PAYMENT_LINK')) {
+        define('PRO_PLAN_STRIPE_PAYMENT_LINK', 'https://buy.stripe.com/14AfZg7jJa0CbKcf18dwc0Y');
+    }
     /** Set Stripe Payment Link “After payment” redirect to: WEB_DOMAIN + '/invite_payment_stripe_return' */
 
     /** Odoo (optional): bookings create calendar.event + crm.lead via /json rpc */
