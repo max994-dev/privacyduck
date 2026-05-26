@@ -18,9 +18,16 @@ function new_signup_clear_pending_session(): void
         $_SESSION['auth_flow'],
         $_SESSION['new_signup_password_hash'],
         $_SESSION['new_signup_agree_marketing'],
-        $_SESSION['new_signup_profile']
+        $_SESSION['new_signup_profile'],
+        $_SESSION['new_signup_consent_version'],
+        $_SESSION['new_signup_consent_at']
     );
 }
+
+// UK GDPR Art. 7(1) audit trail: bump this string whenever the privacy policy
+// has a material change. Existing users keep their old version; new signups
+// from that day onward are recorded as accepting the new one.
+const PD_PRIVACY_POLICY_VERSION = '2026-05-26';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     new_signup_redirect_error('Invalid request.');
@@ -42,8 +49,13 @@ if (!is_string($passwordConfirm) || $passwordConfirm === '' || $passwordConfirm 
     new_signup_redirect_error('Passwords do not match.');
 }
 if (!$agreeTerms) {
-    new_signup_redirect_error('You must agree to the Privacy Policy and Terms of Service to create an account.');
+    new_signup_redirect_error('You must confirm you have read the Privacy Policy and Cookie Policy to create an account.');
 }
+
+// UK GDPR audit: capture exact moment of consent + which policy version applies.
+$consentAt = date('Y-m-d H:i:s');
+$consentVersion = PD_PRIVACY_POLICY_VERSION;
+$marketingConsentAt = $agreeMarketing ? $consentAt : null;
 
 $parsed = pd_new_signup_parse_profile_from_post($_POST);
 if (!$parsed['ok']) {
@@ -66,7 +78,15 @@ $conn->close();
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
 if (email_verification_bypassed($email)) {
-    $data = pd_insert_new_signup_user($email, $passwordHash, $agreeMarketing ? 1 : 0, $signupProfile);
+    $data = pd_insert_new_signup_user(
+        $email,
+        $passwordHash,
+        $agreeMarketing ? 1 : 0,
+        $signupProfile,
+        $consentVersion,
+        $consentAt,
+        $marketingConsentAt
+    );
     if (!$data) {
         new_signup_redirect_error('Could not create account. Please try again.');
     }
@@ -84,6 +104,8 @@ $_SESSION['auth_flow'] = 'new_signup';
 $_SESSION['new_signup_password_hash'] = $passwordHash;
 $_SESSION['new_signup_agree_marketing'] = $agreeMarketing ? 1 : 0;
 $_SESSION['new_signup_profile'] = $signupProfile;
+$_SESSION['new_signup_consent_version'] = $consentVersion;
+$_SESSION['new_signup_consent_at'] = $consentAt;
 
 if (!sendVerificationCodeEmail(
     $email,

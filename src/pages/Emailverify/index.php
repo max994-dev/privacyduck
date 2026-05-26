@@ -25,25 +25,31 @@ if (email_verification_bypassed($verifyEmail)) {
     if ($isNewSignupFlow) {
         $pendingHash = $_SESSION['new_signup_password_hash'] ?? null;
         if (!is_string($pendingHash) || $pendingHash === '') {
-            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at']);
             header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Your signup session expired. Please try again.'));
             exit;
         }
         $marketing = (int) ($_SESSION['new_signup_agree_marketing'] ?? 0);
         $nsProfile = $_SESSION['new_signup_profile'] ?? null;
+        $consentVersion = $_SESSION['new_signup_consent_version'] ?? null;
+        $consentAt = $_SESSION['new_signup_consent_at'] ?? null;
+        $marketingConsentAt = $marketing ? $consentAt : null;
         $created = pd_insert_new_signup_user(
             $verifyEmail,
             $pendingHash,
             $marketing,
-            is_array($nsProfile) ? $nsProfile : null
+            is_array($nsProfile) ? $nsProfile : null,
+            $consentVersion,
+            $consentAt,
+            $marketingConsentAt
         );
         if (!$created) {
-            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at']);
             header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Could not create account. That email may already be registered.'));
             exit;
         }
         pd_apply_user_session_from_row($created, $verifyEmail);
-        unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+        unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at']);
         header("Location: " . pd_new_landing_post_auth_redirect_url($created));
         exit;
     }
@@ -147,6 +153,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
             $_SESSION['new_signup_password_hash'],
             $_SESSION['new_signup_agree_marketing'],
             $_SESSION['new_signup_profile'],
+            $_SESSION['new_signup_consent_version'],
+            $_SESSION['new_signup_consent_at'],
             $_SESSION['verify_code_attempts']
         );
         header("Location: " . WEB_DOMAIN . "/new_signin?err=" . rawurlencode('Too many attempts. Request a new code.'));
@@ -204,25 +212,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
         if ($isNewSignupFlow) {
             $pendingHash = $_SESSION['new_signup_password_hash'] ?? null;
             if (!is_string($pendingHash) || $pendingHash === '') {
-                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['email']);
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at'], $_SESSION['email']);
                 header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Your signup session expired. Please try again.'));
                 exit;
             }
             $marketing = (int) ($_SESSION['new_signup_agree_marketing'] ?? 0);
             $nsProfile = $_SESSION['new_signup_profile'] ?? null;
+            $consentVersion = $_SESSION['new_signup_consent_version'] ?? null;
+            $consentAt = $_SESSION['new_signup_consent_at'] ?? null;
+            $marketingConsentAt = $marketing ? $consentAt : null;
             $created = pd_insert_new_signup_user(
                 $verifyEmail,
                 $pendingHash,
                 $marketing,
-                is_array($nsProfile) ? $nsProfile : null
+                is_array($nsProfile) ? $nsProfile : null,
+                $consentVersion,
+                $consentAt,
+                $marketingConsentAt
             );
             if (!$created) {
-                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+                unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at']);
                 header("Location: " . WEB_DOMAIN . "/new_signup?err=" . rawurlencode('Could not create account. That email may already be registered.'));
                 exit;
             }
             pd_apply_user_session_from_row($created, $verifyEmail);
-            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile']);
+            unset($_SESSION['verify_code'], $_SESSION['auth_flow'], $_SESSION['new_signup_password_hash'], $_SESSION['new_signup_agree_marketing'], $_SESSION['new_signup_profile'], $_SESSION['new_signup_consent_version'], $_SESSION['new_signup_consent_at']);
             setcookie("info", $verifyEmail, time() + 60 * 60 * 24 * 10, "/");
             header("Location: " . pd_new_landing_post_auth_redirect_url($created));
             exit;

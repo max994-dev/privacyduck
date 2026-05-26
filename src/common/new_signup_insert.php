@@ -104,11 +104,26 @@ function pd_new_signup_age_from_birthdate(string $birthYmd): int
  * Create a password-based user from the new signup flow (no face photo).
  * $profile: output of pd_new_signup_parse_profile_from_post()['data'], or null for legacy minimal row.
  *
+ * UK GDPR Art. 7(1) audit trail params:
+ *   $consentVersion       — effective date of the privacy policy version the
+ *                           user accepted (e.g. '2026-05-26'). NULL for legacy.
+ *   $policyConsentAt      — DATETIME string (Y-m-d H:i:s) when the user
+ *                           accepted the policy. NULL for legacy.
+ *   $marketingConsentAt   — DATETIME string when the user opted in to
+ *                           marketing emails. NULL when they did not opt in.
+ *
  * @param array<string,string>|null $profile
  * @return array<string,mixed>|null
  */
-function pd_insert_new_signup_user(string $email, string $passwordHash, int $agreeMarketing, ?array $profile = null): ?array
-{
+function pd_insert_new_signup_user(
+    string $email,
+    string $passwordHash,
+    int $agreeMarketing,
+    ?array $profile = null,
+    ?string $consentVersion = null,
+    ?string $policyConsentAt = null,
+    ?string $marketingConsentAt = null
+): ?array {
     $conn = getDBConnection();
     $stmt = $conn->prepare('SELECT id FROM users WHERE LOWER(TRIM(email)) = LOWER(?)');
     $stmt->bind_param('s', $email);
@@ -163,11 +178,11 @@ function pd_insert_new_signup_user(string $email, string $passwordHash, int $agr
     $url = '';
 
     $stmt = $conn->prepare(
-        'INSERT INTO users (email, firstname, lastname, phone, city, zip, state, age, address, contacts, role, created_at, password, url) '
-        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)'
+        'INSERT INTO users (email, firstname, lastname, phone, city, zip, state, age, address, contacts, role, created_at, password, url, consent_policy_version, policy_consent_at, marketing_consent_at) '
+        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->bind_param(
-        'sssssssisssss',
+        'sssssssisssssssss',
         $email,
         $firstname,
         $lastname,
@@ -180,7 +195,10 @@ function pd_insert_new_signup_user(string $email, string $passwordHash, int $agr
         $contactsJson,
         $createdAt,
         $passwordHash,
-        $url
+        $url,
+        $consentVersion,
+        $policyConsentAt,
+        $marketingConsentAt
     );
 
     if (!$stmt->execute()) {

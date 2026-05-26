@@ -222,8 +222,8 @@ main_head_end();
                     class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
                 />
                 <span class="text-sm text-slate-700 leading-relaxed">
-                    I agree to the <a href="/policy" class="font-semibold text-emerald-700 hover:underline">Privacy Policy</a> and
-                    <a href="/policy" class="font-semibold text-emerald-700 hover:underline">Terms of Service</a>.
+                    I confirm I have read the <a href="/policy" target="_blank" rel="noopener" class="font-semibold text-emerald-700 hover:underline">Privacy Policy</a> and
+                    <a href="/cookie-policy" target="_blank" rel="noopener" class="font-semibold text-emerald-700 hover:underline">Cookie Policy</a>.
                 </span>
             </label>
         </div>
@@ -237,7 +237,7 @@ main_head_end();
                     class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
                 />
                 <span class="text-sm text-slate-700 leading-relaxed">
-                    I agree to receive marketing emails from PrivacyDuck.
+                    I'd like to receive product updates, tips, and special offers by email. I can unsubscribe at any time.
                 </span>
             </label>
         </div>
