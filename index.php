@@ -98,6 +98,7 @@ $routes = [
 
     //Policy
     'policy' => 'Policy/index.php',
+    'cookie-policy' => 'CookiePolicy/index.php',
 
     //Personalized service
     'personalized-service' => 'Personalized/index.php',

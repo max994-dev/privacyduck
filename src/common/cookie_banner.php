@@ -34,7 +34,7 @@ if (!function_exists('pd_cookie_banner_render')) {
         <h2 id="pd-cc-banner-title" class="font-semibold text-[18px] leading-[1.3]">Cookies on PrivacyDuck</h2>
         <p class="mt-2 text-[14px] leading-[1.5] text-[#374151]">
             We use cookies to keep the site working, measure how people use it, and run live chat. You decide what's on.
-            <a href="/policy#cookies" class="underline hover:no-underline">Read our cookie policy</a>.
+            <a href="/cookie-policy" class="underline hover:no-underline">Read our cookie policy</a>.
         </p>
         <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button type="button" id="pd-cc-accept" class="flex-1 rounded-full bg-[#24A556] hover:bg-[#1E8C49] text-white font-semibold text-[14px] px-4 py-2.5">Accept all</button>
