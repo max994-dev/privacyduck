@@ -221,10 +221,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-[41px] text-center flex justify-center gap-5">
+                <div class="mt-[41px] text-center flex justify-center gap-5 flex-wrap">
                     <a href="/policy">
                         <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
                             Privacy Policy</h2>
+                    </a>
+                    <a href="#" onclick="event.preventDefault(); if(window.pdConsent){window.pdConsent.open();}" aria-label="Open cookie preferences">
+                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C] hover:underline">
+                            Cookie Settings</h2>
                     </a>
                     <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
                         © <?php echo date("Y"); ?> Privacy Duck. All Rights Reserved.</h2>

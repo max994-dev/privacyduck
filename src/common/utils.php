@@ -4,6 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/cookie_banner.php';
+
 /**
  * Some servers/proxies leave $_POST empty for POST + application/x-www-form-urlencoded.
  */
@@ -135,17 +137,9 @@ function main_head_start(array $opts = [])
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js"></script>
     <?php endif; ?>
 
-    <!-- Google Tag Manager + GA4 (async — non-blocking) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6WKNFG8FS"></script>
-    <script>
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
-        var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
-        j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-        f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P679J6HD');
-        window.dataLayer=window.dataLayer||[];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js',new Date());gtag('config','G-P6WKNFG8FS');
-    </script>
+    <!-- Google Tag Manager + GA4: gated behind cookie consent.
+         The actual script load happens in src/common/cookie_banner.php after
+         the user opts in (UK GDPR / PECR requirement). -->
 
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <script>
@@ -249,8 +243,8 @@ function main_head_end()
     </head>
 
     <body>
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P679J6HD"
-                height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <?php /* UK GDPR cookie banner: must render on every page; gates GTM/GA/Tawk.to. */ ?>
+        <?php pd_cookie_banner_render(); ?>
         <div id="custom-alert" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 hidden px-[16px]">
             <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
                 <div class="flex items-center">
@@ -517,19 +511,7 @@ function main_footer()
 {
     include __DIR__ . '/../pages/Landing/footer_main_content.php';
     ?>
-        <script type="text/javascript">
-            var Tawk_API = Tawk_API || {},
-                Tawk_LoadStart = new Date();
-            (function() {
-                var s1 = document.createElement("script"),
-                    s0 = document.getElementsByTagName("script")[0];
-                s1.async = true;
-                s1.src = 'https://embed.tawk.to/6813761a7c6684190de59a7c/1iq60amh0';
-                s1.charset = 'UTF-8';
-                s1.setAttribute('crossorigin', '*');
-                s0.parentNode.insertBefore(s1, s0);
-            })();
-        </script>
+        <?php /* Tawk.to live chat: loaded by cookie_banner.php only after Functional consent. */ ?>
     </body>
 
     </html>
@@ -547,18 +529,8 @@ function no_footer(array $opts = [])
 EOT;
         return;
     }
-    $content = <<<EOT
-                <script type="text/javascript">
-                    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-                    (function () {
-                        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-                        s1.async = true;
-                        s1.src = 'https://embed.tawk.to/6813761a7c6684190de59a7c/1iq60amh0';
-                        s1.charset = 'UTF-8';
-                        s1.setAttribute('crossorigin', '*');
-                        s0.parentNode.insertBefore(s1, s0);
-                    })();
-                </script>
+    $content = <<<'EOT'
+            <!-- Tawk.to live chat: loaded by cookie_banner.php only after Functional consent -->
             </body>
         </html>
     EOT;
