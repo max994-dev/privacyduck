@@ -74,7 +74,7 @@
                                     <div class="flex gap-5 mt-[15px] items-center">
                                         <i class="fa-solid fa-envelope text-[24px]" style="color: #24A556;"></i>
                                         <h4 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
-                                            hello@privacyduck.com</h4>
+                                            <a href="mailto:hello@privacyduck.com" class="hover:underline">hello@privacyduck.com</a></h4>
                                     </div>
                                     <div class="flex gap-5 mt-[15px] items-center">
                                         <i class="fa-solid fa-location-dot text-[24px]" style="color: #24A556;"></i>
@@ -82,10 +82,11 @@
                                             2101 Arrowhead Drive, Carson City, Nevada, USA </h4>
                                     </div>
                                     <div class="flex gap-5 mt-[15px]">
-                                        <img src="/assets/image/mobile/facebook.svg" class="w-[34px] h-[34px]" alt="">
-                                        <a href="https://x.com/antisystemduck" target="_blank"><img src="/assets/image/mobile/twitter.svg" class="w-[34px] h-[34px]" alt=""></a>
-                                        <img src="/assets/image/mobile/linkedin.svg" class="w-[34px] h-[34px]" alt="">
-                                        <img src="/assets/image/mobile/instagram.svg" class="w-[34px] h-[34px]" alt="">
+                                        <!-- TODO: replace placeholder social URLs with real PrivacyDuck profile URLs -->
+                                        <a href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Facebook"><img src="/assets/image/mobile/facebook.svg" class="w-[34px] h-[34px]" alt="Facebook"></a>
+                                        <a href="https://x.com/antisystemduck" target="_blank" rel="noopener" aria-label="Twitter / X"><img src="/assets/image/mobile/twitter.svg" class="w-[34px] h-[34px]" alt="Twitter"></a>
+                                        <a href="https://linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="/assets/image/mobile/linkedin.svg" class="w-[34px] h-[34px]" alt="LinkedIn"></a>
+                                        <a href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><img src="/assets/image/mobile/instagram.svg" class="w-[34px] h-[34px]" alt="Instagram"></a>
                                     </div>
                                 </div>
                             </div>
@@ -131,7 +132,7 @@
                                                 <i class="fa-solid fa-envelope text-[24px]" style="color: #24A556;"></i>
                                                 <h4 style="font-family: 'Roboto', sans-serif;"
                                                     class="text-[14px] text-[#9B9B9C]">
-                                                    hello@privacyduck.com</h4>
+                                                    <a href="mailto:hello@privacyduck.com" class="hover:underline">hello@privacyduck.com</a></h4>
                                             </div>
                                         </div>
                                         <div class="flex justify-center">
@@ -145,15 +146,19 @@
                                         </div>
                                         <div class="flex justify-center">
                                             <div class="flex gap-5 mt-[15px]">
-                                                <img src="/assets/image/mobile/facebook.svg" class="w-[34px] h-[34px]"
-                                                    alt="facebook">
-                                                <a href="https://x.com/antisystemduck" target="_blank">
-                                                    <img src="/assets/image/mobile/twitter.svg" class="w-[34px] h-[34px]" alt="twitter">
+                                                <!-- TODO: replace placeholder social URLs with real PrivacyDuck profile URLs -->
+                                                <a href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                                                    <img src="/assets/image/mobile/facebook.svg" class="w-[34px] h-[34px]" alt="Facebook">
                                                 </a>
-                                                <img src="/assets/image/mobile/linkedin.svg" class="w-[34px] h-[34px]"
-                                                    alt="linkedin">
-                                                <img src="/assets/image/mobile/instagram.svg" class="w-[34px] h-[34px]"
-                                                    alt="instagram">
+                                                <a href="https://x.com/antisystemduck" target="_blank" rel="noopener" aria-label="Twitter / X">
+                                                    <img src="/assets/image/mobile/twitter.svg" class="w-[34px] h-[34px]" alt="Twitter">
+                                                </a>
+                                                <a href="https://linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                                                    <img src="/assets/image/mobile/linkedin.svg" class="w-[34px] h-[34px]" alt="LinkedIn">
+                                                </a>
+                                                <a href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                                                    <img src="/assets/image/mobile/instagram.svg" class="w-[34px] h-[34px]" alt="Instagram">
+                                                </a>
 
                                             </div>
                                         </div>
@@ -165,7 +170,9 @@
                     <div class="justify-center mt-[50px] w-full xl:w-1/2 flex items-center xl:justify-end">
                         <div>
                             <div class="flex justify-center">
-                                <img src="/assets/image/desktop/logo2.svg" alt="">
+                                <a href="/" aria-label="PrivacyDuck home">
+                                    <img src="/assets/image/desktop/logo2.svg" alt="PrivacyDuck">
+                                </a>
                             </div>
                             <div class="text-center mt-[8px]">
                                 <h2 style="font-family: 'Roboto', sans-serif;"
@@ -177,7 +184,7 @@
                                 </h2>
                             </div>
                             <div class="justify-center flex mt-[32px]">
-                                <a href="#"
+                                <a href="/new_signup"
                                     class="flex mt-[8px] items-center gap-2 px-10 py-3 bg-green-600 text-white text-[16px] leading-[140%] tracking-[2%] font-bold rounded-full hover:bg-green-700 w-fit">
                                     Intro
                                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
@@ -220,7 +227,7 @@
                             Privacy Policy</h2>
                     </a>
                     <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
-                        Copyright © <?php echo date("Y"); ?></h2>
+                        © <?php echo date("Y"); ?> Privacy Duck. All Rights Reserved.</h2>
                 </div>
             </div>
         </div>

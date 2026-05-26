@@ -74,7 +74,7 @@
                 PrivacyDuck Enterprise gives you control over your human attack surface.
                 With real-time removal, automated monitoring, and GDPR-compliant workflows,
                 we help you secure what most enterprise security platforms ignore: your team’s PII.
-                Our employee privacy protection solution ensures it’s not just protection it’s prevention.
+                Our employee <a href="/" class="font-semibold underline hover:no-underline">privacy protection solution</a> ensures it’s not just protection it’s prevention.
             </p>
             <div class="h-[116.91px]"></div>
         </div>

@@ -4,8 +4,8 @@
             PrivacyDuck Turns Compliance Into Business Growth
         </h2>
         <p class="mt-[32px] max-w-[884px] text-[#010205CC] text-[18px] leading-[150%] text-center">
-            Get enterprise-grade privacy protection without slowing down your team. PrivacyDuck combines visibility, automation, 
-            and collaboration to simplify GDPR compliance and data removal.
+            Get enterprise-grade privacy protection without slowing down your team. PrivacyDuck combines visibility, automation,
+            and collaboration to simplify GDPR compliance and <a href="/" class="font-semibold underline hover:no-underline">data removal</a>.
         </p>
         <div class="mt-[71px] flex grid grid-cols-4 gap-[10px]">
             <?php

@@ -1,6 +1,6 @@
 <?php
 $meta_title = "Remove Personal Information Online | PrivacyDuck";
-$meta_description = "Erase your digital footprint. PrivacyDuck removes your personal info from Google, people search sites & 500+ data brokers. Try a free scan today.";
+$meta_description = "Protect your family and business online with PrivacyDuck. Remove personal data from Google, people search sites & 500+ brokers. Start free scan now.";
 $meta_url = "https://privacyduck.com/";
 $meta_keywords = "remove employee data, employee privacy protection, delete employee info from google, business data removal, executive privacy";
 $json_ld = [
@@ -113,7 +113,7 @@ main_head_end();
     </div>
     <div class="relative z-10 flex-1 flex flex-col justify-center px-5 md:px-10 lg:px-20 xl:px-[100px] py-10 sm:py-12 pb-28 lg:pb-12 max-w-[960px]">
         <h1 class="font-semibold text-[32px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-[-0.02em]">
-            Real people removing your Phone from everywhere it appears.
+            Real people removing your phone number from everywhere it appears.
         </h1>
         <p class="mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]">
             Our US based professional opt-out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.

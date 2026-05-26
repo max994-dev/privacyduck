@@ -9,7 +9,8 @@ function landing_logout_header($x = "white")
     $path = trim(parse_url($_SERVER["REQUEST_URI"] ?? "/", PHP_URL_PATH), "/");
     $featHref = ($path === "new") ? "/new#features" : "/#features";
     $faqHref = ($path === "new") ? "/new#np-faq" : "/#np-faq";
-    $pricingHref = ($path === "new") ? "/new#np-pricing" : "/#np-pricing";
+    // SEO: link to dedicated /pricing page from the live homepage. /new redesign keeps in-page anchor.
+    $pricingHref = ($path === "new") ? "/new#np-pricing" : "/pricing";
     $helpDeskUrl = "https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0";
 
     $textMain = $dark ? "text-[#010205]" : "text-white";
