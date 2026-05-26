@@ -22,7 +22,12 @@ if (empty($lastname)) {
     echo json_encode(["error" => "Missing lastname."]);
     exit;
 }
-$user_id = $_SESSION['work_user_id'];
+if (empty($_SESSION['work_isAuthenticated']) || empty($_SESSION['work_user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Not authenticated."]);
+    exit;
+}
+$user_id = (int) $_SESSION['work_user_id'];
 $conn = getDBConnection();
 $stmt = $conn->prepare("SELECT * FROM mindmap WHERE parent = ? and user_id = ?");
 $parent = -1;

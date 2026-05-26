@@ -3,6 +3,19 @@ Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
+# Defense-in-depth: never execute uploaded files as PHP, even if a future
+# upload path saves something the MIME guard missed.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^assets/uploads/.*\.(php|phtml|phar|pl|py|cgi|sh)$ - [F,L,NC]
+</IfModule>
+<FilesMatch "\.(php|phtml|phar)$">
+    # Only restrict in the uploads tree — the global .htaccess below still runs index.php.
+    <If "%{REQUEST_URI} =~ m#^/assets/uploads/#">
+        Require all denied
+    </If>
+</FilesMatch>
+
 RewriteEngine On
 RewriteBase /
 

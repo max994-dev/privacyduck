@@ -24,9 +24,18 @@ if (!function_exists('pd_stripe_webhook_log')) {
 $endpoint_secret = pd_stripe_webhook_signing_secret();
 
 // Get raw payload and signature
-$payload = @file_get_contents('php://input');
-$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+$payload = file_get_contents('php://input');
+$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 $event = null;
+
+if ($payload === false || $payload === '' || $sig_header === '') {
+    pd_stripe_webhook_log('invalid_request', [
+        'has_payload' => $payload !== false && $payload !== '',
+        'has_signature' => $sig_header !== '',
+    ]);
+    http_response_code(400);
+    exit();
+}
 
 // Verify the webhook signature
 try {

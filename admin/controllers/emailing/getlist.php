@@ -1,6 +1,12 @@
 <?php
 header("Content-Type: application/json");
 
+if (empty($_SESSION['admin']['isAdminAuthenticated'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Admin not authenticated"]);
+    exit;
+}
+
 $conn = getDBConnection();
 
 // Get and sanitize pagination inputs

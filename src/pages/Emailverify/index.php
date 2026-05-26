@@ -135,9 +135,29 @@ if (email_verification_bypassed($verifyEmail)) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
-    $enteredCode = implode("", $_POST['verify_code']);
+    // Brute-force protection: drop the code after 6 failed attempts so the
+    // 6-digit space (≤1M) cannot be exhausted before re-requesting.
+    if (!isset($_SESSION['verify_code_attempts'])) {
+        $_SESSION['verify_code_attempts'] = 0;
+    }
+    if ($_SESSION['verify_code_attempts'] >= 6) {
+        unset(
+            $_SESSION['verify_code'],
+            $_SESSION['auth_flow'],
+            $_SESSION['new_signup_password_hash'],
+            $_SESSION['new_signup_agree_marketing'],
+            $_SESSION['new_signup_profile'],
+            $_SESSION['verify_code_attempts']
+        );
+        header("Location: " . WEB_DOMAIN . "/new_signin?err=" . rawurlencode('Too many attempts. Request a new code.'));
+        exit;
+    }
 
-    if ((string) $verifyCode === (string) $enteredCode) {
+    $codeParts = is_array($_POST['verify_code']) ? $_POST['verify_code'] : [];
+    $enteredCode = implode("", array_map('strval', $codeParts));
+
+    if (hash_equals((string) $verifyCode, (string) $enteredCode)) {
+        unset($_SESSION['verify_code_attempts']);
         if ($isSigninCodeFlow) {
             $conn = getDBConnection();
             $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
@@ -268,7 +288,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_code'])) {
         }
         exit;
     } else {
-        $error = "Invalid verification code. Please try again.";
+        $_SESSION['verify_code_attempts']++;
+        $remaining = max(0, 6 - (int) $_SESSION['verify_code_attempts']);
+        $error = "Invalid verification code. " . ($remaining > 0
+            ? "Please try again ($remaining attempt" . ($remaining === 1 ? '' : 's') . " left)."
+            : "Request a new code.");
     }
 }
 

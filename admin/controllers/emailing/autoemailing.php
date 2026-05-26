@@ -7,51 +7,49 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 header('Content-Type: application/json'); // Return JSON to browser
+
+// Authenticate admin BEFORE doing any DB work.
+$isAdmin = $_SESSION['admin']['isAdminAuthenticated'] ?? '';
+if (!$isAdmin) {
+    http_response_code(401);
+    echo json_encode(["status" => "error", "message" => "Admin not authenticated."]);
+    exit;
+}
+
 $email = "hello@privacyduck.com";
 $verificationCode = random_int(100000, 999999);
 
 $conn = getDBConnection();
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+$stmt = $conn->prepare("SELECT id, firstname FROM users WHERE email = ? LIMIT 1");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows == 0) {
+    $stmt->close();
     echo json_encode(["status" => "warning", "message" => "No users found to email."]);
     exit;
 }
 $userData = $result->fetch_assoc();
+$stmt->close();
 $name = $userData["firstname"];
 $user_id = $userData["id"];
 
-$isAdmin = $_SESSION['admin']['isAdminAuthenticated'] ?? '';
-
-if (!$isAdmin) {
-    echo json_encode(["status" => "error", "message" => "Admin not authenticated."]);
-    exit;
-}
-
-$conn = getDBConnection();
-$stmt = $conn->prepare("SELECT * FROM users WHERE (plan_id IS NULL OR (plan_id > 0 AND plan_end < NOW())) AND (last_emailing_time IS NULL OR last_emailing_time < NOW() - INTERVAL 3 DAY)");
+$stmt = $conn->prepare("SELECT 1 FROM users WHERE (plan_id IS NULL OR (plan_id > 0 AND plan_end < NOW())) AND (last_emailing_time IS NULL OR last_emailing_time < NOW() - INTERVAL 3 DAY) LIMIT 1");
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows == 0) {
+    $stmt->close();
     echo json_encode(["status" => "warning", "message" => "No users found to email."]);
     exit;
 }
+$stmt->close();
 try {
-    if ($result->num_rows == 0) {
-        echo json_encode(["status" => "warning", "message" => "No results found for user."]);
-        exit;
-    }
-    $stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? And step=2 And kind=0 Limit 3");
+    $stmt = $conn->prepare("SELECT id, user_id, target_domain, step, kind FROM results WHERE user_id = ? AND step=2 AND kind=0 LIMIT 3");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $scan_results = [];
-    while ($row = $result->fetch_assoc()) {
-        $scan_results[] = $row;
-    }
+    $scan_results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
     $len = count($scan_results);
     $smtpCfg = pd_smtp_config();
     $mail = new PHPMailer(true);

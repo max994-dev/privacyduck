@@ -1,40 +1,42 @@
 <?php
 header("Content-Type: application/json");
+
+if (empty($_SESSION['admin']['isAdminAuthenticated'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Admin not authenticated"]);
+    exit;
+}
+
 $conn = getDBConnection();
-$stmt = $conn->prepare("SELECT * FROM users");
-// $stmt = $conn->prepare("SELECT * FROM users LIMIT ? OFFSET ?");
-// $stmt->bind_param("ii", $_GET["pageSize"], $offset);
-// $offset = ($_GET["current"] - 1) * $_GET["pageSize"];
-$stmt->execute();
-$result = $stmt->get_result();
-$data = $result->fetch_all(MYSQLI_ASSOC);
 
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users");
-$stmt->execute();
-$result = $stmt->get_result();
-$total = $result->fetch_row()[0];
+$pageSize = isset($_GET["pageSize"]) ? (int) $_GET["pageSize"] : 25;
+if ($pageSize < 1 || $pageSize > 200) $pageSize = 25;
+$current  = isset($_GET["current"]) ? max(1, (int) $_GET["current"]) : 1;
+$offset   = ($current - 1) * $pageSize;
 
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE ((plan_id > 0 AND plan_end > NOW()) OR (plan_id > 0 AND pros_id IS NOT NULL))");
+// Paginated list — never SELECT * the whole users table for the admin UI.
+$stmt = $conn->prepare("SELECT id, email, firstname, lastname, plan_id, plan_end, pros_id, role, created_at FROM users ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt->bind_param("ii", $pageSize, $offset);
 $stmt->execute();
-$result = $stmt->get_result();
-$paidusers = $result->fetch_row()[0];
+$data = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE role > 0 AND (plan_id IS NULL OR (plan_id > 0 AND plan_end < NOW() AND pros_id IS NULL))");
-$stmt->execute();
-$result = $stmt->get_result();
-$unpaidusers = $result->fetch_row()[0];
-
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE role > 0 AND pros_id IS NOT NULL");
-$stmt->execute();
-$result = $stmt->get_result();
-$blockedusers = $result->fetch_row()[0];
+// Combine the four counts into one round-trip.
+$countsRes = $conn->query("
+    SELECT
+        (SELECT COUNT(*) FROM users) AS total,
+        (SELECT COUNT(*) FROM users WHERE ((plan_id > 0 AND plan_end > NOW()) OR (plan_id > 0 AND pros_id IS NOT NULL))) AS paidusers,
+        (SELECT COUNT(*) FROM users WHERE role > 0 AND (plan_id IS NULL OR (plan_id > 0 AND plan_end < NOW() AND pros_id IS NULL))) AS unpaidusers,
+        (SELECT COUNT(*) FROM users WHERE role > 0 AND pros_id IS NOT NULL) AS blockedusers
+");
+$counts = $countsRes ? $countsRes->fetch_assoc() : ["total" => 0, "paidusers" => 0, "unpaidusers" => 0, "blockedusers" => 0];
 
 echo json_encode([
-    "list" => $data,
-    "total" => $total,
-    "paidusers" => $paidusers,
-    "unpaidusers" => $unpaidusers,
-    "blockedusers" => $blockedusers,
-    "pageSize" => $_GET["pageSize"],
-    "currentPage" => $_GET["current"]
+    "list"         => $data,
+    "total"        => (int) $counts["total"],
+    "paidusers"    => (int) $counts["paidusers"],
+    "unpaidusers"  => (int) $counts["unpaidusers"],
+    "blockedusers" => (int) $counts["blockedusers"],
+    "pageSize"     => $pageSize,
+    "currentPage"  => $current,
 ]);

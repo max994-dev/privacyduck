@@ -7,42 +7,70 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $user_id = $_SESSION["user_id"] ?? null;
-$email = $_SESSION['email'];
+$email   = $_SESSION['email']   ?? null;
 if (!$user_id || !$email) {
     echo json_encode(["error" => "User not logged in."]);
     exit;
 }
 
+$firstname = trim((string) ($_POST['first_name'] ?? ''));
+$lastname  = trim((string) ($_POST['last_name']  ?? ''));
+$contactsRaw = $_POST["contacts"] ?? '[{"city":"","state":"","phone":"","zip":"","address":""}]';
+$contactsDecoded = json_decode($contactsRaw, true);
+$contacts = is_array($contactsDecoded) && $contactsDecoded !== [] ? $contactsDecoded : [[
+    "city" => "", "state" => "", "phone" => "", "zip" => "", "address" => "",
+]];
 
+$primary = $contacts[0];
+$city    = (string) ($primary["city"]    ?? '');
+$state   = (string) ($primary["state"]   ?? '');
+$phone   = (string) ($primary["phone"]   ?? '');
+$zip     = (string) ($primary["zip"]     ?? '');
+$address = (string) ($primary["address"] ?? '');
 
-$firstname = $_POST['first_name'] ?? '';
-$lastname = $_POST['last_name'] ?? '';
-$contacts = $_POST["contacts"] ?? '[{"city":"","state":"","phone":"","zip":"","address":""}]';
-$contacts = json_decode($contacts, true);
-
-$city = $contacts[0]["city"] ?? '';
-$state = $contacts[0]["state"] ?? '';
-$phone = $contacts[0]["phone"] ?? '';
-$zip = $contacts[0]["zip"] ?? '';
-$address = $contacts[0]["address"] ?? '';
-
-if (empty($firstname) || empty($lastname)) {
+if ($firstname === '' || $lastname === '') {
     echo json_encode(["error" => "Missing firstname or lastname."]);
     exit;
 }
 
+$filename = "";
 
-if (!isset($_FILES['file'])) {
-    $filename = "";
-}
-else {
-    $uploadDir = BASEPATH . "/assets/uploads/" . basename("specialinfo");
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
+if (isset($_FILES['file']) && is_array($_FILES['file']) && ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
     $uploadedFile = $_FILES['file'];
-    $ext = pathinfo($uploadedFile['name'], PATHINFO_EXTENSION);
-    $filename = "img_" . $email . "." . $ext;
+
+    if (($uploadedFile['size'] ?? 0) > 5 * 1024 * 1024) {
+        http_response_code(413);
+        echo json_encode(["error" => "File too large"]);
+        exit;
+    }
+
+    // MIME-based extension whitelist — never trust the client-provided extension.
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime  = $finfo->file($uploadedFile['tmp_name']) ?: '';
+    $extMap = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/gif'  => 'gif',
+        'image/webp' => 'webp',
+    ];
+    if (!isset($extMap[$mime])) {
+        http_response_code(415);
+        echo json_encode(["error" => "Unsupported file type"]);
+        exit;
+    }
+    $ext = $extMap[$mime];
+
+    $uploadDir = BASEPATH . "/assets/uploads/specialinfo";
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    // Sanitize email to a safe filename token (no path traversal, no shell meta).
+    $safeKey  = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $email);
+    if ($safeKey === '' || $safeKey === null) {
+        $safeKey = bin2hex(random_bytes(8));
+    }
+    $filename   = "img_" . $safeKey . "." . $ext;
     $targetFile = $uploadDir . "/" . $filename;
 
     if (!move_uploaded_file($uploadedFile['tmp_name'], $targetFile)) {
@@ -50,25 +78,27 @@ else {
         echo json_encode(["error" => "Failed to move uploaded file"]);
         exit;
     }
+    @chmod($targetFile, 0644);
 }
 
 try {
     $conn = getDBConnection();
 
-    // Prepare contacts as JSON string
     $json_contacts = json_encode($contacts);
 
     $stmt = $conn->prepare("UPDATE users SET firstname = ?, lastname = ?, phone = ?, city = ?, zip = ?, state = ?, address = ?, contacts = ?, url = ? WHERE id = ?");
     $stmt->bind_param("sssssssssi", $firstname, $lastname, $phone, $city, $zip, $state, $address, $json_contacts, $filename, $user_id);
     $stmt->execute();
+    $stmt->close();
 
     $_SESSION["fullName"] = $firstname . " " . $lastname;
     $_SESSION["signup_complete"] = 1;
     unset($_SESSION["needs_profile_info"]);
 
     echo json_encode(["success" => "success"]);
-
-} catch (Exception $e) {
-    echo json_encode(["error" => $e->getMessage()]);
+} catch (Throwable $e) {
+    error_log('update_user_info: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["error" => "Update failed."]);
 }
 ?>

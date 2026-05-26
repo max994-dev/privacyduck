@@ -6,12 +6,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$mindmap_name = $_POST['mindmap_name'] ?? '';
-$x = $_POST['x'] ?? 300;
-$y = $_POST['y'] ?? 200;
-$user_id = $_SESSION["work_user_id"];
+if (empty($_SESSION['work_isAuthenticated']) || empty($_SESSION['work_user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Not authenticated."]);
+    exit;
+}
 
-if (empty($mindmap_name)) {
+$mindmap_name = trim((string) ($_POST['mindmap_name'] ?? ''));
+$x = isset($_POST['x']) && is_numeric($_POST['x']) ? (int) $_POST['x'] : 300;
+$y = isset($_POST['y']) && is_numeric($_POST['y']) ? (int) $_POST['y'] : 200;
+$user_id = (int) $_SESSION["work_user_id"];
+
+if ($mindmap_name === '') {
     echo json_encode(["error" => "Missing name of map."]);
     exit;
 }

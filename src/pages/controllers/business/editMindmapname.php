@@ -4,8 +4,17 @@
         echo json_encode(["error" => "Invalid request method."]);
         exit;
     }
-    $mindmap_name = $_POST['mindmap_name'] ?? '';
-    $user_id = $_SESSION['work_user_id'] ?? '';
+    if (empty($_SESSION['work_isAuthenticated']) || empty($_SESSION['work_user_id'])) {
+        http_response_code(401);
+        echo json_encode(["error" => "Not authenticated."]);
+        exit;
+    }
+    $mindmap_name = trim((string) ($_POST['mindmap_name'] ?? ''));
+    if ($mindmap_name === '') {
+        echo json_encode(["error" => "Missing mindmap name."]);
+        exit;
+    }
+    $user_id = (int) $_SESSION['work_user_id'];
     $conn = getDBConnection();
     $stmt = $conn->prepare("SELECT * FROM mindmap WHERE user_id = ? and parent = -1");
     $stmt->bind_param("i", $user_id);

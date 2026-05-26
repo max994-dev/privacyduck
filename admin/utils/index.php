@@ -32,11 +32,6 @@ function main_head_start()
     <script src="https://cdn.jsdelivr.net/npm/paginationjs@2/dist/pagination.min.js"></script>
 
     <link rel="icon" type="image/png" href="/admin/assets/favicon.png">
-    <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true) {
-    ?>
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <?php
-    } ?>
     <script>
         window.loadingHtml = "<img src='/assets/image/desktop/loading1.webp' class='w-6 h-6 flex mr-2'> <span class='font-semibold text-[12px] leading-[130%] tracking-[-0.02em]'>Saving...</span>";
         toastr.options = {
@@ -137,19 +132,6 @@ function main_head_start()
             }).showToast();
         }
 
-        <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true) {
-        ?>
-            // const socket = io('https://sayloapp.com');
-
-            // socket.on('connect', () => {
-            //     socket.emit('join', '<?= $_SESSION['user_id'] ?>');
-            // });
-
-            // socket.on('disconnect', () => {
-            // });
-        <?php
-        }
-        ?>
     </script>
 <?php }
 function main_head_end()
@@ -208,7 +190,7 @@ function main_footer()
 
 function isLogin()
 {
-    if (!isset($_SESSION["admin"]) || !$_SESSION["admin"]["isAdminAuthenticated"]) {
+    if (empty($_SESSION["admin"]) || empty($_SESSION["admin"]["isAdminAuthenticated"])) {
         header("Location: " . WEB_DOMAIN . "/super/admin/login");
         exit; // Don't put echo after this
     }

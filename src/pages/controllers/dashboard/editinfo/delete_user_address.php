@@ -17,34 +17,49 @@ if (!is_numeric($pos)) {
     echo json_encode(["error" => "Invalid position."]);
     exit;
 }
+$pos = (int) $pos;
 
 try {
-    $conn = getDBConnection(); // mysqli connection
+    $conn = getDBConnection();
 
-    // 1️⃣ Read current contacts
+    // 1. Read current contacts
     $stmt = $conn->prepare("SELECT contacts FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-    $currentContacts = $row ? json_decode($row['contacts'], true) : [];
+    $decoded = $row ? json_decode($row['contacts'] ?? '', true) : [];
+    $currentContacts = is_array($decoded) ? $decoded : [];
 
-    // 2️⃣ Remove contact at position
-    unset($currentContacts[$pos]);
-    $currentContacts = array_values($currentContacts); // Reindex array
+    // 2. Remove contact at position
+    if (array_key_exists($pos, $currentContacts)) {
+        unset($currentContacts[$pos]);
+        $currentContacts = array_values($currentContacts); // reindex
+    }
 
-    // 3️⃣ Save back to DB as JSON
+    // 3. Save back to DB as JSON, mirroring the canonical contact into the legacy
+    //    flat columns. If no contacts remain, blank them out instead of crashing on [0].
     $newContactsJson = json_encode($currentContacts);
+    $primary = $currentContacts[0] ?? [
+        "phone" => "", "city" => "", "zip" => "", "state" => "", "address" => "",
+    ];
+    $phone   = (string) ($primary["phone"]   ?? "");
+    $city    = (string) ($primary["city"]    ?? "");
+    $zip     = (string) ($primary["zip"]     ?? "");
+    $state   = (string) ($primary["state"]   ?? "");
+    $address = (string) ($primary["address"] ?? "");
 
     $updateStmt = $conn->prepare("UPDATE users SET contacts = ?, phone = ?, city = ?, zip = ?, state = ?, address = ? WHERE id = ?");
-    $updateStmt->bind_param("ssssssi", $newContactsJson, $currentContacts[0]["phone"], $currentContacts[0]["city"], $currentContacts[0]["zip"], $currentContacts[0]["state"], $currentContacts[0]["address"], $user_id);
+    $updateStmt->bind_param("ssssssi", $newContactsJson, $phone, $city, $zip, $state, $address, $user_id);
     $updateStmt->execute();
+    $updateStmt->close();
 
     echo json_encode(["success" => true, "contacts" => $currentContacts]);
-
-} catch (Exception $e) {
-    echo json_encode(["error" => $e->getMessage()]);
+} catch (Throwable $e) {
+    error_log('delete_user_address: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["error" => "Failed to delete address."]);
 }
 ?>

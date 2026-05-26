@@ -303,13 +303,16 @@ main_head_end();
                     }
                 }
 
-                const maxIndex = Math.max(...[...visibleIndexes], -1);
+                const maxIndex = visibleIndexes.size ? Math.max(...visibleIndexes) : -1;
                 if (maxIndex >= 0) {
                     const lastCard = document.querySelector(`.timeline-card[data-index="${maxIndex}"]`);
-                    const bottom = lastCard.getBoundingClientRect().bottom + window.scrollY;
-                    const timelineTop = fill.parentElement.getBoundingClientRect().top + window.scrollY;
-                    fill.style.height = `${bottom - timelineTop + 15}px`;
-                    duck.style.top = `${bottom - timelineTop}px`;
+                    const timelineParent = fill && fill.parentElement;
+                    if (lastCard && timelineParent) {
+                        const bottom = lastCard.getBoundingClientRect().bottom + window.scrollY;
+                        const timelineTop = timelineParent.getBoundingClientRect().top + window.scrollY;
+                        fill.style.height = `${bottom - timelineTop + 15}px`;
+                        duck.style.top = `${bottom - timelineTop}px`;
+                    }
                 } else {
                     duck.style.top = '0px';
                     fill.style.height = '15px';
@@ -459,7 +462,7 @@ main_head_end();
                     isScrolling = false;
                 }
             }
-        });
+        }, { passive: true });
         //mouse event
         function startDrag(e) {
             isDragging = true;
@@ -467,13 +470,19 @@ main_head_end();
             mobile_cube.classList.remove('mobile_transition');
         }
 
+        let duringDragRaf = 0;
+        let duringDragLastX = 0;
         function duringDrag(e) {
             if (!isDragging) return;
-            const x = e.clientX || e?.touches[0]?.clientX;
-
-            const delta = x - startX;
-            virtualRotation = delta * 0.5;
-            updateCubeDuringDrag(virtualRotation);
+            duringDragLastX = e.clientX || e?.touches?.[0]?.clientX;
+            if (duringDragRaf) return;
+            duringDragRaf = requestAnimationFrame(() => {
+                duringDragRaf = 0;
+                if (!isDragging) return;
+                const delta = duringDragLastX - startX;
+                virtualRotation = delta * 0.5;
+                updateCubeDuringDrag(virtualRotation);
+            });
         }
 
         function endDrag() {
@@ -497,9 +506,9 @@ main_head_end();
         window.addEventListener('mousemove', duringDrag);
         window.addEventListener('mouseup', endDrag);
 
-        mobile_cube.addEventListener('touchstart', startDrag);
-        window.addEventListener('touchmove', duringDrag);
-        window.addEventListener('touchend', endDrag);
+        mobile_cube.addEventListener('touchstart', startDrag, { passive: true });
+        window.addEventListener('touchmove', duringDrag, { passive: true });
+        window.addEventListener('touchend', endDrag, { passive: true });
 
         document.addEventListener('visibilitychange', function() {
             if (isScrolling) {
@@ -604,7 +613,15 @@ main_head_end();
             }
         }
 
-        window.addEventListener("scroll", updateHeader);
+        let headerRaf = 0;
+        const onHeaderScroll = () => {
+            if (headerRaf) return;
+            headerRaf = requestAnimationFrame(() => {
+                headerRaf = 0;
+                updateHeader();
+            });
+        };
+        window.addEventListener("scroll", onHeaderScroll, { passive: true });
         window.addEventListener("load", updateHeader); // run on first load
     }
     auto_landing_header();

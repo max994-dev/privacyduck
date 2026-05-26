@@ -135,11 +135,6 @@ function main_head_start(array $opts = [])
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js"></script>
     <?php endif; ?>
 
-    <!-- Socket.io — authenticated users only — served locally -->
-    <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true): ?>
-    <script src="/vendor/socketio/socket.io.min.js" defer></script>
-    <?php endif; ?>
-
     <!-- Google Tag Manager + GA4 (async — non-blocking) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6WKNFG8FS"></script>
     <script>
@@ -247,34 +242,6 @@ function main_head_start(array $opts = [])
                 }
             }
         }
-        <?php if (isset($_SESSION['isAuthenticated']) && $_SESSION['isAuthenticated'] == true) {
-        ?>
-            // const socket = io('https://sayloapp.com');
-
-            // socket.on('connect', () => {
-            //     socket.emit('join', '<?= $_SESSION['user_id'] ?>');
-            // });
-
-            // socket.on('disconnect', () => {
-            // });
-            // socket.on('progress', (data) => {
-            //     if (data.kind === 1) {
-            //     }
-            // });
-            // socket.on('complete', (data) => {
-            //     if (data.kind === 0) {
-            //         if (window.addScanImage) window.addScanImage(data);
-            //         if (window.inc_scan_count) window.inc_scan_count();
-            //         if (window.updateMatchesFound) window.updateMatchesFound();
-            //     } else if (data.kind === 1) {
-            //         if (window.main_animate_progress) window.main_animate_progress("progress", 1);
-            //         if (window.main_table) window.main_table();
-            //     } else if (data.kind === 3) {
-            //     }
-            // });
-        <?php
-        }
-        ?>
     </script>
 <?php }
 function main_head_end()
@@ -439,8 +406,8 @@ function main_login_header($x)
             <div class="px-[10px] xl:px-[80px]  justify-between items-center hidden lg:flex">
                 <div class="flex flex-row items-center lg:space-x-5 xl:space-x-10 ">
                     <a href="/"><img src="/assets/image/desktop/<?php if ($x != 'black') echo 'logo.svg';
-                                                                else echo 'logo2.svg'; ?>" alt="logo" /></>
-                        <div class="flex flex-row">
+                                                                else echo 'logo2.svg'; ?>" alt="logo" /></a>
+                    <div class="flex flex-row">
                             <ul class="flex lg:space-x-[20px] xl:space-x-10">
                                 <li><a href="/business" class="hover:text-[#24A556] font-bold text-[14px] <?php if ($x == 'black') echo 'text-[#010205]'; ?> underline">Business</a></li>
                                 <li><a href="/pricing" class="hover:text-[#24A556] font-medium text-[14px] <?php if ($x == 'black') echo 'text-[#010205]'; ?>">Pricing</a></li>

@@ -129,7 +129,6 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
             $stmt->bind_param("i", $userId);
             $stmt->execute();
 
-            $conn = getDBConnection();
             $main_stmt = $conn->prepare("UPDATE results SET planable = 1 WHERE user_id = ? AND planable=0");
             $main_stmt->bind_param("i", $userId);
             $main_stmt->execute();
@@ -287,7 +286,6 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
         }
     }
 } else {
-    $conn = getDBConnection();
     $main_stmt = $conn->prepare("SELECT * FROM results WHERE user_id = ? AND kind=1");
     $main_stmt->bind_param("i", $_SESSION["user_id"]);
     $main_stmt->execute();

@@ -6,8 +6,12 @@ include_once($_SERVER["DOCUMENT_ROOT"] . "/src/common/mailer.php");
 
 include_once($_SERVER["DOCUMENT_ROOT"] . "/vendor/autoload.php");
 
-$email = $_POST['email'];
 header('Content-Type: application/json');
+$email = isset($_POST['email']) ? trim((string) $_POST['email']) : '';
+if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(["error" => "Invalid user!"]);
+    exit;
+}
 
 $conn = getDBConnection();
 
@@ -28,7 +32,7 @@ if ($result->num_rows == 0) {
             $stmt->execute();
             $result = $stmt->get_result();
             $data = $result->fetch_assoc();
-            if($data["role"] < 1){
+            if (!pd_user_may_login($data ?? [])) {
                 echo json_encode([
                     "error" => "Invalid user!"
                 ]);
@@ -44,7 +48,13 @@ if ($result->num_rows == 0) {
             $_SESSION["isAuthenticated"] = true;
             $_SESSION["email"] = $email;
             $_SESSION["fullName"] = $data["firstname"] . " " . $data["lastname"];
-            setcookie("info", $email, time() + 60 * 60 * 24 * 10, "/");
+            setcookie("info", $email, [
+                'expires'  => time() + 60 * 60 * 24 * 10,
+                'path'     => '/',
+                'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
             echo json_encode([
                 "success" => "prelogin"
             ]);
@@ -54,7 +64,7 @@ if ($result->num_rows == 0) {
             $stmt->execute();
             $result = $stmt->get_result();
             $data = $result->fetch_assoc();
-            if($data["role"] < 1){
+            if (!pd_user_may_login($data ?? [])) {
                 echo json_encode([
                     "error" => "Invalid user!"
                 ]);
@@ -70,7 +80,13 @@ if ($result->num_rows == 0) {
                 $_SESSION["isAuthenticated"] = true;
                 $_SESSION["email"] = $email;
                 $_SESSION["fullName"] = $data["firstname"] . " " . $data["lastname"];
-                setcookie("info", $email, time() + 60 * 60 * 24 * 10, "/");
+                setcookie("info", $email, [
+                'expires'  => time() + 60 * 60 * 24 * 10,
+                'path'     => '/',
+                'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
                 echo json_encode([
                     "success" => "prelogin"
                 ]);
@@ -91,8 +107,9 @@ if ($result->num_rows == 0) {
             }
         }
     } catch (Throwable $e) {
+        error_log('loginProcess: ' . $e->getMessage());
         echo json_encode([
-            "error" => $e->getMessage()
+            "error" => "Login failed. Please try again."
         ]);
     }
 }
