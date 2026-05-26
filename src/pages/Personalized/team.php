@@ -11,7 +11,7 @@
         $datas = [
             ["avatar" => "ceo", "name" => "Christopher Scott", "role" => "Founder & CEO"],
             ["avatar" => "cto", "name" => "Oleksandr Savchuk", "role" => "CTO"],
-            ["avatar" => "backend", "name" => "Victor Paiva ", "role" => ""],
+            // ["avatar" => "backend", "name" => "Victor Paiva ", "role" => ""],
         ];
         foreach ($datas as $data) {
         ?>
