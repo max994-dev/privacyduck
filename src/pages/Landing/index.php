@@ -157,6 +157,26 @@ main_head_end();
             </div>
         </section>
     </div>
+    <div class="landing-section" data-header="white">
+        <section class="bg-white px-5 md:px-10 py-16 md:py-20" id="why-privacyduck">
+            <div class="max-w-[960px] mx-auto">
+                <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[40px] leading-[1.2] tracking-[-0.02em]">
+                    Real people working to keep you, your family, and your team off data broker sites
+                </h2>
+                <div class="mt-6 space-y-5 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[170%]">
+                    <p>
+                        Look up your own name on Google and you'll see what we mean. Data brokers have your phone number, your address, your relatives - and they sell it to anyone who asks. That's how stalkers find people. It's how phishing emails get scary specific. It's how identity theft starts.
+                    </p>
+                    <p>
+                        PrivacyDuck is real people doing the slow, tedious work of getting your data taken down. We don't sell you software and walk away. Our US team files the opt-outs by hand, week after week, and we keep doing it because brokers keep re-uploading your info. If you want to protect your family online, this is what actually works.
+                    </p>
+                    <p>
+                        Companies use us for employee data removal in the USA - cleaning up the public information that fuels spear-phishing campaigns. Founders, board members, and other high-visibility staff use our executive privacy service in the USA for ongoing monitoring.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
     <div class="landing-section" data-header="dark">
         <?php
         require("ultimate.php");
