@@ -177,6 +177,7 @@ main_head_end();
                     required
                     autocomplete="new-password"
                     minlength="8"
+                    aria-describedby="ns-pw-strength-label"
                     class="w-full rounded-md border border-slate-300 px-3 pr-10 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                 />
                 <button
@@ -197,7 +198,18 @@ main_head_end();
                     </svg>
                 </button>
             </div>
-            <p class="mt-1 text-xs text-slate-500">At least 8 characters.</p>
+            <!-- Strength meter: 4 segments + label. Updated by JS below. -->
+            <div class="mt-2">
+                <div class="flex gap-1" aria-hidden="true">
+                    <div data-ns-pw-bar="1" class="h-1 flex-1 rounded-full bg-slate-200 transition-colors"></div>
+                    <div data-ns-pw-bar="2" class="h-1 flex-1 rounded-full bg-slate-200 transition-colors"></div>
+                    <div data-ns-pw-bar="3" class="h-1 flex-1 rounded-full bg-slate-200 transition-colors"></div>
+                    <div data-ns-pw-bar="4" class="h-1 flex-1 rounded-full bg-slate-200 transition-colors"></div>
+                </div>
+                <p id="ns-pw-strength-label" class="mt-1 text-xs text-slate-500" aria-live="polite">
+                    At least 8 characters. Mix upper + lower + digits + symbols for a stronger password.
+                </p>
+            </div>
         </div>
 
         <div>
@@ -304,6 +316,48 @@ main_head_end();
             pw.addEventListener('input', setHint);
             pw2.addEventListener('input', setHint);
             setHint();
+        }
+
+        // Password strength meter. Score 0-4 (none/weak/fair/good/strong) drives
+        // colored segment count + label text. Algorithm: starts at 0, +1 for
+        // length>=8, +1 for length>=12, +1 if mixed case, +1 if digits,
+        // +1 if symbols, capped at 4.
+        var pwBars = Array.prototype.slice.call(document.querySelectorAll('[data-ns-pw-bar]'));
+        var pwLabel = document.getElementById('ns-pw-strength-label');
+        var BAR_COLORS = ['bg-slate-200', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
+        var LABELS = [
+            { text: 'At least 8 characters. Mix upper + lower + digits + symbols for a stronger password.', cls: 'text-slate-500' },
+            { text: 'Weak — too short or one character class.',  cls: 'text-red-500' },
+            { text: 'Fair — add more variety (case, digits, symbols).', cls: 'text-orange-500' },
+            { text: 'Good — a bit longer or one more class would be great.', cls: 'text-yellow-600' },
+            { text: 'Strong password.', cls: 'text-emerald-700' }
+        ];
+        function scorePassword(s) {
+            if (!s) return 0;
+            var score = 0;
+            if (s.length >= 8)  score++;
+            if (s.length >= 12) score++;
+            if (/[a-z]/.test(s) && /[A-Z]/.test(s)) score++;
+            if (/[0-9]/.test(s)) score++;
+            if (/[^A-Za-z0-9]/.test(s)) score++;
+            // Penalty if too short overall - never give >1 if length<8.
+            if (s.length < 8) score = Math.min(score, 1);
+            return Math.min(score, 4);
+        }
+        function paintStrength() {
+            if (!pw || !pwLabel || pwBars.length === 0) return;
+            var score = scorePassword(pw.value);
+            pwBars.forEach(function (bar, i) {
+                ['bg-slate-200','bg-red-500','bg-orange-500','bg-yellow-500','bg-emerald-500'].forEach(function (c) { bar.classList.remove(c); });
+                bar.classList.add(i < score ? BAR_COLORS[score] : 'bg-slate-200');
+            });
+            ['text-slate-500','text-red-500','text-orange-500','text-yellow-600','text-emerald-700'].forEach(function (c) { pwLabel.classList.remove(c); });
+            pwLabel.textContent = LABELS[score].text;
+            pwLabel.classList.add(LABELS[score].cls);
+        }
+        if (pw) {
+            pw.addEventListener('input', paintStrength);
+            paintStrength();
         }
 
         function wireToggle(btnId, inputId, openId, closedId) {
