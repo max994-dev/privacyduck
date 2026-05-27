@@ -1,4 +1,4 @@
-<div class="sm:p-[16px]">
+<div class="sm:p-[16px] scroll-mt-[120px]" id="np-faq">
         <div class=" bg-white sm:rounded-[28px] flex flex-col justify-center">
             <div class="pt-[70px] pb-[56px] sm:py-[100px] px-[16px] sm:pl-[64px] sm:pr-[80px]  ">
                 <div class="sm:hidden flex justify-center">

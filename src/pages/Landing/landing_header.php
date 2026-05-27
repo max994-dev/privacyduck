@@ -9,8 +9,12 @@ function landing_logout_header($x = "white")
     $path = trim(parse_url($_SERVER["REQUEST_URI"] ?? "/", PHP_URL_PATH), "/");
     $featHref = ($path === "new") ? "/new#features" : "/#features";
     $faqHref = ($path === "new") ? "/new#np-faq" : "/#np-faq";
-    // SEO: link to dedicated /pricing page from the live homepage. /new redesign keeps in-page anchor.
-    $pricingHref = ($path === "new") ? "/new#np-pricing" : "/pricing";
+    // Top-nav Pricing: scroll to the pricing section on the same page if
+    // we're on a landing variant (root or /new). Both variants have a section
+    // with id="np-pricing". This was briefly /pricing per an SEO doc but the
+    // section-anchor is the intended UX - keeps users on the page instead of
+    // forcing a route change for what's essentially a scroll.
+    $pricingHref = ($path === "new") ? "/new#np-pricing" : "/#np-pricing";
     $helpDeskUrl = "https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0";
 
     $textMain = $dark ? "text-[#010205]" : "text-white";
