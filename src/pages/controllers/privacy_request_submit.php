@@ -115,11 +115,15 @@ $reference = pd_dsar_generate_reference();
 $receivedAt = date('Y-m-d H:i:s');
 $deadlineAt = date('Y-m-d H:i:s', strtotime('+1 month'));
 
+// Note: status omitted; column has DEFAULT 'open'. Avoids portability issues
+// with ANSI_QUOTES SQL_MODE where double-quoted "open" would be parsed as a
+// column reference. Single-quoted 'open' would also work; relying on the
+// default is cleaner.
 $stmt = $conn->prepare(
     'INSERT INTO dsar_requests
      (reference, request_type, email, name, country, capacity, matched_user_id,
-      details, ip_address, user_agent, received_at, deadline_at, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "open")'
+      details, ip_address, user_agent, received_at, deadline_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 );
 $nameVal = $name !== '' ? $name : null;
 $countryVal = $country !== '' ? $country : null;
