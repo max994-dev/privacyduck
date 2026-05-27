@@ -62,10 +62,12 @@ function main_head_start(array $opts = [])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/assets/css/tailwind-built.css?v=<?= $assetV ?>" rel="stylesheet" />
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet" />
+    <link href="/assets/css/pd-motion.css?v=<?= $assetV ?>" rel="stylesheet" />
     <?php /* Slim auth pages use Tailwind from tailwind-built.css only; do not load
        flowbite-2.3.0.min.css here — it ships a second Tailwind preflight and resets
        <button> / submit styles after our utilities (e.g. invisible “Sign up” button). */ ?>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <script src="/assets/js/pd-motion.js?v=<?= $assetV ?>" defer></script>
         <?php
         return;
     }
@@ -83,6 +85,7 @@ function main_head_start(array $opts = [])
     <link href="/assets/css/splash.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/tailwind-built.css?v=<?= $assetV ?>" rel="stylesheet">
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet">
+    <link href="/assets/css/pd-motion.css?v=<?= $assetV ?>" rel="stylesheet">
 
     <?php /* Flowbite styles come from tailwind-built.css (flowbite Tailwind plugin). Do not load
        flowbite-2.3.0.min.css — it is a full second Tailwind build and reapplies preflight after our
@@ -113,6 +116,7 @@ function main_head_start(array $opts = [])
     <script src="/vendor/swiper/swiper-bundle.min.js" defer></script>
     <script src="/vendor/flickity/flickity.pkgd.min.js"></script>
     <script src="/vendor/lottie/lottie-player.js" defer></script>
+    <script src="/assets/js/pd-motion.js?v=<?= $assetV ?>" defer></script>
 
     <!-- Stripe.js — payment pages only (PCI compliance: must stay on js.stripe.com) -->
     <?php if ($isPayment): ?>

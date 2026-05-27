@@ -1,10 +1,10 @@
 <div class="px-[16px]">
     <div class="rounded-[30px] bg-white px-[16px] sm:px-[80px] pb-[32px] sm:pb-[82px] pt-[82px]">
         <div class="flex flex-col justify-center items-center">
-            <fieldset>
+            <fieldset data-reveal>
                 <legend class="text-[16px] sm:text-[24px] font-bold leading-[130%] tracking-[-0.03em]">The Ultimate Privacy Solution</legend>
             </fieldset>
-            <h2 class="hidden sm:block mt-[24px] text-center font-semibold text-[48px] leading-[130%] tracking-[-0.03em] text-[#010205] max-w-[620px]">One Platform. One Service. Full Transparency</h2>
+            <h2 data-reveal data-reveal-delay="60" class="hidden sm:block mt-[24px] text-center font-semibold text-[48px] leading-[130%] tracking-[-0.03em] text-[#010205] max-w-[620px]">One Platform. One Service. Full Transparency</h2>
             <div class="sm:hidden flex flex-col items-center mt-[24px]">
                 <h2 class="text-[32px] font-semibold  leading-[130%] tracking-[-0.03em] text-[#010205] max-w-[620px]">One Platform.</h2>
                 <h2 class="text-[32px] font-semibold  leading-[130%] tracking-[-0.03em] text-[#010205] max-w-[620px]">One Service.</h2>
@@ -52,14 +52,19 @@
                 ]
             ];
             foreach ($datas as $data) {
+                $idx = array_search($data, $datas);
+                $textReveal = $idx % 2 == 0 ? "left" : "right";
+                $imgReveal  = $idx % 2 == 0 ? "right" : "left";
             ?>
                 <div class="flex flex-col lg:flex lg:flex-row lg:justify-between items-center">
-                    <div class="<?php echo array_search($data, $datas) % 2 == 0 ? "lg:order-1" : "lg:order-2" ?> flex flex-col max-w-[341px] sm:max-w-[542px]">
+                    <div data-reveal="<?= $textReveal ?>" class="<?php echo $idx % 2 == 0 ? "lg:order-1" : "lg:order-2" ?> flex flex-col max-w-[341px] sm:max-w-[542px]">
                         <h2 class="text-[24px] sm:text-[38px] font-semibold leading-[120%] tracking-[-0.03em] text-[#010205]"><?php echo $data["title"]; ?></h2>
                         <h2 class="mt-[16px] sm:mt-[33px] text-[18px] sm:text-[24px] font-bold leading-[120%] text-[#878C91]"><?php echo $data["subtitle"]; ?></h2>
                         <p class="mt-[24px] sm:mt-[24px] text-[16px] font-semibold leading-[150%] text-[#878C91]"><?php echo $data["content"]; ?></p>
                     </div>
-                    <img class="<?php echo array_search($data, $datas) % 2 == 0 ? "lg:order-2" : "lg:order-1" ?> mt-[24px] lg:mt-0 w-[341px] h-[190px] sm:w-[550px] sm:h-[307px]" src="/assets/image/desktop/landing/ultimate/<?php echo $data["image"]; ?>.png" alt="<?php echo $data["alt"]; ?>">
+                    <div data-reveal="<?= $imgReveal ?>" data-reveal-delay="120" class="pd-image-zoom rounded-[24px] <?php echo $idx % 2 == 0 ? "lg:order-2" : "lg:order-1" ?> mt-[24px] lg:mt-0 w-[341px] h-[190px] sm:w-[550px] sm:h-[307px]">
+                        <img class="w-full h-full object-cover" src="/assets/image/desktop/landing/ultimate/<?php echo $data["image"]; ?>.png" alt="<?php echo $data["alt"]; ?>">
+                    </div>
                 </div>
             <?php
             }

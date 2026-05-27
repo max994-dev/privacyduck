@@ -1,16 +1,16 @@
-<div class="flex items-center justify-between xl:justify-normal">
+<div class="flex items-center justify-between xl:justify-normal" data-reveal="fade">
     <h1 class="font-semibold text-[16px] sm:text-[20px] md:text-[24px] text-[#010205] pointer-events-none">Welcome, <?php echo $_SESSION["fullName"]; ?>
     </h1>
     <?php if (!$_SESSION["plan_id"] || !$_SESSION['planable']) { ?>
         <button onclick="navigateTo('/dashboard/plans')"
-            class="flex xl:hidden items-center bg-gradient-to-r from-[#77B248] to-[#24A556] px-[8px] md:px-[14px] py-[6px] md:py-[5px] rounded-full space-x-[2px]">
+            class="pd-btn-press pd-shine flex xl:hidden items-center bg-gradient-to-r from-[#77B248] to-[#24A556] px-[8px] md:px-[14px] py-[6px] md:py-[5px] rounded-full space-x-[2px]">
             <?php require(BASEPATH . "/src/common/svgs/dashboard/sidebar/fixed_menu_protect_user.php"); ?>
             <h1 class="text-[10px] md:text-[14px] text-white font-semibold tracking-[0.01em]">Protect Yourself</h1>
         </button>
     <?php } ?>
 </div>
-<div class="mt-[16px] lg:mt-[42px]">
-    <div class="rounded-[30px] bg-[#FEFEFE] border border-[#F6F6F6] sm:flex justify-center items-center lg:block">
+<div class="mt-[16px] lg:mt-[42px]" data-reveal data-reveal-delay="60">
+    <div class="pd-card-lift rounded-[30px] bg-[#FEFEFE] border border-[#F6F6F6] sm:flex justify-center items-center lg:block">
         <div class="px-[8px] py-[18px] sm:px-[18px] lg:flex lg:justify-between items-center">
             <div class="flex space-x-[6px] items-center">
                 <i id="main_removal_status_icon" class="fa-solid fa-circle-exclamation text-[#C00000] text-[16px] sm:text-[24px]"></i>
@@ -59,14 +59,14 @@
 <div class="block lg:hidden">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/progress/mobile.php"); ?>
 </div>
-<div
-    class="relative mt-[32px] rounded-[30px] bg-white/50 border border-[#F6F6F6] after:content-['Highly&nbsp;sensitive&nbsp;info'] after:absolute after:top-[-11.5px] after:right-0 after:bg-[#24A556] after:w-[143px] after:h-[23px] after:text-center after:text-[10px] after:text-white after:font-semibold after:rounded-full after:flex after:justify-center after:items-center">
+<div data-reveal data-reveal-delay="120"
+    class="pd-card-lift relative mt-[32px] rounded-[30px] bg-white/50 border border-[#F6F6F6] after:content-['Highly&nbsp;sensitive&nbsp;info'] after:absolute after:top-[-11.5px] after:right-0 after:bg-[#24A556] after:w-[143px] after:h-[23px] after:text-center after:text-[10px] after:text-white after:font-semibold after:rounded-full after:flex after:justify-center after:items-center">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
 </div>
-<div class="mt-[32px]">
+<div class="mt-[32px]" data-reveal data-reveal-delay="180">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
 </div>
-<div class="mt-[32px] rounded-[30px] bg-[#FFFFFFE3] border border-[#F6F6F6]">
+<div class="mt-[32px] rounded-[30px] bg-[#FFFFFFE3] border border-[#F6F6F6]" data-reveal data-reveal-delay="240">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/result_sites.php"); ?>
 </div>
 

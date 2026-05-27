@@ -111,14 +111,22 @@ main_head_end();
     <div class="absolute inset-0 z-0 hidden lg:block w-[100%] right-0 top-0 bottom-0">
         <img src="/assets/image/desktop/landing/new/hero_new.jpg" alt="" class="h-full w-full object-cover lg:rounded-l-[40px]" style="min-height:520px" />
     </div>
+    <!-- Radial gradient mesh overlay (pure CSS, no JS) — adds depth to the hero -->
+    <div class="pd-mesh-overlay z-[1]" aria-hidden="true"></div>
     <div class="relative z-10 flex-1 flex flex-col justify-center px-5 md:px-10 lg:px-20 xl:px-[100px] py-10 sm:py-12 pb-28 lg:pb-12 max-w-[960px]">
-        <h1 class="font-semibold text-[32px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-[-0.02em]">
+        <div class="pd-hero-in" data-delay="0">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1 text-[12px] sm:text-[13px] font-semibold text-white/90 backdrop-blur-sm">
+                <span class="pd-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-[#77B248]"></span>
+                Trusted by US families &amp; teams since 2019
+            </span>
+        </div>
+        <h1 class="pd-hero-in mt-5 font-semibold text-[32px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-[-0.02em]" data-delay="1">
             Real people removing your phone number from everywhere it appears.
         </h1>
-        <p class="mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]">
+        <p class="pd-hero-in mt-5 sm:mt-6 text-white/90 text-[15px] sm:text-[17px] leading-[165%] max-w-[560px]" data-delay="2">
             Our US based professional opt-out team is dedicated to thoroughly removing your details such as name, contact information, relatives, and other identifiable data from google to help protect your privacy and limit the misuse of your data online.
         </p>
-        <form action="/new_signup" method="get" class="mt-8 sm:mt-10 flex flex-col sm:flex-row w-full max-w-[520px] gap-3 sm:gap-2 sm:items-stretch" aria-label="Sign up with your email">
+        <form action="/new_signup" method="get" class="pd-hero-in mt-8 sm:mt-10 flex flex-col sm:flex-row w-full max-w-[520px] gap-3 sm:gap-2 sm:items-stretch" data-delay="3" aria-label="Sign up with your email">
             <input
                 name="email"
                 type="email"
@@ -128,7 +136,7 @@ main_head_end();
                 placeholder="Enter your email"
                 class="flex-1 min-w-0 rounded-full bg-white/10 border border-white/25 text-white placeholder:text-white/55 px-5 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/35"
             />
-            <button type="submit" class="w-full sm:w-auto justify-center rounded-full np-bg-green text-white font-semibold text-[15px] px-8 py-3.5 hover:opacity-95 inline-flex items-center gap-2 border-0 cursor-pointer shrink-0">
+            <button type="submit" class="pd-btn-press pd-shine w-full sm:w-auto justify-center rounded-full np-bg-green text-white font-semibold text-[15px] px-8 py-3.5 inline-flex items-center gap-2 border-0 cursor-pointer shrink-0">
                 Sign Up
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="hidden sm:block" aria-hidden="true"><path d="M5 12H19M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
@@ -143,15 +151,15 @@ main_head_end();
     <div class="landing-section" data-header="dark">
         <section class="bg-[#F5F5F0] border-t border-black/[0.06]">
             <div class="max-w-[1200px] mx-auto px-5 md:px-10 py-12 md:py-16 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                <div>
+                <div data-reveal="left">
                     <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%] tracking-[-0.02em]">
-                        Remove your data from 400+ data brokers
+                        Remove your data from <span class="pd-gradient-text">400+ data brokers</span>
                     </h2>
                     <p class="mt-3 text-[#010205]/70 text-[15px] sm:text-[17px]">
                         Most services cover a limited set of sources. PrivacyDuck uses real local workers to remove your data across more sources, including the ones other services miss. We cover 400+ people search sites, data brokers, and other databases in our sweep, including customized deletion from google.
                     </p>
                 </div>
-                <a href="/new_signup" class="inline-flex justify-center items-center rounded-full np-bg-green text-white font-semibold text-[16px] px-10 py-4 hover:opacity-95 w-full sm:w-auto shrink-0 shadow-md">
+                <a href="/new_signup" data-reveal="right" data-reveal-delay="120" class="pd-btn-press pd-shine inline-flex justify-center items-center rounded-full np-bg-green text-white font-semibold text-[16px] px-10 py-4 w-full sm:w-auto shrink-0 shadow-md">
                     Start removing now
                 </a>
             </div>
@@ -160,19 +168,39 @@ main_head_end();
     <div class="landing-section" data-header="white">
         <section class="bg-white px-5 md:px-10 py-16 md:py-20" id="why-privacyduck">
             <div class="max-w-[960px] mx-auto">
-                <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[40px] leading-[1.2] tracking-[-0.02em]">
+                <h2 data-reveal class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[40px] leading-[1.2] tracking-[-0.02em]">
                     Real people working to keep you, your family, and your team off data broker sites
                 </h2>
                 <div class="mt-6 space-y-5 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[170%]">
-                    <p>
+                    <p data-reveal data-reveal-delay="60">
                         Look up your own name on Google and you'll see what we mean. Data brokers have your phone number, your address, your relatives - and they sell it to anyone who asks. That's how stalkers find people. It's how phishing emails get scary specific. It's how identity theft starts.
                     </p>
-                    <p>
+                    <p data-reveal data-reveal-delay="120">
                         PrivacyDuck is real people doing the slow, tedious work of getting your data taken down. We don't sell you software and walk away. Our US team files the opt-outs by hand, week after week, and we keep doing it because brokers keep re-uploading your info. If you want to protect your family online, this is what actually works.
                     </p>
-                    <p>
+                    <p data-reveal data-reveal-delay="180">
                         Companies use us for employee data removal in the USA - cleaning up the public information that fuels spear-phishing campaigns. Founders, board members, and other high-visibility staff use our executive privacy service in the USA for ongoing monitoring.
                     </p>
+                </div>
+                <!-- Animated trust counters: reveal + count-up on scroll-in. Pure
+                     numeric callouts; reassures evaluators with no copywriting. -->
+                <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div data-reveal data-reveal-delay="60" class="rounded-2xl border border-[#E5E7EB] bg-[#F9FAF7] p-5 text-center pd-card-lift">
+                        <div class="text-[28px] sm:text-[34px] font-bold text-[#010205]"><span data-count-to="400" data-count-suffix="+">0</span></div>
+                        <div class="mt-1 text-[12px] sm:text-[13px] text-[#6B7280] font-medium uppercase tracking-wide">Brokers covered</div>
+                    </div>
+                    <div data-reveal data-reveal-delay="120" class="rounded-2xl border border-[#E5E7EB] bg-[#F9FAF7] p-5 text-center pd-card-lift">
+                        <div class="text-[28px] sm:text-[34px] font-bold text-[#010205]"><span data-count-to="2019">0</span></div>
+                        <div class="mt-1 text-[12px] sm:text-[13px] text-[#6B7280] font-medium uppercase tracking-wide">Operating since</div>
+                    </div>
+                    <div data-reveal data-reveal-delay="180" class="rounded-2xl border border-[#E5E7EB] bg-[#F9FAF7] p-5 text-center pd-card-lift">
+                        <div class="text-[28px] sm:text-[34px] font-bold text-[#010205]"><span data-count-to="99" data-count-suffix="%">0</span></div>
+                        <div class="mt-1 text-[12px] sm:text-[13px] text-[#6B7280] font-medium uppercase tracking-wide">US-based team</div>
+                    </div>
+                    <div data-reveal data-reveal-delay="240" class="rounded-2xl border border-[#E5E7EB] bg-[#F9FAF7] p-5 text-center pd-card-lift">
+                        <div class="text-[28px] sm:text-[34px] font-bold text-[#010205]">24<span class="text-[18px]">h</span></div>
+                        <div class="mt-1 text-[12px] sm:text-[13px] text-[#6B7280] font-medium uppercase tracking-wide">First removals start</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -186,22 +214,24 @@ main_head_end();
             <div class="max-w-[1200px] mx-auto space-y-20 md:space-y-28">
 
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                    <div>
+                    <div data-reveal="left">
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">01 — Anonymity</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Protect Your Privacy &amp; Anonymity</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
                             Keep your data safe from cyberstalkers, hackers, and unwanted tracking. We remove harmful content, secure your anonymity, and prevent employers or malicious actors from accessing your personal records.
                         </p>
                     </div>
-                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px] order-first lg:order-last">
+                    <div data-reveal="right" class="pd-image-zoom w-[80%] max-w-[520px] mx-auto aspect-[3/2] rounded-[28px] order-first lg:order-last shadow-[0_24px_60px_-24px_rgba(16,24,40,0.25)]">
                         <img src="/assets/image/desktop/landing/new/img1.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px] order-first">
+                    <div data-reveal="left" class="pd-image-zoom w-[80%] max-w-[520px] mx-auto aspect-[3/2] rounded-[28px] order-first shadow-[0_24px_60px_-24px_rgba(16,24,40,0.25)]">
                         <img src="/assets/image/desktop/landing/new/img2.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
                     </div>
-                    <div>
+                    <div data-reveal="right">
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">02 — Permanent</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Permanent Data Removal &amp; Identity Protection</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
                             We ensure your information stays off hundreds of people-finding sites, reducing the risk of identity theft. With PrivacyDuck, you gain peace of mind knowing your private data is consistently removed and protected.
@@ -210,13 +240,14 @@ main_head_end();
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                    <div>
+                    <div data-reveal="left">
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">03 — Deep clean</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Erase Public &amp; Genetic Records</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%] max-w-[480px]">
                             Remove yourself from public records, criminal databases, and genetic sites like Ancestry.com and 23andMe. Safeguard your future from discrimination and unauthorized data usage.
                         </p>
                     </div>
-                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px]">
+                    <div data-reveal="right" class="pd-image-zoom w-[80%] max-w-[520px] mx-auto aspect-[3/2] rounded-[28px] shadow-[0_24px_60px_-24px_rgba(16,24,40,0.25)]">
                         <img src="/assets/image/desktop/landing/new/img3.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
@@ -252,8 +283,9 @@ main_head_end();
     <div class="landing-section bg-white" data-header="dark">
         <section class="px-5 md:px-10 py-16 md:py-24">
             <div class="max-w-[1280px] mx-auto">
-                <h2 class="font-bold text-[#010205] text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.1] tracking-[-0.02em]">How We Do It</h2>
-                <p class="mt-4 text-[#010205]/75 text-[18px] sm:text-[20px] max-w-[820px]">A step-by-step breakdown of what happens after you sign up.</p>
+                <span data-reveal class="inline-block text-[12px] font-bold uppercase tracking-[0.18em] text-brand mb-4">Our process</span>
+                <h2 data-reveal data-reveal-delay="60" class="font-bold text-[#010205] text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.1] tracking-[-0.02em]">How <span class="pd-gradient-text">We Do It</span></h2>
+                <p data-reveal data-reveal-delay="120" class="mt-4 text-[#010205]/75 text-[18px] sm:text-[20px] max-w-[820px]">A step-by-step breakdown of what happens after you sign up.</p>
                 <?php
                 $pdSteps = [
                     ['t' => 'First 24 hours', 'h' => 'Deleting common data brokers',       'b' => 'We start by removing your data from the highest-traffic brokers like Acxiom and Spokeo — the ones most likely to surface in a Google search of your name.'],
@@ -263,10 +295,10 @@ main_head_end();
                 ];
                 ?>
                 <div class="mt-12 grid md:grid-cols-2 xl:grid-cols-4 gap-6 xl:gap-5">
-                    <?php foreach ($pdSteps as $idx => $s): ?>
-                        <article class="rounded-2xl border border-[#E5E7EB] bg-white p-6 md:p-7 shadow-sm">
+                    <?php foreach ($pdSteps as $idx => $s): $delay = 60 + ($idx * 120); ?>
+                        <article data-reveal data-reveal-delay="<?= $delay ?>" class="pd-card-lift rounded-2xl border border-[#E5E7EB] bg-white p-6 md:p-7 shadow-sm">
                             <div class="relative flex items-center gap-2.5 pb-5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-brand shrink-0"></span>
+                                <span class="pd-pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-brand shrink-0"></span>
                                 <span class="text-[15px] font-bold text-brand leading-7 uppercase tracking-wide"><?= htmlspecialchars($s['t'], ENT_QUOTES, 'UTF-8'); ?></span>
                                 <?php if ($idx < count($pdSteps) - 1): ?>
                                     <span class="hidden xl:block absolute left-[170px] right-[-26px] top-[5px] h-px bg-gray-900/15"></span>
@@ -298,16 +330,20 @@ main_head_end();
     <div class="landing-section scroll-mt-[120px]" data-header="dark" id="np-pricing">
         <section class="bg-white px-5 md:px-10 pb-16 pt-6 md:pt-10">
             <div class="max-w-[960px] mx-auto text-center mb-10">
-                <span class="inline-block rounded-full np-bg-green text-white text-sm font-semibold px-5 py-2">Pricing</span>
-                <h2 class="mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">
-                    The Right Price For You, Whoever You Are
+                <span data-reveal class="inline-block rounded-full np-bg-green text-white text-sm font-semibold px-5 py-2">Pricing</span>
+                <h2 data-reveal data-reveal-delay="60" class="mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">
+                    The Right Price For You, <span class="pd-gradient-text">Whoever You Are</span>
                 </h2>
-                <p class="mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">
+                <p data-reveal data-reveal-delay="120" class="mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">
                     Our subscription covers 300+ sites and continues to delete your data from data broker sites year after year
                 </p>
             </div>
             <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8" style="font-family: 'DM Sans', system-ui, sans-serif;">
-                <article class="rounded-[20px] border-2 border-[#77B248] bg-white p-6 sm:p-8 md:p-10 flex flex-col shadow-[0_0_0_1px_rgba(119,178,72,0.2)]">
+                <article data-reveal data-reveal-delay="60" class="pd-card-lift relative rounded-[20px] border-2 border-[#77B248] bg-white p-6 sm:p-8 md:p-10 flex flex-col shadow-[0_0_0_1px_rgba(119,178,72,0.2)]">
+                    <span class="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#77B248] to-[#24A556] text-white text-[11px] font-bold tracking-wide px-3 py-1 shadow-md">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
+                        MOST POPULAR
+                    </span>
                     <div class="text-[#77B248] font-bold text-[34px] sm:text-[40px] md:text-[52px] leading-none sm:leading-[1.05] flex items-center justify-center">
                         PRO
                     </div>
@@ -318,7 +354,7 @@ main_head_end();
                         <span class="font-bold text-[30px] sm:text-[38px] leading-[1.2]">$299.99</span>
                         <span class="ml-2 font-normal text-[13px] sm:text-[16px] leading-[20px] pb-[4px]">/year</span>
                     </div>
-                    <a href="/pricing" class="mt-5 inline-flex rounded-full np-bg-green text-white font-semibold px-8 py-4 min-h-[64px] hover:opacity-95 w-full justify-center items-center">
+                    <a href="/pricing" class="pd-btn-press pd-shine mt-5 inline-flex rounded-full np-bg-green text-white font-semibold px-8 py-4 min-h-[64px] w-full justify-center items-center">
                         Get Started Now
                     </a>
                     <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>
@@ -328,7 +364,7 @@ main_head_end();
                         <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Custom Support Through Our Concierge</li>
                     </ul>
                 </article>
-                <article class="rounded-[20px] border border-slate-200 bg-white p-6 sm:p-8 md:p-10 flex flex-col">
+                <article data-reveal data-reveal-delay="180" class="pd-card-lift rounded-[20px] border border-slate-200 bg-white p-6 sm:p-8 md:p-10 flex flex-col">
                     <div class="text-[#77B248] font-bold text-[30px] sm:text-[36px] md:text-[50px] leading-none sm:leading-[1.05] flex items-center justify-center text-center">
                         ENTERPRISE
                     </div>
@@ -338,7 +374,7 @@ main_head_end();
                     <div class="rounded-[14px] mt-5 px-1 py-2 flex items-end">
                         <span class="font-bold text-[30px] sm:text-[38px] leading-[1.2]">Custom</span>
                     </div>
-                    <a href="/business" class="mt-5 inline-flex rounded-full np-bg-green text-white font-semibold px-8 py-4 min-h-[64px] hover:opacity-95 w-full justify-center items-center">
+                    <a href="/business" class="pd-btn-press mt-5 inline-flex rounded-full bg-white text-[#141414] font-semibold px-8 py-4 min-h-[64px] w-full justify-center items-center border-2 border-[#141414] hover:bg-[#141414] hover:text-white transition-colors duration-200">
                         Contact Us Now
                     </a>
                     <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>

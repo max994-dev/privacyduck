@@ -20,34 +20,77 @@ main_head_start(['slim' => true]);
 ?>
 <meta name="robots" content="noindex, nofollow">
 <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
+    body {
+        font-family: system-ui, -apple-system, sans-serif;
+        /* Soft brand-tinted gradient backdrop — more premium than flat #f8fafc.
+           Uses fixed attachment so it doesn't repaint on scroll on long forms. */
+        background:
+            radial-gradient(60% 50% at 80% 0%, rgba(36, 165, 86, 0.07), transparent 60%),
+            radial-gradient(50% 40% at 0% 100%, rgba(119, 178, 72, 0.06), transparent 60%),
+            #f6f8f5;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+    /* Brand-green focus glow scoped to the signup form — overrides main.css's
+       black-border rule that would otherwise hijack focus styling. */
+    #ns-signup-form input[type="text"],
+    #ns-signup-form input[type="email"],
+    #ns-signup-form input[type="tel"],
+    #ns-signup-form input[type="password"],
+    #ns-signup-form input[type="date"],
+    #ns-signup-form select,
+    #ns-signup-form textarea {
+        transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #ns-signup-form input[type="text"]:focus,
+    #ns-signup-form input[type="email"]:focus,
+    #ns-signup-form input[type="tel"]:focus,
+    #ns-signup-form input[type="password"]:focus,
+    #ns-signup-form input[type="date"]:focus,
+    #ns-signup-form select:focus,
+    #ns-signup-form textarea:focus {
+        border: 1px solid #24A556 !important;
+        box-shadow: 0 0 0 4px rgba(36, 165, 86, 0.16) !important;
+        outline: none !important;
+        --tw-ring-color: transparent !important;
+    }
+    /* Card lift on focus-within so the active form feels alive. */
+    #ns-signup-form {
+        transition: box-shadow 250ms cubic-bezier(0.16, 1, 0.3, 1), transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #ns-signup-form:focus-within {
+        box-shadow: 0 24px 60px -24px rgba(16, 24, 40, 0.22), 0 4px 12px -4px rgba(16, 24, 40, 0.06);
+    }
+    /* Trust-strip icons get a slow drifting underglow */
+    .ns-trust-item { transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+    .ns-trust-item:hover { transform: translateY(-2px); }
 </style>
 <?php
 main_head_end();
 ?>
 <div class="mx-auto max-w-2xl px-4 py-10">
-    <div class="mb-8 text-center">
+    <div class="mb-8 text-center" data-reveal="fade">
         <a href="/new" class="inline-block"><img class="mx-auto h-9 w-auto" src="/assets/image/desktop/logo4.svg" alt="PrivacyDuck"></a>
-        <h1 class="mt-6 text-xl font-semibold text-slate-900">Create your account</h1>
-        <p class="mt-2 text-sm text-slate-600">Enter the personal details we use for removals. We will email you a code to verify your address. If you already paid through Stripe, your plan will be linked automatically.</p>
+        <h1 class="mt-6 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Create your <span class="pd-gradient-text">PrivacyDuck</span> account</h1>
+        <p class="mt-2 text-sm text-slate-600 max-w-md mx-auto">Enter the personal details we use for removals. We will email you a code to verify your address. If you already paid through Stripe, your plan will be linked automatically.</p>
     </div>
 
     <!-- Trust strip -->
-    <div class="mb-6 rounded-lg border border-slate-200 bg-white px-4 py-3">
+    <div class="mb-6 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm" data-reveal data-reveal-delay="120">
         <div class="flex flex-wrap gap-3 sm:gap-5 items-center justify-center text-xs text-slate-700">
-            <div class="flex items-center gap-1.5">
+            <div class="ns-trust-item flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 <span class="font-semibold">256-bit TLS</span>
             </div>
-            <div class="flex items-center gap-1.5">
+            <div class="ns-trust-item flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 <span class="font-semibold">UK GDPR aligned</span>
             </div>
-            <div class="flex items-center gap-1.5">
+            <div class="ns-trust-item flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                 <span class="font-semibold">We never sell your data</span>
             </div>
-            <div class="flex items-center gap-1.5">
+            <div class="ns-trust-item flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span class="font-semibold">US team since 2019</span>
             </div>
@@ -69,7 +112,7 @@ main_head_end();
         </div>
     </div>
 
-    <form id="ns-signup-form" method="post" action="<?= htmlspecialchars(WEB_DOMAIN . '/new_signup_process', ENT_QUOTES, 'UTF-8'); ?>" class="relative space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form id="ns-signup-form" data-reveal="scale" data-reveal-delay="180" method="post" action="<?= htmlspecialchars(WEB_DOMAIN . '/new_signup_process', ENT_QUOTES, 'UTF-8'); ?>" class="relative space-y-4 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
         <fieldset class="space-y-4 border-0 p-0 m-0">
             <legend class="text-sm font-semibold text-slate-800">Personal information</legend>
 
@@ -277,8 +320,9 @@ main_head_end();
         </div>
 
         <button type="submit"
-            class="mt-4 w-full rounded-lg border border-emerald-700 bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-            Sign up
+            class="pd-btn-press pd-shine mt-4 w-full rounded-xl border border-emerald-700 bg-gradient-to-r from-[#77B248] to-[#24A556] py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 inline-flex items-center justify-center gap-2">
+            Create my account
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12H19M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
         <p class="text-center text-sm text-slate-600">
             Already have an account?
