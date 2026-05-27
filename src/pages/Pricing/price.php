@@ -1,239 +1,227 @@
-<div
-    class="bg-[url('/assets/image/desktop/pricing_bg.png')]  bg-no-repeat bg-cover bg-center  pb-[50px] px-[20px] pt-[145px] justify-center flex">
-    <div>
-        <div class="text-center flex justify-center">
-            <h1
-                class="px-[24px] text-[32px] text-white sm:text-[48px] leading-[130%] tracking-[-1px] md:max-w-[805px] ">
-                Save More With Our Best
-                Value and Most
-                Popular
-                PrivacyDuck Plans</h1>
-        </div>
-        <div class="mt-[48px] sm:mt-[70px]">
-            <div class="flex justify-center">
-                <div
-                    class="lg:px-[56px] py-[10px] px-[2px] sm:px-[10px] lg:py-[31px] rounded-[10px] sm:rounded-bl-[0px] sm:rounded-br-[0px] md:rounded-tl-[15px] md:rounded-tr-[15px] lg:rounded-tl-[26px] lg:rounded-tr-[26px] bg-[#FFFFFF33] backdrop-blur-md flex">
-                    <div class="flex bg-[#FFFFFF59] rounded-full shadow-md md:w-[200px] lg:w-[300px]" id="dashboard_plans_year">
-                        <button
-                            class="relative flex-1 px-[13px] py-[7px] sm:px-[20px] sm:py-[14px] text-[14px] sm:text-[16px] font-semibold text-white rounded-full transition-all whitespace-nowrap duration-200 bg-[#24A556] font-bold"
-                            data-type="year_one" data-people="1">
-                            1 Year
-                        </button>
-                        <button
-                            class="relative flex-1 px-[13px] py-[7px] sm:px-[20px] sm:py-[14px] text-[14px] sm:text-[16px] font-semibold text-white rounded-full transition-all whitespace-nowrap duration-200"
-                            data-type="year_two" data-people="2">
-                            2 Year
-                            <span class="absolute -top-[14px] -right-[2px] bg-red-500 text-white text-[10px] sm:text-[14px] font-bold px-2 py-0.5 rounded-full shadow">
-                                45% OFF
-                                <span class="absolute -top-[9px] -left-[10px] bg-yellow-400 text-black text-[8px] font-bold px-1 py-0.5 rounded transform rotate-[-45deg] shadow">
-                                    New
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="flex bg-[#FFFFFF59] rounded-full shadow-md ml-[5px] sm:ml-[32px] md:w-[330px] lg:w-[500px]"
-                        id="people">
-                        <button
-                            class="flex-1 px-[13px] py-[7px] whitespace-nowrap sm:px-[20px] sm:py-[14px] text-[14px] sm:text-[16px] text-white rounded-full transition-all duration-800 bg-[#24A556] font-bold"
-                            data-type="single_type" data-people="1" id="people-type">
-                            Single
-                        </button>
-                        <button
-                            class="flex-1 px-[13px] py-[7px] whitespace-nowrap sm:px-[20px] sm:py-[14px] text-[14px] sm:text-[16px] font-semibold text-white rounded-full transition-all duration-800"
-                            data-type="couple_type" data-people="2" id="people-type">
-                            Couple
-                        </button>
-                        <button
-                            class="flex-1 px-[13px] py-[7px] whitespace-nowrap sm:px-[20px] sm:py-[14px] text-[14px] sm:text-[16px] font-semibold text-white rounded-full transition-all duration-800"
-                            data-type="family_type" data-people="3" id="people-type">
-                            Family
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="mt-[20px] sm:mt-0 rounded-[10px] xl:flex sm:px-[43px] px-[20px] py-[30px] sm:py-[60px] bg-[#FFFFFF80] sm:rounded-[26px] text-white items-center lg:min-w-[1000px]">
-                <div class="sm:flex items-center justify-between">
-                    <div class="sm:max-w-[252px] pb-[39px] text-center sm:text-left">
-                        <div id="current_plan"
-                            class="hidden flex items-center justify-center bg-gradient-to-r from-[#77B248] to-[#24A556] w-[143px] h-[34px] rounded-full space-x-[6px]">
-                            <?php require(BASEPATH . "/src/common/svgs/dashboard/sidebar/fixed_menu_protect_user.php"); ?>
-                            <h2 class="text-[14px] text-white">Current Plan</h2>
-                        </div>
-                        <h2 class="font-bold text-[40px] sm:text-[48px] " id="title">Standard Protection</h2>
-                        <h2 class="mt-[8px] font-medium text-[15px]" id="cond">1 Year, 1 Person</h2>
-                        <h2 class="mt-[32px] font-bold text-[36px] leading-[46px]" id="price">$25.00 <span
-                                class="text-[16px]">/mo</span></h2>
-                        <h2 class="mt-[24px] text-[15px] font-medium" id="billed">Billed annually ($299.99/year)</h2>
-                    </div>
-                    <div class="hidden xl:block ml-[58px] border-[1px] border-[#FFFFFF40] h-[275px]"></div>
-                    <div class="flex justify-center sm:ml-[58px] sm:max-w-[309px]">
-                        <div>
-                            <div class="flex gap-x-[6px] relative">
-                                <img src="/assets/image/desktop/check.svg" class="relative top-[5px] w-[24px] h-[24px]"
-                                    alt="check" />
-                                <h2 class="font-medium text-[18px] ">
-                                    Remove unlimited aliases, previous names, and email addresses
-                                </h2>
-                            </div>
-                            <div class="flex gap-x-[6px] mt-[24px] relative">
-                                <img src="/assets/image/desktop/check.svg" class="relative top-[5px] w-[24px] h-[24px]"
-                                    alt="check" />
-                                <h2 class="font-medium text-[18px] ">
-                                    Enhanced privacy tools like email and phone masking
-                                </h2>
-                            </div>
-                            <div class="flex gap-x-[6px] mt-[24px] relative">
-                                <img src="/assets/image/desktop/check.svg" class="relative top-[5px] w-[24px] h-[24px]"
-                                    alt="check" />
-                                <h2 class="font-medium text-[18px] ">
-                                    Email, Chat, and Phone Support
-                                </h2>
-                            </div>
-                            <div class="flex gap-x-[6px] mt-[24px] relative">
-                                <img src="/assets/image/desktop/check.svg" class="relative top-[5px] w-[24px] h-[24px]"
-                                    alt="check" />
-                                <h2 class="font-medium text-[18px] ">
-                                    Custom removal requests plus automated services
-                                </h2>
-                            </div>
-                            <label class="flex gap-x-[6px] mt-[24px] relative cursor-pointer group items-start">
-                                <input type="checkbox" id="pd_book_call_optin_pricing"
-                                    class="relative top-[5px] w-[24px] h-[24px] shrink-0 rounded border-[#CDCDCD] text-[#24A556] focus:ring-[#24A556]"
-                                    title="Include free onboarding call" />
-                                <span class="font-medium text-[18px] text-left">
-                                    <span class="text-[#24A556] font-semibold">Book call</span> — free onboarding call (scheduled between 2:00–4:00 PM Pacific). After checkout, you’ll book a time before entering your details.
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="hidden xl:block ml-[58px] border-[1px] border-[#FFFFFF40] h-[275px]"></div>
-                </div>
-                <div
-                    class="mt-[40px] sm:mt-[20px] xl:mt-0 xl:ml-[58px] xl:w-[320px] sm:flex justify-between items-center xl:block">
-                    <div class="text-center sm:text-left">
-                        <h2 class="font-bold text-[22px] leading-[130%]" id="subtitle">
-                            Standard PrivacyDuck protection plan for 1 person.
-                        </h2>
-                        <h2 class="font-medium text-[15px] leading-[130%] mt-[24px]" id="content">
-                            Remove yourself from all major data broker websites for 1 year.
-                        </h2>
-                    </div>
-                    <div class="mt-[30px] sm:mt-0 flex justify-center xl:mt-[47px]">
-                        <button id="pricing_pay" class="bg-[#24A556] rounded-full text-center py-[22px] w-[255px] flex justify-center">
-                            Start Protection&nbsp;&nbsp;
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path d="M12 5L19 12L12 19" stroke="white" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
+<?php
+// Pricing page hero + 3 plan cards + trust strip.
+// Replaces the previous single-card tab-switching layout (visible-by-default
+// "Standard Protection $25/mo for 1 person", with other plans hidden behind
+// Single/Couple/Family tabs). New layout shows all 3 person-plans side-by-side
+// for a chosen term, with one year toggle controlling all cards.
+//
+// Data source: src/pages/Dashboard/plans/data.php (DB-backed).
+// Year toggle JS reuses the same data object so server-rendered HTML and
+// client-side swapped HTML are guaranteed in sync.
 
-                        </button>
+// Defaults shown on first render (1 year).
+$pdDefaultYear = 'one';
+$pdPersonOrder = ['single', 'couple', 'family'];
+
+// Standard feature set for every plan. The Couple/Family plans inherit + extra.
+$pdFeaturesBase = [
+    'Remove unlimited aliases, previous names, and email addresses',
+    'Enhanced privacy tools like email and phone masking',
+    'Email, Chat, and Phone Support',
+    'Custom removal requests plus automated services',
+];
+$pdFeaturesByPerson = [
+    'single' => array_merge($pdFeaturesBase, []),
+    'couple' => array_merge($pdFeaturesBase, ['Cover 2 people on one account']),
+    'family' => array_merge($pdFeaturesBase, ['Cover up to 4 people on one account', 'Centralised family dashboard']),
+];
+$pdMostPopular = 'couple';
+?>
+<div class="bg-[url('/assets/image/desktop/pricing_bg.png')] bg-no-repeat bg-cover bg-center pb-[80px] px-[20px] pt-[145px]">
+    <div class="max-w-[1200px] mx-auto">
+
+        <!-- Heading + year toggle -->
+        <div class="text-center">
+            <h1 class="text-white font-semibold text-[32px] sm:text-[44px] lg:text-[52px] leading-[1.15] tracking-[-1px] max-w-[820px] mx-auto">
+                Real people, removing your data, year after year
+            </h1>
+            <p class="mt-4 text-white/85 text-[16px] sm:text-[17px] leading-[1.6] max-w-[640px] mx-auto">
+                One plan per household — single, couple, or family. Cancel any time. All plans include unlimited removal requests across 300+ data brokers.
+            </p>
+        </div>
+
+        <!-- Year toggle -->
+        <div class="mt-10 flex justify-center">
+            <div class="inline-flex bg-white/15 backdrop-blur-md rounded-full p-1 shadow-md" id="pd-year-toggle" role="tablist" aria-label="Term length">
+                <button type="button" data-year="one" class="pd-year-btn relative px-6 py-2.5 text-[14px] sm:text-[15px] font-semibold text-white rounded-full transition-colors bg-[#24A556]" aria-pressed="true">
+                    1 Year
+                </button>
+                <button type="button" data-year="two" class="pd-year-btn relative px-6 py-2.5 text-[14px] sm:text-[15px] font-semibold text-white rounded-full transition-colors" aria-pressed="false">
+                    2 Years
+                    <span class="absolute -top-2.5 -right-2 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow">
+                        Save 45%
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 plan cards side-by-side -->
+        <div class="mt-10 grid gap-6 md:grid-cols-3 max-w-[1100px] mx-auto" id="pd-plan-cards">
+            <?php foreach ($pdPersonOrder as $person):
+                $isMostPopular = ($person === $pdMostPopular);
+                $features = $pdFeaturesByPerson[$person];
+                $personLabels = ['single' => 'Single', 'couple' => 'Couple', 'family' => 'Family'];
+                $personSubtitles = [
+                    'single' => 'Just you',
+                    'couple' => 'You + 1',
+                    'family' => 'Up to 4 people',
+                ];
+            ?>
+            <article class="pd-plan-card relative bg-white rounded-2xl p-7 sm:p-8 shadow-xl flex flex-col <?= $isMostPopular ? 'ring-2 ring-[#24A556] md:scale-[1.02]' : '' ?>" data-person="<?= $person ?>">
+                <?php if ($isMostPopular): ?>
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#24A556] text-white text-[12px] font-bold uppercase tracking-wide px-4 py-1 rounded-full shadow-md">
+                    Most popular
+                </div>
+                <?php endif; ?>
+
+                <div>
+                    <h3 class="font-bold text-[22px] text-[#010205]" data-bind="title"><?= htmlspecialchars($personLabels[$person]) ?></h3>
+                    <p class="text-[14px] text-slate-500 mt-1" data-bind="subtitle"><?= htmlspecialchars($personSubtitles[$person]) ?></p>
+                </div>
+
+                <div class="mt-6 min-h-[88px]">
+                    <div class="text-[#010205] flex items-baseline gap-1" data-bind="price">
+                        <span class="font-bold text-[40px] leading-none">$—</span>
+                        <span class="text-[15px] text-slate-500">/mo</span>
                     </div>
+                    <div class="mt-2 text-[13px] text-slate-500" data-bind="billed">Loading…</div>
+                </div>
+
+                <ul class="mt-6 space-y-3 text-[14px] text-[#010205]/90 flex-1">
+                    <?php foreach ($features as $feature): ?>
+                    <li class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-[#24A556] mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span><?= htmlspecialchars($feature) ?></span>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <a href="#" data-bind="cta" class="mt-7 inline-flex justify-center items-center gap-2 rounded-full <?= $isMostPopular ? 'bg-[#24A556] hover:bg-[#1E8C49]' : 'bg-[#010205] hover:bg-[#374151]' ?> text-white font-semibold text-[15px] px-6 py-3.5 transition-colors">
+                    Get started
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 5L19 12L12 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </article>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Optional Book Call opt-in (preserved from previous flow) -->
+        <div class="mt-8 max-w-[640px] mx-auto bg-white/10 backdrop-blur-md rounded-xl px-5 py-4 text-white">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="pd_book_call_optin_pricing" class="mt-1 w-5 h-5 rounded border-white/30 text-[#24A556] focus:ring-[#24A556]" />
+                <span class="text-[14px] leading-[1.55]">
+                    <span class="font-semibold text-white">Add a free onboarding call</span> — after checkout, you’ll book a 30-minute slot (2–4 PM Pacific) before entering your details.
+                </span>
+            </label>
+        </div>
+
+        <!-- Trust strip -->
+        <div class="mt-12 max-w-[1100px] mx-auto bg-white/10 backdrop-blur-md rounded-2xl px-6 py-5 sm:py-6">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-y-4 gap-x-2 text-white text-center">
+                <div class="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2 sm:justify-center">
+                    <svg class="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span class="text-[13px] font-semibold whitespace-nowrap">256-bit TLS</span>
+                </div>
+                <div class="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2 sm:justify-center">
+                    <svg class="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    <span class="text-[13px] font-semibold whitespace-nowrap">Stripe-secured</span>
+                </div>
+                <div class="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2 sm:justify-center">
+                    <svg class="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span class="text-[13px] font-semibold whitespace-nowrap">UK GDPR aligned</span>
+                </div>
+                <div class="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2 sm:justify-center">
+                    <svg class="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M9 7a3 3 0 11-6 0 3 3 0 016 0zm12 0a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="text-[13px] font-semibold whitespace-nowrap">US team since 2019</span>
+                </div>
+                <div class="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2 sm:justify-center col-span-2 sm:col-span-1">
+                    <svg class="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                    <span class="text-[13px] font-semibold whitespace-nowrap">We never sell data</span>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
 <script>
-    function plans_init() {
+    (function () {
+        'use strict';
         <?php require_once(BASEPATH . "/src/pages/Dashboard/plans/data.php") ?>
-        let id = -1;
-        let coupon = "";
-        var link = "";
 
-        function handleChange(yearKey, peopleKey) {
-            const plan = dashboard_plans_data[yearKey]?.[peopleKey];
+        var data = (typeof dashboard_plans_data !== 'undefined') ? dashboard_plans_data : {};
+        var currentYear = 'one';
+        var currentSessionPlanId = "<?php echo isset($_SESSION['plan_id']) ? (int) $_SESSION['plan_id'] : ''; ?>";
+        var currentSessionEmail = "<?php echo htmlspecialchars($_SESSION['email'] ?? '', ENT_QUOTES); ?>";
+        var isLoggedIn = <?php echo !empty($_SESSION['isAuthenticated']) ? 'true' : 'false'; ?>;
 
-            if (!plan) return;
-
-            $("#title").text(plan.title);
-            $("#cond").text(plan.cond);
-            $("#price").html(plan.price);
-            $("#billed").text(plan.billed);
-            $("#subtitle").text(plan.subtitle);
-            $("#content").text(plan.content);
-            id = plan.id;
-            coupon = plan.coupon;
-            link = plan.stripe_payment_link;
-            if (id == "<?php echo $_SESSION["plan_id"] ?? ""; ?>") {
-                $("#current_plan").removeClass("hidden");
-                $("h2#title").addClass("mt-[30px]");
-                $('#pricing_pay').addClass("hidden");
-            } else {
-                $("#current_plan").addClass("hidden");
-                $("h2#title").removeClass("mt-[30px]");
-                $('#pricing_pay').removeClass("hidden");
-            }
-        }
-
-        const yearButtons = $("[data-type='year_one'], [data-type='year_two']");
-        const peopleButtons = $("[data-type='single_type'], [data-type='couple_type'], [data-type='family_type']");
-        yearButtons.click(function() {
-            yearButtons.removeClass("bg-[#24A556] font-bold active");
-            $(this).addClass("bg-[#24A556] font-bold active");
-            const year = $(this).attr("data-type") === "year_one" ? "one" : "two";
-            const activePeopleButton = $('#people button.active').attr("data-type").split("_").filter(Boolean).length > 0 && $('#people button.active').attr("data-type").split("_").filter(Boolean)[0];
-            handleChange(year, activePeopleButton);
-        });
-        peopleButtons.click(function() {
-            peopleButtons.removeClass("bg-[#24A556] font-bold active");
-            $(this).addClass("bg-[#24A556] font-bold active");
-            const people = $(this).attr("data-type").split("_").filter(Boolean).length > 0 && $(this).attr("data-type").split("_").filter(Boolean)[0];
-
-            const activeYearButton = $('#dashboard_plans_year button.active').attr("data-type").split("_").filter(Boolean).length > 0 && $('#dashboard_plans_year button.active').attr("data-type").split("_").filter(Boolean)[1];
-            handleChange(activeYearButton, people);
-        });
-
-        function init() {
-            yearButtons.removeClass("bg-[#24A556] font-bold active");
-            yearButtons[0].classList.add("bg-[#24A556]", "font-bold", "active");
-
-            peopleButtons.removeClass("bg-[#24A556] font-bold active");
-            peopleButtons[0].classList.add("bg-[#24A556]", "font-bold", "active");
-
-            handleChange("one", "single");
-        }
-        init();
-        //------------------------------------------------
-
-        async function persistBookCallIntentFromPricing() {
-            var $cb = $("#pd_book_call_optin_pricing");
-            if (!$cb.length) return true;
-            var intent = $cb.is(":checked") ? 1 : 0;
-            try {
-                await $.post("/book_call_set_intent", { intent: intent });
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        $("#pricing_pay").click(async function() {
-            // location.href = "/payment?plan_id=" + id;
-            const login = "<?php echo isset($_SESSION["isAuthenticated"]) ? $_SESSION["isAuthenticated"] : false; ?>";
-            if (login) {
-                var okIntent = await persistBookCallIntentFromPricing();
-                if (!okIntent) {
-                    if (typeof toastr !== "undefined") toastr.error("Could not save Book call preference. Please try again.");
-                    return;
+        function applyYear(year) {
+            currentYear = year;
+            var planSet = data[year] || {};
+            document.querySelectorAll('.pd-plan-card').forEach(function (card) {
+                var person = card.getAttribute('data-person');
+                var plan = planSet[person];
+                if (!plan) return;
+                var priceEl = card.querySelector('[data-bind="price"]');
+                if (priceEl) priceEl.innerHTML = plan.price.replace(/<span[^>]*>/, '<span class="text-[15px] text-slate-500">');
+                var billedEl = card.querySelector('[data-bind="billed"]');
+                if (billedEl) billedEl.textContent = plan.billed || '';
+                var ctaEl = card.querySelector('[data-bind="cta"]');
+                if (ctaEl) {
+                    if (!isLoggedIn) {
+                        ctaEl.setAttribute('href', '/login?next=/pricing');
+                        return;
+                    }
+                    var link = plan.stripe_payment_link || '';
+                    if (link) {
+                        var sep = link.indexOf('?') >= 0 ? '&' : '?';
+                        link += sep + 'prefilled_email=' + encodeURIComponent(currentSessionEmail);
+                        if (plan.coupon) link += '&prefilled_promo_code=' + encodeURIComponent(plan.coupon);
+                    }
+                    ctaEl.setAttribute('href', link);
+                    ctaEl.setAttribute('target', '_blank');
+                    ctaEl.setAttribute('rel', 'noopener');
+                    // If this plan matches user's current plan, soften the CTA.
+                    if (String(plan.id) === currentSessionPlanId) {
+                        ctaEl.textContent = 'Current plan';
+                        ctaEl.classList.add('opacity-60', 'pointer-events-none');
+                    }
                 }
-                window.open(link + "?prefilled_email=" + "<?php echo $_SESSION["email"] ?? ""; ?>" + `${coupon?"&prefilled_promo_code="+coupon:""}`, "_blank");
-            } else {
-                window.location.href = "/login";
-            }
+            });
+        }
+
+        // Wire toggle
+        var toggleBtns = document.querySelectorAll('.pd-year-btn');
+        toggleBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                toggleBtns.forEach(function (b) {
+                    b.classList.remove('bg-[#24A556]');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                btn.classList.add('bg-[#24A556]');
+                btn.setAttribute('aria-pressed', 'true');
+                applyYear(btn.getAttribute('data-year'));
+            });
         });
 
-        (function bookCallOptinPricing() {
-            var $cb = $("#pd_book_call_optin_pricing");
-            if (!$cb.length) return;
-            $cb.prop("checked", <?php echo !empty($_SESSION['pd_book_call_intent']) ? 'true' : 'false'; ?>);
-            $cb.on("change", function() {
-                $.post("/book_call_set_intent", { intent: this.checked ? 1 : 0 });
+        // Book Call intent persistence (preserved from previous behaviour)
+        var bookCallCb = document.getElementById('pd_book_call_optin_pricing');
+        if (bookCallCb) {
+            bookCallCb.checked = <?php echo !empty($_SESSION['pd_book_call_intent']) ? 'true' : 'false'; ?>;
+            bookCallCb.addEventListener('change', function () {
+                if (typeof fetch === 'function') {
+                    var fd = new FormData();
+                    fd.append('intent', this.checked ? 1 : 0);
+                    fetch('/book_call_set_intent', { method: 'POST', credentials: 'same-origin', body: fd });
+                }
             });
-        })();
-    }
-    plans_init();
+        }
+
+        // Initial render with default year.
+        applyYear('one');
+    })();
 </script>

@@ -29,7 +29,29 @@ main_head_end();
     <div class="mb-8 text-center">
         <a href="/new" class="inline-block"><img class="mx-auto h-9 w-auto" src="/assets/image/desktop/logo4.svg" alt="PrivacyDuck"></a>
         <h1 class="mt-6 text-xl font-semibold text-slate-900">Create your account</h1>
-        <p class="mt-2 text-sm text-slate-600">Enter the personal details we use for removals (similar to our legacy signup). We will email you a code to verify your address. If you already paid through Stripe, your plan will be linked automatically.</p>
+        <p class="mt-2 text-sm text-slate-600">Enter the personal details we use for removals. We will email you a code to verify your address. If you already paid through Stripe, your plan will be linked automatically.</p>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="mb-6 rounded-lg border border-slate-200 bg-white px-4 py-3">
+        <div class="flex flex-wrap gap-3 sm:gap-5 items-center justify-center text-xs text-slate-700">
+            <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <span class="font-semibold">256-bit TLS</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span class="font-semibold">UK GDPR aligned</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                <span class="font-semibold">We never sell your data</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#24A556]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-semibold">US team since 2019</span>
+            </div>
+        </div>
     </div>
 
     <?php if ($err !== ''): ?>
