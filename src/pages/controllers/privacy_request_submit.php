@@ -128,8 +128,9 @@ $stmt = $conn->prepare(
 $nameVal = $name !== '' ? $name : null;
 $countryVal = $country !== '' ? $country : null;
 $detailsVal = $details !== '' ? $details : null;
+// 12 placeholders => 12 type chars: 6 strings, 1 int (matched_user_id), 5 strings
 $stmt->bind_param(
-    'ssssssissssss',
+    'ssssssisssss',
     $reference,
     $requestType,
     $email,
