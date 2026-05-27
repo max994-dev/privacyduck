@@ -13,6 +13,7 @@ $routes = [
     'content/removalmanage' => 'views/Dashboard/removal/index.php',
     'content/businessmanage' => 'views/Dashboard/business/index.php',
     'content/emailingsystem' => 'views/Dashboard/emailing/index.php',
+    'dsarmanage' => 'views/Dashboard/dsar/index.php',
 
 
     'api/login' => 'controllers/login/index.php',
@@ -20,6 +21,9 @@ $routes = [
     'api/user/getlist' => 'controllers/user/getlist.php',
     'api/emailing/getlist' => 'controllers/emailing/getlist.php',
     'api/emailing/auto' => 'controllers/emailing/autoemailing.php',
+    'api/dsar/getlist' => 'controllers/dsar/getlist.php',
+    'api/dsar/get' => 'controllers/dsar/get.php',
+    'api/dsar/update' => 'controllers/dsar/update.php',
     '.*' => 'views/Dashboard/index.php',
     // 'dashboard(?:/(\w+))?'=> 'Dashboard/index.php',
 ];

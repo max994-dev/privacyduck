@@ -50,6 +50,13 @@
             </svg>
             <span>Emailing System</span>
         </a>
+
+        <a href="/super/admin/dsarmanage" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-white font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M12 3l8 4v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"></path>
+            </svg>
+            <span>Privacy Requests</span>
+        </a>
     </nav>
 
     <!-- User Profile Section -->
