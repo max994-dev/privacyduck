@@ -1115,7 +1115,7 @@ main_head_end();
             bullets: []
         },
         {
-            image: '/assets/image/desktop/4.png',
+            image: '/assets/image/desktop/4.webp',
             copy: 'Data reappears. When it does, we go after it again. PrivacyDuck continuously monitors for renewed exposure so listings, records, and profiles can be flagged and acted on quickly.',
             bullets: []
         },

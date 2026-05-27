@@ -1,5 +1,5 @@
 <div
-    class="bg-[url('/assets/image/mobile/background.png')] sm:bg-[url('/assets/image/desktop/background.png')]  bg-no-repeat bg-cover bg-center md:h-[875px]  px-[20px] pt-[200px] pb-[50px] flex flex-col justify-between">
+    class="bg-[url('/assets/image/mobile/background.webp')] sm:bg-[url('/assets/image/desktop/background.webp')]  bg-no-repeat bg-cover bg-center md:h-[875px]  px-[20px] pt-[200px] pb-[50px] flex flex-col justify-between">
     <div class="flex md:pl-16 md:pr-[48px] items-center pb-[20px] justify-between">
         <div class="flex flex-col max-w-[700px] ">
             <h1 class="leading-[110%] font-semibold text-[48px] tracking-[-1px] lg:text-[72px]">Take Back

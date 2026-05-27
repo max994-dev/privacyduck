@@ -103,8 +103,8 @@
 
             <!-- Card 2 -->
             <div id="card2" class="relative card card-expanded bg-[#FBFFFD] h-[434px]  rounded-[20px] shadow-[0_10px_20px_#9B9B9C24] overflow-hidden">
-                <img src="/assets/image/desktop/restoration/expert.png" class="card-img1 absolute w-[335px] h-[366.61px] top-[80px] right-[-35px]" alt="expert team" />
-                <img src="/assets/image/desktop/restoration/expert.png" class="card-img2 absolute w-[185px] h-[202.46px] bottom-[-15.46px] right-[-13px]" alt="restoration privacy services in USA" />
+                <img src="/assets/image/desktop/restoration/expert.webp" class="card-img1 absolute w-[335px] h-[366.61px] top-[80px] right-[-35px]" alt="expert team" />
+                <img src="/assets/image/desktop/restoration/expert.webp" class="card-img2 absolute w-[185px] h-[202.46px] bottom-[-15.46px] right-[-13px]" alt="restoration privacy services in USA" />
                 <div class="pt-[35px] pl-[24px] pr-[17px] pb-[29px] h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-[24px] leading-[110%] tracking-[-0.03em] font-semibold text-[#010205]">Expert Team</h2>
@@ -180,7 +180,7 @@
 
             <!-- Card 2 -->
             <div class="relative w-[300px] sm:w-[600px] bg-[#FBFFFD] h-[434px]  rounded-[20px] shadow-[0_10px_20px_#9B9B9C24] overflow-hidden">
-                <img src="/assets/image/desktop/restoration/expert.png" class="card-img1 hidden sm:block absolute w-[335px] h-[366.61px] top-[80px] right-[-35px]" alt="expert team" />
+                <img src="/assets/image/desktop/restoration/expert.webp" class="card-img1 hidden sm:block absolute w-[335px] h-[366.61px] top-[80px] right-[-35px]" alt="expert team" />
                 <div class="pt-[35px] pl-[24px] pr-[17px] pb-[29px] h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-[24px] leading-[110%] tracking-[-0.03em] font-semibold text-[#010205]">Expert Team</h2>

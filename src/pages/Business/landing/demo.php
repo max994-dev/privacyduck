@@ -18,7 +18,7 @@
                 identity theft, and insider threats — making us your trusted business data privacy provider.
             </p>
             <div class="flex justify-center mt-[66px]">
-                <img src="/assets/image/desktop/business/landing/demo_mindmap.png" class="w-[542px] h-[352px]" alt="business data privacy provider" />
+                <img src="/assets/image/desktop/business/landing/demo_mindmap.webp" class="w-[542px] h-[352px]" alt="business data privacy provider" />
             </div>
             <p class="mt-[32px] font-medium text-[18px] leading-[150%] text-[#878C91]">
                 Backed by CCPA and GDPR-compliant processes and real-time monitoring, we help you minimize

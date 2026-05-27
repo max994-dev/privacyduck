@@ -27,7 +27,7 @@
     </div>
     <div class="relative flex justify-center sm:justify-end mt-[17px] xl:absolute bottom-[-5px] right-0">
         <div class="relative">
-            <img src="/assets/image/desktop/personalized.png" class="w-[335px] sm:w-[604px] h-[361px] sm:h-[661px]" alt="business data privacy service">
+            <img src="/assets/image/desktop/personalized.webp" class="w-[335px] sm:w-[604px] h-[361px] sm:h-[661px]" alt="business data privacy service">
             <div class="absolute bg-[#E8FCE726] backdrop-blur-[10px] w-[49px] h-[49px] sm:w-[130px] sm:h-[130px] top-[74px] left-[188px] sm:top-[100px] sm:left-[290px]"></div>
             <div class="absolute bg-[#E8FCE726] backdrop-blur-[10px] w-[49px] h-[49px] sm:w-[130px] sm:h-[130px] top-[123px] left-[188px] sm:top-[230px] sm:left-[290px]"></div>
             <div class="absolute bg-[#E8FCE726] backdrop-blur-[10px] w-[49px] h-[49px] sm:w-[130px] sm:h-[130px] top-[49px] left-[139px] sm:top-[35px] sm:left-[160px]"></div>

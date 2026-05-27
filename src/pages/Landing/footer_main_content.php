@@ -46,7 +46,7 @@
                     <div class="lg:flex lg:justify-center xl:block">
                         <div class="hidden lg:flex lg:w-4/5 lg:justify-between xl:w-full xl:justify-normal">
                             <div class="relative w-[173.21px] h-[175.19px]">
-                                <img src="/assets/image/desktop/ceo.png"
+                                <img src="/assets/image/desktop/ceo.webp"
                                     class="absolute w-[157px] h-[156px] rounded-[30px] z-[10]" alt="Christian Scott" />
                                 <img src="/assets/image/desktop/back.png"
                                     class="absolute w-[157px] h-[156px] rounded-[30px] bottom-[0px] right-[-20px] z-0" />
@@ -96,7 +96,7 @@
                             <div>
                                 <div class="flex justify-center">
                                     <div class="relative w-[173.21px] h-[175.19px]">
-                                        <img src="/assets/image/desktop/ceo.png"
+                                        <img src="/assets/image/desktop/ceo.webp"
                                             class="absolute w-[157px] h-[156px] rounded-[30px] z-[10]" alt="Christian Scott" />
                                         <img src="/assets/image/desktop/back.png"
                                             class="absolute w-[157px] h-[156px] rounded-[30px] bottom-[0px] right-[-5px] z-0" />

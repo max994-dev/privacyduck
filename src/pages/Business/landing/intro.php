@@ -1,5 +1,5 @@
 <div
-    class="relative bg-[url('/assets/image/desktop/business/landing/background.png')] bg-no-repeat bg-cover bg-center lg:bg-start md:h-[775px]  px-[20px] pt-[167px] lg:pt-[165px] pb-[50px] flex flex-col justify-between">
+    class="relative bg-[url('/assets/image/desktop/business/landing/background.webp')] bg-no-repeat bg-cover bg-center lg:bg-start md:h-[775px]  px-[20px] pt-[167px] lg:pt-[165px] pb-[50px] flex flex-col justify-between">
     <div class="flex flex-col md:px-16">
         <div class="flex flex-col max-w-[1060px] ">
             <h1 class="leading-[110%] font-semibold text-[38px] tracking-[-0.03em] lg:text-[72px]">

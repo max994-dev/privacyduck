@@ -38,8 +38,8 @@ include_once(BASEPATH . "/src/common/meta.php");
 require_once __DIR__ . "/landing_header.php";
 main_head_start();
 ?>
-<link rel="preload" as="image" href="/assets/image/desktop/background.png">
-<link rel="preload" as="image" href="/assets/image/mobile/background.png">
+<link rel="preload" as="image" href="/assets/image/desktop/background.webp">
+<link rel="preload" as="image" href="/assets/image/mobile/background.webp">
 
 <link href="/assets/css/landing.css" rel="stylesheet">
 <link href="/assets/css/landingMobileAnimation.css" rel="stylesheet">
