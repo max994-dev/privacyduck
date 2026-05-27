@@ -42,8 +42,12 @@ main_head_end();
 main_header();
 // main_splash();
 include_once(BASEPATH . "/src/pages/Pricing/price.php");
-include_once(BASEPATH . "/src/pages/Pricing/slide.php");
-include_once(BASEPATH . "/src/pages/Pricing/faq.php");
-include_once(BASEPATH . "/src/pages/Pricing/digital.php");
+// Removed by request: testimonials (slide.php), pricing FAQ (faq.php), and
+// the green "digital privacy" CTA strip (digital.php). The pricing page now
+// flows straight from the cards into the footer for a cleaner, more focused
+// experience. Re-enable by uncommenting if needed.
+// include_once(BASEPATH . "/src/pages/Pricing/slide.php");
+// include_once(BASEPATH . "/src/pages/Pricing/faq.php");
+// include_once(BASEPATH . "/src/pages/Pricing/digital.php");
 main_footer();
 ?>
