@@ -99,6 +99,9 @@ $routes = [
     //Policy
     'policy' => 'Policy/index.php',
     'cookie-policy' => 'CookiePolicy/index.php',
+    'privacy-request' => 'PrivacyRequest/index.php',
+    'privacy-request/sent' => 'PrivacyRequest/sent.php',
+    'privacy-request/submit' => 'controllers/privacy_request_submit.php',
 
     //Personalized service
     'personalized-service' => 'Personalized/index.php',

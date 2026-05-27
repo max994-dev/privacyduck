@@ -192,7 +192,7 @@ main_header("black");
                     </table>
                 </div>
                 <p class="text-gray-700 mt-4">
-                    To exercise any right, use our <strong>Privacy Request form</strong> <em>(coming soon)</em> or email
+                    To exercise any right, use our <a href="/privacy-request" class="text-[#24A556] font-semibold hover:underline">Privacy Request form</a> or email
                     <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a>.
                     We respond within one month. If your request is complex we may extend by two further months — we'll tell you why.
                 </p>
