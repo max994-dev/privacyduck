@@ -128,6 +128,29 @@ $pdMostPopular = 'couple';
             <?php endforeach; ?>
         </div>
 
+        <!-- Onboarding call opt-in (kept; restyled to match the new dark hero) -->
+        <div class="mt-10 max-w-[640px] mx-auto">
+            <label for="pd_book_call_optin_pricing"
+                   class="group flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/[0.06] border border-white/15 hover:bg-white/[0.10] hover:border-white/25 transition-colors cursor-pointer">
+                <input type="checkbox"
+                       id="pd_book_call_optin_pricing"
+                       class="peer sr-only" />
+                <span aria-hidden="true"
+                      class="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md border border-white/40 bg-white/5
+                             peer-checked:bg-[#24A556] peer-checked:border-[#24A556] transition-colors">
+                    <svg class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </span>
+                <span aria-hidden="true"
+                      class="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#24A556]/15 text-[#24A556]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.95.68l1.5 4.5a1 1 0 01-.5 1.21l-2.26 1.13a11 11 0 005.52 5.52l1.13-2.26a1 1 0 011.21-.5l4.5 1.5a1 1 0 01.68.95V19a2 2 0 01-2 2A16 16 0 013 5z"/></svg>
+                </span>
+                <span class="flex-1 text-white">
+                    <span class="block font-semibold text-[15px]">Add a free 30-min onboarding call</span>
+                    <span class="block text-[13px] text-white/70 mt-0.5">After checkout, pick a slot (2–4 PM Pacific). We walk through setup live with you.</span>
+                </span>
+            </label>
+        </div>
+
         <!-- Trust strip -->
         <div class="mt-16 max-w-[980px] mx-auto">
             <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-white/75 text-[13px] sm:text-[14px]">
