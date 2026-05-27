@@ -11,8 +11,7 @@
                 data-tabs-toggle="#myTabContent" role="tablist">
                 <button data-tabs-target="#slide5" type="button" role="tab" aria-controls="slide-5"
                     aria-selected="false"
-                    class="order-5 sm:order-1 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors"
-                    style="font-family: 'Manrope', sans-serif;">Automation
+                    class="order-5 sm:order-1 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors font-manrope">Automation
                     + Human Scrubbing</button>
                 <button data-tabs-target="#slide1" type="button" role="tab" aria-controls="slide-3"
                     aria-selected="true"
@@ -20,18 +19,15 @@
                     Footprint</button>
                 <button data-tabs-target="#slide2" type="button" role="tab" aria-controls="slide-2"
                     aria-selected="false"
-                    class="order-2 sm:order-3 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors"
-                    style="font-family: 'Manrope', sans-serif;">Face
+                    class="order-2 sm:order-3 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors font-manrope">Face
                     Search</button>
                 <button data-tabs-target="#slide3" type="button" role="tab" aria-controls="slide-4"
                     aria-selected="false"
-                    class="order-4 sm:order-4 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors"
-                    style="font-family: 'Manrope', sans-serif;">Detection-Proof
+                    class="order-4 sm:order-4 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 transition-colors font-manrope">Detection-Proof
                     Images</button>
                 <button data-tabs-target="#slide4" type="button" role="tab" aria-controls="slide-1"
                     aria-selected="false"
-                    class="order-1 sm:order-5 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 text-white transition-colors"
-                    style="font-family: 'Manrope', sans-serif;">Face
+                    class="order-1 sm:order-5 text-[16px] font-bold border-gray-300 border-[1px] leading-[140%] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 rounded-full py-2 px-3 text-white transition-colors font-manrope">Face
                     Leak Checker</button>
             </div>
         </div>

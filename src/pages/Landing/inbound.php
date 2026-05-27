@@ -31,23 +31,23 @@
                     <h2 class="font-bold text-[18px] text-[#020609] max-w-[325px]">You’ll also receive:</h2>
                     <ul class="mt-[17px] text-left text-[#010205] flex flex-col gap-[8px]">
                         <li class="flex items-center gap-x-[4px]">
-                            <i class="fa-solid fa-square-check" style="color: #24A556;"></i>
+                            <i class="fa-solid fa-square-check text-brand"></i>
                             Remove data from people search sites
                         </li>
                         <li class="flex items-center gap-x-[4px]">
-                            <i class="fa-solid fa-square-check" style="color: #24A556;"></i>
+                            <i class="fa-solid fa-square-check text-brand"></i>
                             Monitor personal data exposure
                         </li>
                         <li class="flex items-center gap-x-[4px]">
-                            <i class="fa-solid fa-square-check" style="color: #24A556;"></i>
+                            <i class="fa-solid fa-square-check text-brand"></i>
                             Prevent identity theft & doxing
                         </li>
                         <li class="flex items-center gap-x-[4px]">
-                            <i class="fa-solid fa-square-check" style="color: #24A556;"></i>
+                            <i class="fa-solid fa-square-check text-brand"></i>
                             Stop data brokers from selling your info
                         </li>
                         <li class="flex items-center gap-x-[4px]">
-                            <i class="fa-solid fa-square-check" style="color: #24A556;"></i>
+                            <i class="fa-solid fa-square-check text-brand"></i>
                             Secure family member info too
                         </li>
 

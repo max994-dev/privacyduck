@@ -515,7 +515,7 @@ main_head_end();
             <h2 class="np-poppins mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">The Right Price For You, Whoever You Are</h2>
             <p class="np-poppins mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">Our subscription covers 300+ sites and continues to delete your data from data broker sites year after year</p>
         </div>
-        <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8" style="font-family:'DM Sans', sans-serif;">
+        <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8 font-dmsans">
             <article class="np-plan-card np-plan-card--active p-6 sm:p-8 md:p-10 flex flex-col cursor-pointer" data-plan-card="pro" role="button" tabindex="0" aria-pressed="true">
                 <div class="np-brand-text font-bold text-[34px] sm:text-[40px] md:text-[52px] leading-none sm:leading-[1.05] flex items-center justify-center">
                     PRO

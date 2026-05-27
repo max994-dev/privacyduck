@@ -6,12 +6,12 @@
         <a href="/business">
             <div class="relative flex flex-col">
                 <div class="flex items-center gap-[8px]">
-                    <h1 style="font-family: 'Alatsi', sans-serif;" class="text-[28px] tracking-[-0.02em] uppercase text-white">
-                        Privacy<label class="text-[#FFCF50]" style="font-family: 'Alatsi', sans-serif;">Duck</label>
+                    <h1 class="text-[28px] tracking-[-0.02em] uppercase text-white font-alatsi">
+                        Privacy<label class="text-[#FFCF50] font-alatsi">Duck</label>
                     </h1>
                     <?php require(BASEPATH . '/src/common/svgs/business/landing/duck.php'); ?>
                 </div>
-                <h1 style="font-family: 'Alatsi', sans-serif;" class="relative top-[-10px] uppercase text-[20px] tracking-[-0.02em] text-white">
+                <h1 class="relative top-[-10px] uppercase text-[20px] tracking-[-0.02em] text-white font-alatsi">
                     Enterprise
                 </h1>
             </div>

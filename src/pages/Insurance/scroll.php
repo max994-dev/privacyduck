@@ -60,10 +60,8 @@
                             <lottie-player class="absolute top-[-26px] left-[17px]"
                                 src="/assets/image/desktop/signup.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[56px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Initial Assessment</h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[16px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[56px] font-jakarta">Initial Assessment</h3>
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[16px] leading-[160%] font-jakarta">
                                 We conduct a comprehensive analysis of your situation to understand the scope of
                                 the identity theft and create a personalized restoration plan.
                             </p>
@@ -79,12 +77,10 @@
                             <lottie-player class="absolute top-[-11px] left-[13px]"
                                 src="/assets/image/desktop/search.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[56px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[56px] font-jakarta">
                                 Documentation & Filing
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[7px] sm:mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[7px] sm:mt-[20px] leading-[160%] font-jakarta">
                                 Our experts prepare and file all necessary documentation with credit bureaus,
                                 financial institutions, and government agencies.
                             </p>
@@ -103,11 +99,9 @@
                             <lottie-player class="absolute top-[-2px] left-[19px]"
                                 src="/assets/image/desktop/realtime.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[57px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Active Restoration
+                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[57px] font-jakarta">Active Restoration
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%] font-jakarta">
                                 We actively work to remove fraudulent accounts,
                                 restore your credit score, and recover any stolen funds or assets.
                             </p>
@@ -124,11 +118,9 @@
                             <lottie-player class="absolute top-0 left-[18px]"
                                 src="/assets/image/desktop/mornitoring.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[57px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Ongoing Protection
+                            <h3 class="font-semibold text-[#010205] text-[24px] sm:text-[26px] leading-[150%] tracking-[-0.03em] mt-[57px] font-jakarta">Ongoing Protection
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%] font-jakarta">
                                 We provide continuous monitoring and protection services to prevent future 
                                 identity theft incidents.
                             </p>

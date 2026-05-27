@@ -18,10 +18,10 @@ main_head_end();
                     <a href="/business">
                         <div class="relative flex flex-col">
                             <div class="flex items-center gap-[8px]">
-                                <h1 style="font-family: 'Alatsi', sans-serif;" class="text-[42px] tracking-[-0.02em] uppercase text-[#010205]">Privacy<label class="text-[#FFCF50]" style="font-family: 'Alatsi', sans-serif;">Duck</label></h1>
+                                <h1 class="text-[42px] tracking-[-0.02em] uppercase text-[#010205] font-alatsi">Privacy<label class="text-[#FFCF50] font-alatsi">Duck</label></h1>
                                 <?php require(BASEPATH . '/src/common/svgs/business/landing/duck.php'); ?>
                             </div>
-                            <h1 style="font-family: 'Alatsi', sans-serif;" class="relative top-[-20px] text-[32px] tracking-[-0.02em] text-[#010205]">BUSINESS</h1>
+                            <h1 class="relative top-[-20px] text-[32px] tracking-[-0.02em] text-[#010205] font-alatsi">BUSINESS</h1>
                         </div>
                     </a>
                 </div>

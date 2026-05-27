@@ -63,11 +63,9 @@
                             <lottie-player class="absolute top-[-26px] left-[17px]"
                                 src="/assets/image/desktop/signup.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[32px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Sign Up & Submit<br />
+                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[32px] font-jakarta">Sign Up & Submit<br />
                                 Information</h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[16px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[16px] leading-[160%] font-jakarta">
                                 Start by telling us what you'd like removed: home and work addresses, phone numbers, emails, photos,
                                 or social media links.
                             </p>
@@ -83,12 +81,10 @@
                             <lottie-player class="absolute top-[-25px] left-[13px]"
                                 src="/assets/image/desktop/search.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[35px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Automated & Manual
+                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[35px] font-jakarta">Automated & Manual
                                 Removal
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[7px] sm:mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[7px] sm:mt-[20px] leading-[160%] font-jakarta">
                                 Our system instantly begins removing your data from people-search sites.
                                 A human team handles sites that require manual removal.
                             </p>
@@ -107,11 +103,9 @@
                             <lottie-player class="absolute top-[-2px] left-[19px]"
                                 src="/assets/image/desktop/realtime.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[57px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Real-Time Tracking
+                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[57px] font-jakarta">Real-Time Tracking
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%] font-jakarta">
                                 PrivacyDuck protects your information in real time.
                                 As soon as removals begin, your personal dashboard updates automatically, so you don't need to keep checking.
                             </p>
@@ -128,11 +122,9 @@
                             <lottie-player class="absolute top-0 left-[18px]"
                                 src="/assets/image/desktop/mornitoring.json" background="transparent" speed="1" loop
                                 autoplay style="width: 80px; height: 96px;"></lottie-player>
-                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[57px]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">Continuous Monitoring
+                            <h3 class="font-semibold text-[24px] sm:text-[26px] leading-[150%] tracking-[-1px] mt-[57px] font-jakarta">Continuous Monitoring
                             </h3>
-                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%]"
-                                style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <p class="text-[#878C91] font-medium text-[14px] mt-[20px] leading-[160%] font-jakarta">
                                 Data brokers don’t give up easily. That’s why we offer ongoing monitoring, where we check for reappearances and remove your data again,
                                 automatically.
                             </p>

@@ -18,8 +18,7 @@
                 proactive in their efforts to safeguard against such targeted threats, .
             </h2>
             <button class="bg-[#00530F] mt-[71px] rounded-full gap-[24px] w-[251px] h-[56px] flex items-center justify-center">
-                <h2 class="text-[16px] font-bold text-[#FFCF50] leading-[140%] tracking-[-0.02em]"
-                    style="font-family: 'Manrope', sans-serif;">
+                <h2 class="text-[16px] font-bold text-[#FFCF50] leading-[140%] tracking-[-0.02em] font-manrope">
                     Quick Start
                 </h2>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

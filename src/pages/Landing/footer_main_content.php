@@ -20,12 +20,12 @@
                     </h2>
 
                     <div class="flex justify-center">
-                        <h2 class="text-[16px] w-[301px] text-center sm:w-auto sm:text-[18px] leading-[24px] text-[#010205CC] mt-[20px] sm:mt-[24px]" style="font-family: 'Roboto', sans-serif;">
+                        <h2 class="text-[16px] w-[301px] text-center sm:w-auto sm:text-[18px] leading-[24px] text-[#010205CC] mt-[20px] sm:mt-[24px] font-roboto">
                             Your data. Your choice. Don’t let brokers profit off your personal life.
                         </h2>
                     </div>
                     <div class="flex justify-center">
-                        <h2 class="text-[16px] w-[301px] text-center sm:w-auto sm:text-[18px] leading-[24px] text-[#010205CC] mt-[20px] sm:mt-[24px]" style="font-family: 'Roboto', sans-serif;">
+                        <h2 class="text-[16px] w-[301px] text-center sm:w-auto sm:text-[18px] leading-[24px] text-[#010205CC] mt-[20px] sm:mt-[24px] font-roboto">
                             Get cleaned up in minutes - Free to start.
                         </h2>
                     </div>
@@ -52,13 +52,13 @@
                                     class="absolute w-[157px] h-[156px] rounded-[30px] bottom-[0px] right-[-20px] z-0" />
                             </div>
                             <div class="xl:ml-[75px]">
-                                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;"
-                                    class="tracking-[-1px] leading-[130%] font-semibold text-[#010205] text-[28px]">
+                                <h2
+                                    class="tracking-[-1px] leading-[130%] font-semibold text-[#010205] text-[28px] font-jakarta">
                                     <!-- Christopher Scott -->
                                     Christian Scott
                                 </h2>
-                                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;"
-                                    class="tracking-[-1px] leading-[130%] text-[18px] text-[#010205]">
+                                <h2
+                                    class="tracking-[-1px] leading-[130%] text-[18px] text-[#010205] font-jakarta">
                                     Founder & CEO</h2>
                                 <div class="h-[4px] w-[136px] mt-[16px] bg-gradient-to-r from-[#77B248] to-[#24A556]">
                                 </div>
@@ -66,19 +66,19 @@
                                 <img src="/assets/image/desktop/sign.svg" alt="">
                                 <div class="mt-[24px]">
                                     <!-- <div class="flex gap-5 items-center">
-                                        <i class="fa-solid fa-phone text-[24px]" style="color: #24A556;"></i>
-                                        <h4 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                                        <i class="fa-solid fa-phone text-[24px] text-brand"></i>
+                                        <h4 class="text-[14px] text-[#9B9B9C] font-roboto">
                                             (775) 443-3727
                                         </h4>
                                     </div> -->
                                     <div class="flex gap-5 mt-[15px] items-center">
-                                        <i class="fa-solid fa-envelope text-[24px]" style="color: #24A556;"></i>
-                                        <h4 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                                        <i class="fa-solid fa-envelope text-[24px] text-brand"></i>
+                                        <h4 class="text-[14px] text-[#9B9B9C] font-roboto">
                                             <a href="mailto:hello@privacyduck.com" class="hover:underline">hello@privacyduck.com</a></h4>
                                     </div>
                                     <div class="flex gap-5 mt-[15px] items-center">
-                                        <i class="fa-solid fa-location-dot text-[24px]" style="color: #24A556;"></i>
-                                        <h4 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                                        <i class="fa-solid fa-location-dot text-[24px] text-brand"></i>
+                                        <h4 class="text-[14px] text-[#9B9B9C] font-roboto">
                                             2101 Arrowhead Drive, Carson City, Nevada, USA </h4>
                                     </div>
                                     <div class="flex gap-5 mt-[15px]">
@@ -103,12 +103,12 @@
                                     </div>
                                 </div>
                                 <div class="text-center">
-                                    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;"
-                                        class="text-[#010205] tracking-[-1px] leading-[130%] font-semibold text-[28px]">
+                                    <h2
+                                        class="text-[#010205] tracking-[-1px] leading-[130%] font-semibold text-[28px] font-jakarta">
                                         Christian Scott
                                     </h2>
-                                    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;"
-                                        class="tracking-[-1px] leading-[130%] text-[#010205] text-[18px]">
+                                    <h2
+                                        class="tracking-[-1px] leading-[130%] text-[#010205] text-[18px] font-jakarta">
                                         Founder & CEO</h2>
                                     <div class="flex justify-center">
                                         <div
@@ -121,25 +121,25 @@
                                     <div class="mt-[24px]">
                                         <!-- <div class="flex justify-center">
                                             <div class="flex gap-5 items-center">
-                                                <i class="fa-solid fa-phone text-[24px]" style="color: #24A556;"></i>
-                                                <h4 style="font-family: 'Roboto', sans-serif;"
-                                                    class="text-[14px] text-[#9B9B9C]">
+                                                <i class="fa-solid fa-phone text-[24px] text-brand"></i>
+                                                <h4
+                                                    class="text-[14px] text-[#9B9B9C] font-roboto">
                                                     (775) 443-3727</h4>
                                             </div>
                                         </div> -->
                                         <div class="flex justify-center">
                                             <div class="flex gap-5 mt-[15px] items-center">
-                                                <i class="fa-solid fa-envelope text-[24px]" style="color: #24A556;"></i>
-                                                <h4 style="font-family: 'Roboto', sans-serif;"
-                                                    class="text-[14px] text-[#9B9B9C]">
+                                                <i class="fa-solid fa-envelope text-[24px] text-brand"></i>
+                                                <h4
+                                                    class="text-[14px] text-[#9B9B9C] font-roboto">
                                                     <a href="mailto:hello@privacyduck.com" class="hover:underline">hello@privacyduck.com</a></h4>
                                             </div>
                                         </div>
                                         <div class="flex justify-center">
                                             <div class="flex gap-5 mt-[15px] items-center">
-                                                <i class="fa-solid fa-location-dot text-[24px]" style="color: #24A556;"></i>
-                                                <h4 style="font-family: 'Roboto', sans-serif;"
-                                                    class="text-[14px] text-[#9B9B9C]">
+                                                <i class="fa-solid fa-location-dot text-[24px] text-brand"></i>
+                                                <h4
+                                                    class="text-[14px] text-[#9B9B9C] font-roboto">
                                                     2101 Arrowhead Drive, Carson City, Nevada, USA </h4>
                                             </div>
                                         </div>
@@ -174,12 +174,12 @@
                                 </a>
                             </div>
                             <div class="text-center mt-[8px]">
-                                <h2 style="font-family: 'Roboto', sans-serif;"
-                                    class="text-[#9B9B9C] text-[14px] leading-[24px]">PrivacyDuck helps you remove
+                                <h2
+                                    class="text-[#9B9B9C] text-[14px] leading-[24px] font-roboto">PrivacyDuck helps you remove
                                     your
                                     personal</h2>
-                                <h2 style="font-family: 'Roboto', sans-serif;"
-                                    class="text-[#9B9B9C] text-[14px] leading-[24px]">information from data brokers.
+                                <h2
+                                    class="text-[#9B9B9C] text-[14px] leading-[24px] font-roboto">information from data brokers.
                                 </h2>
                             </div>
                             <div class="justify-center flex mt-[32px]">
@@ -196,23 +196,23 @@
                                 </a>
                             </div>
                             <div class="mt-[32px] text-center">
-                                <h2 style="font-family: 'Roboto', sans-serif;" class="font-semibold text-[#010205] text-[18px]">
+                                <h2 class="font-semibold text-[#010205] text-[18px] font-roboto">
                                     Navigation</h2>
                                 <div class="flex gap-[16px] justify-center">
                                     <a href="/pricing">
-                                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px]  text-[#9B9B9C]">
+                                        <h2 class="text-[14px]  text-[#9B9B9C] font-roboto">
                                             Pricing</h2>
                                     </a>
                                     <a href="/sites-we-cover">
-                                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px]  text-[#9B9B9C]">
+                                        <h2 class="text-[14px]  text-[#9B9B9C] font-roboto">
                                             Sites We Cover</h2>
                                     </a>
                                     <a href="/family">
-                                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px]  text-[#9B9B9C]">
+                                        <h2 class="text-[14px]  text-[#9B9B9C] font-roboto">
                                             Family</h2>
                                     </a>
                                     <a href="/blog">
-                                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px]  text-[#9B9B9C] ">
+                                        <h2 class="text-[14px]  text-[#9B9B9C] font-roboto">
                                             Blog</h2>
                                     </a>
                                 </div>
@@ -222,22 +222,22 @@
                 </div>
                 <div class="mt-[41px] text-center flex justify-center gap-5 flex-wrap">
                     <a href="/policy">
-                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                        <h2 class="text-[14px] text-[#9B9B9C] font-roboto">
                             Privacy Policy</h2>
                     </a>
                     <a href="/cookie-policy">
-                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                        <h2 class="text-[14px] text-[#9B9B9C] font-roboto">
                             Cookie Policy</h2>
                     </a>
                     <a href="/privacy-request">
-                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                        <h2 class="text-[14px] text-[#9B9B9C] font-roboto">
                             Privacy Requests</h2>
                     </a>
                     <a href="#" onclick="event.preventDefault(); if(window.pdConsent){window.pdConsent.open();}" aria-label="Open cookie preferences">
-                        <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C] hover:underline">
+                        <h2 class="text-[14px] text-[#9B9B9C] hover:underline font-roboto">
                             Cookie Settings</h2>
                     </a>
-                    <h2 style="font-family: 'Roboto', sans-serif;" class="text-[14px] text-[#9B9B9C]">
+                    <h2 class="text-[14px] text-[#9B9B9C] font-roboto">
                         © <?php echo date("Y"); ?> Privacy Duck. All Rights Reserved.</h2>
                 </div>
             </div>

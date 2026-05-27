@@ -28,7 +28,7 @@
             <div class="mt-[34px] flex flex-col items-center">
                 <div>
                     <div class="flex items-center gap-[8px]">
-                        <h2 style="font-family: 'Alatsi', sans-serif;" class="text-[28px] tracking-[-0.02em] uppercase text-[#FFFFFF]">Privacy<label class="text-[#FFCF50]" style="font-family: 'Alatsi', sans-serif;">Duck</label></h2>
+                        <h2 class="text-[28px] tracking-[-0.02em] uppercase text-[#FFFFFF] font-alatsi">Privacy<label class="text-[#FFCF50] font-alatsi">Duck</label></h2>
                         <?php require(BASEPATH . '/src/common/svgs/business/landing/duck.php'); ?>
                     </div>
                 </div>
