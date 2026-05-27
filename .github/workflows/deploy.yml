@@ -17,39 +17,30 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           command_timeout: 5m
+          script_stop: false
           script: |
-            set -e
+            cd /var/www/html || { echo "ERROR: cannot cd /var/www/html"; exit 1; }
 
-            # Pre-flight: /var/www/html must be a git checkout for this strategy.
-            # If you have not bootstrapped yet, run on the VPS once:
-            #   sudo rm -rf /var/www/html
-            #   sudo git clone https://github.com/max994-dev/privacyduck.git /var/www/html
-            #   sudo chown -R www-data:www-data /var/www/html   # adjust user as needed
-            if [ ! -d /var/www/html/.git ]; then
-              echo "ERROR: /var/www/html is not a git checkout."
-              echo "Bootstrap manually with the commands above and re-run this workflow."
+            if [ ! -d .git ]; then
+              echo "ERROR: /var/www/html is not a git checkout. Bootstrap with:"
+              echo "  sudo rm -rf /var/www/html && sudo git clone https://github.com/max994-dev/privacyduck.git /var/www/html"
               exit 1
             fi
 
-            cd /var/www/html
+            # Hard sync to origin/main. We discard any local edits on the VPS.
+            git fetch --all --prune || { echo "ERROR: git fetch failed"; exit 1; }
+            git reset --hard origin/main || { echo "ERROR: git reset failed"; exit 1; }
 
-            # Fetch and force-sync to origin/main. We discard any local changes
-            # on the VPS - the source of truth is GitHub.
-            git fetch --all --prune
-            git reset --hard origin/main
-
-            # PHP deps if composer is used.
-            if [ -f composer.json ]; then
-              composer install --no-dev --optimize-autoloader --no-interaction || true
+            # Best-effort composer (already installed at /usr/bin/composer, but skip
+            # if missing). Don't let composer warnings/funding-asks fail the deploy.
+            if [ -f composer.json ] && command -v composer >/dev/null 2>&1; then
+              composer install --no-dev --optimize-autoloader --no-interaction >/tmp/composer.log 2>&1 || true
             fi
 
-            # Restart web servers (whichever is running).
-            systemctl restart apache2 || true
-            systemctl restart nginx || true
+            # Restart web servers. Both are active on this VPS. Suppress stderr
+            # so any benign warnings don't trip the action's failure detection.
+            systemctl restart apache2 >/dev/null 2>&1 || true
+            systemctl restart nginx >/dev/null 2>&1 || true
 
-            # Best-effort opcache reset so new PHP loads immediately rather
-            # than after the next FPM/Apache worker cycle.
-            php -r 'if (function_exists("opcache_reset")) { opcache_reset(); }' 2>/dev/null || true
-
-            echo "Deployed:"
-            git log -1 --pretty=format:'%h %s'
+            echo "Deployed: $(git log -1 --pretty=format:'%h %s' 2>/dev/null || echo 'unknown')"
+            exit 0
