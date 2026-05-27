@@ -1,6 +1,6 @@
 <?php
 $meta_title = "Cookie Policy | PrivacyDuck";
-$meta_description = "Every cookie PrivacyDuck sets — what it does, how long it lasts, who set it, and how to control it. UK GDPR + PECR compliant.";
+$meta_description = "Every cookie PrivacyDuck sets - what it does, how long it lasts, who set it, and how to control it. UK GDPR + PECR compliant.";
 $meta_url = "https://privacyduck.com/cookie-policy";
 $meta_image = "https://privacyduck.com/assets/pageSEO/landing.jpg";
 
@@ -55,7 +55,7 @@ main_header("black");
                             <tr><th class="px-4 py-2 border-b">Cookie</th><th class="px-4 py-2 border-b">Purpose</th><th class="px-4 py-2 border-b">Lifetime</th><th class="px-4 py-2 border-b">Set by</th></tr>
                         </thead>
                         <tbody class="text-gray-700">
-                            <tr><td class="px-4 py-2 border-b font-mono">PHPSESSID</td><td class="px-4 py-2 border-b">Session identifier — keeps you logged in</td><td class="px-4 py-2 border-b">Session (cleared when browser closes)</td><td class="px-4 py-2 border-b">PrivacyDuck</td></tr>
+                            <tr><td class="px-4 py-2 border-b font-mono">PHPSESSID</td><td class="px-4 py-2 border-b">Session identifier - keeps you logged in</td><td class="px-4 py-2 border-b">Session (cleared when browser closes)</td><td class="px-4 py-2 border-b">PrivacyDuck</td></tr>
                             <tr><td class="px-4 py-2 border-b font-mono">pd_cc</td><td class="px-4 py-2 border-b">Stores your cookie preferences</td><td class="px-4 py-2 border-b">12 months</td><td class="px-4 py-2 border-b">PrivacyDuck</td></tr>
                             <tr><td class="px-4 py-2 border-b font-mono">__stripe_mid</td><td class="px-4 py-2 border-b">Fraud prevention on payment pages</td><td class="px-4 py-2 border-b">1 year</td><td class="px-4 py-2 border-b">Stripe</td></tr>
                             <tr><td class="px-4 py-2 font-mono">__stripe_sid</td><td class="px-4 py-2">Fraud prevention on payment pages</td><td class="px-4 py-2">30 minutes</td><td class="px-4 py-2">Stripe</td></tr>

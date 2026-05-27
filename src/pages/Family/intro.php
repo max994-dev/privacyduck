@@ -28,7 +28,7 @@
                 </div>
             </div>
             <p class="hidden sm:block max-w-[670px] text-[#FFFFFFE5] text-[20px] italic leading-[120%] mt-[32px]">
-                Kids are spending more time online — and criminals know it. Protect your most vulnerable loved ones 
+                Kids are spending more time online - and criminals know it. Protect your most vulnerable loved ones 
                 before they can protect themselves.
                 With IdentityIQ Family Privacy Protection, you can guard them against identity theft, 
                 online predators, and more.

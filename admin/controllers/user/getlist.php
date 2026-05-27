@@ -14,7 +14,7 @@ if ($pageSize < 1 || $pageSize > 200) $pageSize = 25;
 $current  = isset($_GET["current"]) ? max(1, (int) $_GET["current"]) : 1;
 $offset   = ($current - 1) * $pageSize;
 
-// Paginated list — never SELECT * the whole users table for the admin UI.
+// Paginated list - never SELECT * the whole users table for the admin UI.
 $stmt = $conn->prepare("SELECT id, email, firstname, lastname, plan_id, plan_end, pros_id, role, created_at FROM users ORDER BY id DESC LIMIT ? OFFSET ?");
 $stmt->bind_param("ii", $pageSize, $offset);
 $stmt->execute();

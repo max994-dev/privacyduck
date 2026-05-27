@@ -44,7 +44,7 @@ if (isset($_FILES['file']) && is_array($_FILES['file']) && ($_FILES['file']['err
         exit;
     }
 
-    // MIME-based extension whitelist — never trust the client-provided extension.
+    // MIME-based extension whitelist - never trust the client-provided extension.
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime  = $finfo->file($uploadedFile['tmp_name']) ?: '';
     $extMap = [

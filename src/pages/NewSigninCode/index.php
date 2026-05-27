@@ -1,7 +1,7 @@
 <?php
 isReverseLogin();
 
-$meta_title = 'PrivacyDuck — Email login code';
+$meta_title = 'PrivacyDuck - Email login code';
 $meta_description = 'Sign in with an emailed login code.';
 $meta_url = 'https://privacyduck.com/new_signin_code';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';

@@ -130,7 +130,7 @@ function odoo_create_crm_lead_with_uid(
     ?int $linkedCalendarEventId = null
 ): ?int {
     $lines = [
-        'PrivacyDuck — member booked an onboarding call.',
+        'PrivacyDuck - member booked an onboarding call.',
         '',
         'When (Pacific): ' . $whenLocalLabel,
         'Start (UTC): ' . $startUtc,

@@ -54,13 +54,13 @@ main_header("black");
                     <li>Postal/mailing address and country</li>
                     <li>URLs and screenshots of public listings you want removed</li>
                     <li>Date of birth and partial family/relative information (used to match broker records)</li>
-                    <li>Government-issued ID — only when a specific broker requires identity verification to action a removal</li>
-                    <li>Payment data — collected directly by Stripe; we receive a token, never the full card number</li>
+                    <li>Government-issued ID - only when a specific broker requires identity verification to action a removal</li>
+                    <li>Payment data - collected directly by Stripe; we receive a token, never the full card number</li>
                 </ul>
                 <p class="text-gray-700 mb-3 font-semibold">From site visitors:</p>
                 <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
                     <li>IP address, browser type, referring page</li>
-                    <li>Cookies — see our <a href="/cookie-policy" class="text-[#24A556] font-medium hover:underline">Cookie Policy</a></li>
+                    <li>Cookies - see our <a href="/cookie-policy" class="text-[#24A556] font-medium hover:underline">Cookie Policy</a></li>
                 </ul>
             </section>
 
@@ -77,17 +77,17 @@ main_header("black");
                             <tr><th class="px-4 py-2 border-b">Purpose</th><th class="px-4 py-2 border-b">Lawful basis</th></tr>
                         </thead>
                         <tbody class="text-gray-700">
-                            <tr><td class="px-4 py-2 border-b">Deliver paid removal services to you</td><td class="px-4 py-2 border-b">Art. 6(1)(b) — Performance of contract</td></tr>
-                            <tr><td class="px-4 py-2 border-b">Process free privacy scans</td><td class="px-4 py-2 border-b">Art. 6(1)(f) — Legitimate interest</td></tr>
-                            <tr><td class="px-4 py-2 border-b">Service emails (status, account changes)</td><td class="px-4 py-2 border-b">Art. 6(1)(b) — Performance of contract</td></tr>
-                            <tr><td class="px-4 py-2 border-b">Marketing emails</td><td class="px-4 py-2 border-b">Art. 6(1)(a) — Consent (withdrawable any time)</td></tr>
-                            <tr><td class="px-4 py-2 border-b">Tax / accounting records</td><td class="px-4 py-2 border-b">Art. 6(1)(c) — Legal obligation</td></tr>
-                            <tr><td class="px-4 py-2 border-b">Fraud and abuse detection</td><td class="px-4 py-2 border-b">Art. 6(1)(f) — Legitimate interest</td></tr>
-                            <tr><td class="px-4 py-2">Site analytics</td><td class="px-4 py-2">Art. 6(1)(a) — Consent via cookie banner</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Deliver paid removal services to you</td><td class="px-4 py-2 border-b">Art. 6(1)(b) - Performance of contract</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Process free privacy scans</td><td class="px-4 py-2 border-b">Art. 6(1)(f) - Legitimate interest</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Service emails (status, account changes)</td><td class="px-4 py-2 border-b">Art. 6(1)(b) - Performance of contract</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Marketing emails</td><td class="px-4 py-2 border-b">Art. 6(1)(a) - Consent (withdrawable any time)</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Tax / accounting records</td><td class="px-4 py-2 border-b">Art. 6(1)(c) - Legal obligation</td></tr>
+                            <tr><td class="px-4 py-2 border-b">Fraud and abuse detection</td><td class="px-4 py-2 border-b">Art. 6(1)(f) - Legitimate interest</td></tr>
+                            <tr><td class="px-4 py-2">Site analytics</td><td class="px-4 py-2">Art. 6(1)(a) - Consent via cookie banner</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <p class="text-gray-700 mt-4 text-sm">Where our basis is Legitimate Interest, you have the right to object — see Section 8.</p>
+                <p class="text-gray-700 mt-4 text-sm">Where our basis is Legitimate Interest, you have the right to object - see Section 8.</p>
             </section>
 
             <!-- 4 -->
@@ -161,7 +161,7 @@ main_header("black");
                 <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
                     <li>TLS encryption in transit (HTTPS only)</li>
                     <li>Encrypted storage in databases</li>
-                    <li>Role-based access — only authorised staff, with audit logging</li>
+                    <li>Role-based access - only authorised staff, with audit logging</li>
                     <li>Multi-factor authentication for staff accounts</li>
                     <li>Regular security reviews and patching</li>
                 </ul>
@@ -194,7 +194,7 @@ main_header("black");
                 <p class="text-gray-700 mt-4">
                     To exercise any right, use our <a href="/privacy-request" class="text-[#24A556] font-semibold hover:underline">Privacy Request form</a> or email
                     <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a>.
-                    We respond within one month. If your request is complex we may extend by two further months — we'll tell you why.
+                    We respond within one month. If your request is complex we may extend by two further months - we'll tell you why.
                 </p>
             </section>
 
@@ -205,8 +205,8 @@ main_header("black");
                     Cookies
                 </h2>
                 <p class="text-gray-700">
-                    We use cookies in three categories: <strong>Necessary</strong> (always on), <strong>Analytics</strong> (Google Tag Manager + GA4 — opt-in), and <strong>Functional</strong> (Tawk.to live chat — opt-in).
-                    The cookie banner lets you choose which to allow, and the <strong>Cookie Settings</strong> link in the footer lets you change your mind any time. For full details — every cookie, what it does, how long it lasts — see our
+                    We use cookies in three categories: <strong>Necessary</strong> (always on), <strong>Analytics</strong> (Google Tag Manager + GA4 - opt-in), and <strong>Functional</strong> (Tawk.to live chat - opt-in).
+                    The cookie banner lets you choose which to allow, and the <strong>Cookie Settings</strong> link in the footer lets you change your mind any time. For full details - every cookie, what it does, how long it lasts - see our
                     <a href="/cookie-policy" class="text-[#24A556] font-medium hover:underline">Cookie Policy</a>.
                 </p>
             </section>
@@ -277,7 +277,7 @@ main_header("black");
                     <p class="text-gray-700 mt-2">Privacy queries: <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a></p>
                     <p class="text-gray-700">General: <a href="mailto:hello@privacyduck.com" class="text-[#24A556] font-medium hover:underline">hello@privacyduck.com</a></p>
                     <p class="text-gray-700">Website: <a href="https://privacyduck.com" class="text-[#24A556] font-medium hover:underline">https://privacyduck.com</a></p>
-                    <p class="text-gray-700 mt-2"><strong>Privacy enquiries:</strong> PrivacyDuck Privacy Team — <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a></p>
+                    <p class="text-gray-700 mt-2"><strong>Privacy enquiries:</strong> PrivacyDuck Privacy Team - <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a></p>
                 </div>
             </section>
 

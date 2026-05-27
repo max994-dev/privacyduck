@@ -92,7 +92,7 @@ $pdMostPopular = 'couple';
                 <!-- Price block -->
                 <div class="mt-6 pb-6 border-b border-slate-100">
                     <div class="flex items-baseline gap-1.5">
-                        <span class="pd-price-amount font-bold text-[44px] sm:text-[52px] leading-none tracking-[-0.02em]" data-bind="price-amount">$—</span>
+                        <span class="pd-price-amount font-bold text-[44px] sm:text-[52px] leading-none tracking-[-0.02em]" data-bind="price-amount">$-</span>
                         <span class="text-[15px] text-slate-500 font-medium">/mo</span>
                     </div>
                     <div class="mt-2 text-[13px] text-slate-500" data-bind="billed">&nbsp;</div>

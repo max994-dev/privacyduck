@@ -1,5 +1,5 @@
 /* ============================================================================
- * pd-motion.js — IntersectionObserver-based reveal driver + counter animator.
+ * pd-motion.js - IntersectionObserver-based reveal driver + counter animator.
  *
  * Companion to pd-motion.css. Tiny (no deps), idempotent, prefers-reduced-motion
  * aware. Sets <html class="pd-motion-ready"> early so the CSS hidden-state only
@@ -7,13 +7,13 @@
  *
  * Behavior:
  *   - Any element with [data-reveal] gets observed. When 15% in view, it
- *     receives data-revealed="true" (one-shot — never reverts).
+ *     receives data-revealed="true" (one-shot - never reverts).
  *   - Any element with [data-count-to] is treated as a numeric counter. When
  *     it enters view, it animates from 0 → target value over 1100ms.
  *   - Any element with [data-pct-to="80"] sets --pd-pct to "80%" when revealed
  *     (drives .pd-counter-bar fill).
  *
- * Apply on every page via main_head_start() — keeping it under 1.5KB so it's
+ * Apply on every page via main_head_start() - keeping it under 1.5KB so it's
  * a single-packet asset.
  * ========================================================================== */
 (function () {

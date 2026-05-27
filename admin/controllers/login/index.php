@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $rawPassword = isset($_POST['password']) ? (string) $_POST['password'] : '';
 $username    = isset($_POST['username']) ? trim((string) $_POST['username']) : '';
 
-// Generic error — never reveal whether the username exists (account enumeration).
+// Generic error - never reveal whether the username exists (account enumeration).
 $genericError = json_encode(["status" => "error", "message" => "Invalid credentials."]);
 
 if ($username === '' || $rawPassword === '') {

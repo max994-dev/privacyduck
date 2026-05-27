@@ -7,7 +7,7 @@
         </button>
         <div class="flex-1 lg:flex-none ml-4 lg:ml-0">
             <h1 class="text-xl sm:text-2xl font-bold text-dark">Privacy Requests (DSAR)</h1>
-            <p class="text-sm sm:text-base text-gray">UK GDPR Art. 15-22 — 1-month SLA per Art. 12</p>
+            <p class="text-sm sm:text-base text-gray">UK GDPR Art. 15-22 - 1-month SLA per Art. 12</p>
         </div>
         <div class="flex items-center space-x-2 sm:space-x-4">
             <button id="pdRefresh" class="btn-hover px-3 sm:px-4 py-2 bg-white text-[#24A556] border border-[#24A556] font-medium rounded-xl hover:bg-[#24A556]/10 transition-all duration-200 shadow-sm" title="Refresh">
@@ -194,13 +194,13 @@
         });
     }
     function fmtDate(s) {
-        if (!s) return '—';
+        if (!s) return '-';
         var d = new Date(s.replace(' ', 'T') + 'Z');
         if (isNaN(d.getTime())) return s;
         return d.toLocaleString();
     }
     function slaCell(row) {
-        if (row.status === 'completed' || row.status === 'rejected') return '—';
+        if (row.status === 'completed' || row.status === 'rejected') return '-';
         var hrs = parseInt(row.hours_remaining, 10);
         var days = Math.round(hrs / 24);
         var cls = 'bg-emerald-100 text-emerald-800';
@@ -230,7 +230,7 @@
                 + '<td class="px-4 py-3 font-mono text-xs">' + esc(r.reference) + '</td>'
                 + '<td class="px-4 py-3">' + esc(TYPE_LABELS[r.request_type] || r.request_type) + '</td>'
                 + '<td class="px-4 py-3 text-xs">' + esc(r.email) + '</td>'
-                + '<td class="px-4 py-3">' + esc(r.country || '—') + '</td>'
+                + '<td class="px-4 py-3">' + esc(r.country || '-') + '</td>'
                 + '<td class="px-4 py-3 text-xs">' + fmtDate(r.received_at) + '</td>'
                 + '<td class="px-4 py-3 text-xs">' + fmtDate(r.deadline_at) + '</td>'
                 + '<td class="px-4 py-3">' + slaCell(r) + '</td>'
@@ -270,17 +270,17 @@
                 $('pd-d-type').textContent = TYPE_LABELS[d.request_type] || d.request_type;
                 $('pd-d-status').innerHTML = '<span class="px-2 py-1 rounded-full text-xs font-semibold ' + (STATUS_BADGE[d.status] || '') + '">' + esc(STATUS_LABEL[d.status] || d.status) + '</span>';
                 $('pd-d-email').textContent = d.email;
-                $('pd-d-name').textContent = d.name || '—';
-                $('pd-d-country').textContent = d.country || '—';
+                $('pd-d-name').textContent = d.name || '-';
+                $('pd-d-country').textContent = d.country || '-';
                 $('pd-d-capacity').textContent = d.capacity === 'representative' ? 'Authorised representative' : 'Data subject (self)';
                 $('pd-d-matched').textContent = d.matched_user_id ? ('users.id = ' + d.matched_user_id) : '(no account)';
                 $('pd-d-received').textContent = fmtDate(d.received_at);
                 $('pd-d-deadline').textContent = fmtDate(d.deadline_at);
-                $('pd-d-completed').textContent = d.completed_at ? fmtDate(d.completed_at) : '—';
+                $('pd-d-completed').textContent = d.completed_at ? fmtDate(d.completed_at) : '-';
                 $('pd-d-details').textContent = d.details || '(none provided)';
                 $('pd-d-notes').textContent = d.staff_notes || '(no notes yet)';
-                $('pd-d-ip').textContent = d.ip_address || '—';
-                $('pd-d-ua').textContent = d.user_agent || '—';
+                $('pd-d-ip').textContent = d.ip_address || '-';
+                $('pd-d-ua').textContent = d.user_agent || '-';
             });
     }
 

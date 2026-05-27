@@ -121,7 +121,7 @@ main_head_end();
 
             <form action="/book_call_skip" method="post" class="mt-4">
                 <button type="submit" class="w-full text-center text-[14px] text-[#9B9B9C] hover:text-[#010205] py-2">
-                    Skip for now — go to my dashboard
+                    Skip for now - go to my dashboard
                 </button>
             </form>
         </div>

@@ -43,7 +43,7 @@ function pd_user_may_login(array $user): bool
 
 /**
  * @param array{slim?: bool} $opts Pass ['slim' => true] on lightweight auth pages to skip heavy third-party
- *                                 scripts (Stripe.js, GTM, maps, …) — faster load, fewer console/CSP warnings.
+ *                                 scripts (Stripe.js, GTM, maps, …) - faster load, fewer console/CSP warnings.
  *                                 Pair with no_footer(['skip_tawk' => true]) when you do not need the chat widget.
  */
 function main_head_start(array $opts = [])
@@ -64,7 +64,7 @@ function main_head_start(array $opts = [])
     <link href="/assets/css/main.css?v=<?= $assetV ?>" rel="stylesheet" />
     <link href="/assets/css/pd-motion.css?v=<?= $assetV ?>" rel="stylesheet" />
     <?php /* Slim auth pages use Tailwind from tailwind-built.css only; do not load
-       flowbite-2.3.0.min.css here — it ships a second Tailwind preflight and resets
+       flowbite-2.3.0.min.css here - it ships a second Tailwind preflight and resets
        <button> / submit styles after our utilities (e.g. invisible “Sign up” button). */ ?>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <script src="/assets/js/pd-motion.js?v=<?= $assetV ?>" defer></script>
@@ -88,29 +88,29 @@ function main_head_start(array $opts = [])
     <link href="/assets/css/pd-motion.css?v=<?= $assetV ?>" rel="stylesheet">
 
     <?php /* Flowbite styles come from tailwind-built.css (flowbite Tailwind plugin). Do not load
-       flowbite-2.3.0.min.css — it is a full second Tailwind build and reapplies preflight after our
+       flowbite-2.3.0.min.css - it is a full second Tailwind build and reapplies preflight after our
        utilities, which breaks grids/layout (e.g. landing). Flowbite JS stays deferred below. */ ?>
-    <!-- Core UI libs (all pages) — served locally -->
+    <!-- Core UI libs (all pages) - served locally -->
     <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="/vendor/toastr/toastr.min.css" />
     <link rel="stylesheet" href="/vendor/fonts/fonts.css" />
     <link rel="stylesheet" href="/vendor/swiper/swiper-bundle.min.css" />
     <link rel="stylesheet" href="/vendor/flickity/flickity.min.css">
 
-    <!-- Dashboard-only CSS (DataTables, Tabulator) — served locally -->
+    <!-- Dashboard-only CSS (DataTables, Tabulator) - served locally -->
     <?php if ($isDashboard): ?>
     <link rel="stylesheet" href="/vendor/datatables/jquery.dataTables.min.css">
     <link rel="stylesheet" href="/vendor/tabulator/tabulator.min.css">
     <?php endif; ?>
 
-    <!-- AOS (Animate On Scroll) — personalized-service page only -->
+    <!-- AOS (Animate On Scroll) - personalized-service page only -->
     <?php if ($isPersonalized): ?>
     <link rel="stylesheet" href="/vendor/aos/aos.css" />
     <?php endif; ?>
 
-    <!-- Core scripts (all pages) — served locally; jQuery must be synchronous -->
+    <!-- Core scripts (all pages) - served locally; jQuery must be synchronous -->
     <script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
-    <?php /* Toastr + Flickity: no defer — inline head/body scripts use them before document parse completes. */ ?>
+    <?php /* Toastr + Flickity: no defer - inline head/body scripts use them before document parse completes. */ ?>
     <script src="/vendor/toastr/toastr.min.js"></script>
     <script src="/vendor/flowbite/flowbite-2.3.0.min.js" defer></script>
     <script src="/vendor/swiper/swiper-bundle.min.js" defer></script>
@@ -118,25 +118,25 @@ function main_head_start(array $opts = [])
     <script src="/vendor/lottie/lottie-player.js" defer></script>
     <script src="/assets/js/pd-motion.js?v=<?= $assetV ?>" defer></script>
 
-    <!-- Stripe.js — payment pages only (PCI compliance: must stay on js.stripe.com) -->
+    <!-- Stripe.js - payment pages only (PCI compliance: must stay on js.stripe.com) -->
     <?php if ($isPayment): ?>
     <script src="https://js.stripe.com/v3/"></script>
     <?php endif; ?>
 
-    <!-- Dashboard-only scripts (DataTables, Tabulator, Chart.js) — served locally -->
+    <!-- Dashboard-only scripts (DataTables, Tabulator, Chart.js) - served locally -->
     <?php if ($isDashboard): ?>
     <script src="/vendor/datatables/jquery.dataTables.min.js" defer></script>
     <script src="/vendor/tabulator/tabulator.min.js" defer></script>
     <script src="/vendor/chartjs/chart.umd.min.js" defer></script>
     <?php endif; ?>
 
-    <!-- GSAP + AOS — personalized-service page only -->
+    <!-- GSAP + AOS - personalized-service page only -->
     <?php if ($isPersonalized): ?>
     <script src="/vendor/gsap/gsap.min.js" defer></script>
     <script src="/vendor/aos/aos.js" defer></script>
     <?php endif; ?>
 
-    <!-- Google Maps — signup pages only (cannot be localized, requires Google API) -->
+    <!-- Google Maps - signup pages only (cannot be localized, requires Google API) -->
     <?php if ($isSignup): ?>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js"></script>
     <?php endif; ?>

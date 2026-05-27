@@ -64,7 +64,7 @@ try {
     $token = bin2hex(random_bytes(32));
     $now = date('Y-m-d H:i:s');
 
-    $title = 'PrivacyDuck onboarding — ' . $name;
+    $title = 'PrivacyDuck onboarding - ' . $name;
     $refSnippet = substr($token, 0, 16) . '…';
     $odooUid = odoo_authenticate();
     $odooEventId = null;

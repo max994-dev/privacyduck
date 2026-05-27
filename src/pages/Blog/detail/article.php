@@ -12,7 +12,7 @@
 
             <p class="text-xl text-gray-600 leading-relaxed mb-8">
                 Personal data exposure is the biggest cyber threat to organizations today.
-                It enables the most successful attack vectors: social engineering and the use of compromised credentials. Despite this reality, many companies continue to overlook a major security risk—vast amounts of employee and executive personal data readily available on data broker sites.
+                It enables the most successful attack vectors: social engineering and the use of compromised credentials. Despite this reality, many companies continue to overlook a major security risk-vast amounts of employee and executive personal data readily available on data broker sites.
             </p>
 
             <!-- Author Info -->

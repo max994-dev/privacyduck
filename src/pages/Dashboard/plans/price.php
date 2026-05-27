@@ -102,7 +102,7 @@ function boards()
                         <input type="checkbox" id="pd_book_call_optin_plans"
                             class="relative top-[5px] w-[24px] h-[24px] shrink-0 rounded border-[#CDCDCD] text-[#24A556] focus:ring-[#24A556]" />
                         <span class="font-medium text-[16px] text-left">
-                            <span class="text-[#24A556] font-semibold">Book call</span> — free onboarding (2:00–4:00 PM Pacific). After payment, you’ll schedule before adding your info.
+                            <span class="text-[#24A556] font-semibold">Book call</span> - free onboarding (2:00–4:00 PM Pacific). After payment, you’ll schedule before adding your info.
                         </span>
                     </label>
                 </div>

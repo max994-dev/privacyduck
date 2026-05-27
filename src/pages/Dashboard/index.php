@@ -75,7 +75,7 @@ function fixed_menu()
     body {
         overflow-x: hidden;
     }
-    /* Do not rely on Tailwind xl: alone for chrome — if CDN utilities fail, users get no nav and no hamburger. */
+    /* Do not rely on Tailwind xl: alone for chrome - if CDN utilities fail, users get no nav and no hamburger. */
     .pd-dashboard-desktop-sidebar {
         display: none;
     }
@@ -105,7 +105,7 @@ function fixed_menu()
             border: none;
             pointer-events: none;
         }
-        /* Visibility tied to #pd-dashboard-main class (set in JS) — avoids fighting Tailwind .hidden */
+        /* Visibility tied to #pd-dashboard-main class (set in JS) - avoids fighting Tailwind .hidden */
         #pd-dashboard-main #dashboard-desktop-sidebar-show {
             display: none !important;
         }

@@ -14,7 +14,7 @@ if (!is_array($uploadedFile) || ($uploadedFile['error'] ?? UPLOAD_ERR_NO_FILE) !
     exit;
 }
 
-// Size cap — 5 MiB
+// Size cap - 5 MiB
 if (($uploadedFile['size'] ?? 0) > 5 * 1024 * 1024) {
     http_response_code(413);
     echo json_encode(["error" => "File too large"]);

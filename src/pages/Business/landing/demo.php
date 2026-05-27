@@ -15,7 +15,7 @@
                 attackers use public employee data to bypass security systems and launch tailored cyberattacks.
                 PrivacyDuck Enterprise protects your company by continuously removing sensitive personal
                 information from hundreds of public sites, search engines, and data brokers, reducing the risk of breaches,
-                identity theft, and insider threats — making us your trusted business data privacy provider.
+                identity theft, and insider threats - making us your trusted business data privacy provider.
             </p>
             <div class="flex justify-center mt-[66px]">
                 <img src="/assets/image/desktop/business/landing/demo_mindmap.webp" class="w-[542px] h-[352px]" alt="business data privacy provider" />

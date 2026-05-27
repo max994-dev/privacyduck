@@ -64,7 +64,7 @@ main_head_start();
         opacity: .15;
         transform: scale(.98) translateY(4px);
     }
-    /* Orbiting ducks — radii match ring centerlines: 380px box, rings inset 0 / 28 / 56 / 82 → r ≈ 189 / 161 / 133 / 107 */
+    /* Orbiting ducks - radii match ring centerlines: 380px box, rings inset 0 / 28 / 56 / 82 → r ≈ 189 / 161 / 133 / 107 */
     @keyframes np-fight-orbit0 {
         from { transform: rotate(0deg) translateX(189px) rotate(0deg); }
         to { transform: rotate(360deg) translateX(189px) rotate(-360deg); }
@@ -109,7 +109,7 @@ main_head_start();
     #np-faq h1 {
         border-color: rgba(2, 6, 9, .10);
     }
-    /* Star reviews: Flickity — viewport inset so arrows don’t cover cards; dots visible below */
+    /* Star reviews: Flickity - viewport inset so arrows don’t cover cards; dots visible below */
     .np-star-reviews-wrap {
         overflow: visible;
     }
@@ -470,7 +470,7 @@ main_head_end();
         </div>
     </section>
 
-    <!-- 7 Horizontal star reviews (Flickity: draggable, wrap, no scrollbar — same behavior as main landing testimonials) -->
+    <!-- 7 Horizontal star reviews (Flickity: draggable, wrap, no scrollbar - same behavior as main landing testimonials) -->
     <section class="new-landing-section bg-white px-5 md:px-10 py-16 md:py-24 pb-20 md:pb-24 overflow-x-hidden" data-header="dark">
         <div class="max-w-[1200px] mx-auto np-star-reviews-wrap max-md:-mx-5 max-md:px-5">
             <?php
@@ -706,10 +706,10 @@ main_head_end();
                 $faqs = [
                     ['What is PrivacyDuck\'s main focus?', 'We focus on removing your personal information from data brokers, people-search sites, and related databases so your data is harder to misuse.'],
                     ['Can I request removal from a specific site or post?', 'Yes. Contact our team with the URL or site name and we can prioritize or add custom removal workflows where supported.'],
-                    ['What should I do if I don\'t see a particular site on PrivacyDuck\'s list?', 'Our coverage evolves as new brokers appear. Reach out—many removals can still be handled even if a site is not listed yet.'],
+                    ['What should I do if I don\'t see a particular site on PrivacyDuck\'s list?', 'Our coverage evolves as new brokers appear. Reach out-many removals can still be handled even if a site is not listed yet.'],
                     ['Does PrivacyDuck delete information that appears on Google?', 'We address many sources that feed Google and guide you on Google removal tools where appropriate.'],
                     ['Will my name be removed from relatives\' and neighbors\' records?', 'Removal scope depends on how data is packaged on each broker; we work to minimize indirect exposure tied to your identity.'],
-                    ['Can PrivacyDuck scrub my social media accounts?', 'We focus on broker and people-search exposure; social platform settings are best tightened directly on each platform—we can advise.'],
+                    ['Can PrivacyDuck scrub my social media accounts?', 'We focus on broker and people-search exposure; social platform settings are best tightened directly on each platform-we can advise.'],
                 ];
 
                 $i = 1;
@@ -885,7 +885,7 @@ main_head_end();
         </div>
     </section>
 
-    <!-- 15 Bottom CTA: gradient + text; dashboard PNG includes dark bezel — clip-path trims it -->
+    <!-- 15 Bottom CTA: gradient + text; dashboard PNG includes dark bezel - clip-path trims it -->
     <section class="new-landing-section px-5 md:px-10 pb-8 md:pb-10" data-header="dark">
         <div class="max-w-[1360px] mx-auto rounded-[28px] sm:rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)] np-bottom-cta-banner text-white">
             <div class="flex flex-col lg:flex-row lg:items-stretch min-h-[240px] sm:min-h-[260px] lg:min-h-[280px] xl:min-h-[300px]">
@@ -905,7 +905,7 @@ main_head_end();
                         </a>
                     </div>
                 </div>
-                <!-- Dashboard: full width of right column to banner edge — wider viewport shows more of image (no scale); clip-path trims PNG bezel -->
+                <!-- Dashboard: full width of right column to banner edge - wider viewport shows more of image (no scale); clip-path trims PNG bezel -->
                 <div class="relative flex-1 min-h-[220px] sm:min-h-[240px] lg:min-h-[300px] xl:min-h-[320px] min-w-0 overflow-hidden">
                     <div
                         class="relative z-[1] w-[min(100%,380px)] translate-x-[5%] sm:w-[min(100%,420px)] sm:translate-x-[8%]

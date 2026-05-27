@@ -1,5 +1,5 @@
 <?php
-// Set custom session config — must be set before session_start()
+// Set custom session config - must be set before session_start()
 ini_set('session.gc_maxlifetime', 2592000);  // 30 days in seconds
 ini_set('session.cookie_lifetime', 2592000); // 30 days in seconds
 ini_set('session.save_path', '/var/lib/php/sessions');
@@ -20,7 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Rolling idle timeout — destroy + immediately stop so the request can't continue
+// Rolling idle timeout - destroy + immediately stop so the request can't continue
 // as the "old" user. Previous version re-set LAST_ACTIVITY after destroy(), which
 // silently undid the logout.
 $idleLimit = 1800; // 30 min

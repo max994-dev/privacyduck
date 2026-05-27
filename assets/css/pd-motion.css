@@ -1,5 +1,5 @@
 /* ============================================================================
- * pd-motion.css — site-wide motion + micro-interaction primitives.
+ * pd-motion.css - site-wide motion + micro-interaction primitives.
  *
  * Design intent: subtle / premium (Linear, Stripe, Notion style). No bouncing,
  * no spinning, no parallax. All animations are short (300-700ms), use
@@ -23,7 +23,7 @@
  *   .pd-link-underline             → animated underline (left→right) on hover
  *   .pd-skeleton                   → shimmer skeleton loader
  *
- * Performance: ~3KB minified. No layout thrash — only opacity/transform.
+ * Performance: ~3KB minified. No layout thrash - only opacity/transform.
  * ========================================================================== */
 
 :root {
@@ -90,14 +90,14 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
   transform: scale(1.04);
 }
 
-/* Use on <button>/<a> — adds a small "tap" press on click without layout shift */
+/* Use on <button>/<a> - adds a small "tap" press on click without layout shift */
 .pd-btn-press {
   transition: transform 150ms var(--pd-ease), box-shadow 200ms var(--pd-ease), filter 200ms var(--pd-ease);
 }
 .pd-btn-press:hover { filter: brightness(1.04); }
 .pd-btn-press:active { transform: scale(0.97); }
 
-/* Sheen sweep — apply to a positioned wrapper. The pseudo-element runs once
+/* Sheen sweep - apply to a positioned wrapper. The pseudo-element runs once
  * on hover so it doesn't compete with attention while idle. */
 .pd-shine {
   position: relative;
@@ -118,7 +118,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
   transform: translateX(120%);
 }
 
-/* Pulse halo around a small dot — apply to a positioned dot element */
+/* Pulse halo around a small dot - apply to a positioned dot element */
 .pd-pulse-dot {
   position: relative;
 }
@@ -160,7 +160,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
 }
 .pd-link-underline:hover::after { right: 0; }
 
-/* Skeleton shimmer — apply to a block element with a background color */
+/* Skeleton shimmer - apply to a block element with a background color */
 .pd-skeleton {
   background: linear-gradient(90deg, #ECEEF1 0%, #F5F6F8 50%, #ECEEF1 100%);
   background-size: 200% 100%;
@@ -184,7 +184,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
 .pd-hero-in[data-delay="3"] { animation-delay: 360ms; }
 .pd-hero-in[data-delay="4"] { animation-delay: 480ms; }
 
-/* Soft focus glow for form inputs — opt-in via .pd-input-glow */
+/* Soft focus glow for form inputs - opt-in via .pd-input-glow */
 .pd-input-glow {
   transition: border-color 200ms var(--pd-ease), box-shadow 200ms var(--pd-ease);
 }
@@ -194,7 +194,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
   outline: none;
 }
 
-/* Decorative radial-gradient mesh for dark hero backgrounds — apply to a
+/* Decorative radial-gradient mesh for dark hero backgrounds - apply to a
  * positioned overlay div with this class. Pure CSS, no JS, no images. */
 .pd-mesh-overlay {
   position: absolute;
@@ -207,7 +207,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
   mix-blend-mode: screen;
 }
 
-/* Animated counter — set width via CSS variable, transitions smoothly */
+/* Animated counter - set width via CSS variable, transitions smoothly */
 .pd-counter-bar {
   position: relative;
   height: 8px;
@@ -225,7 +225,7 @@ html.pd-motion-ready [data-reveal-delay="480"] { transition-delay: 480ms; }
 }
 
 /* -----------------------------------------------------------------------------
- * Reduced-motion safety net — disable everything that moves.
+ * Reduced-motion safety net - disable everything that moves.
  * --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html.pd-motion-ready [data-reveal] {

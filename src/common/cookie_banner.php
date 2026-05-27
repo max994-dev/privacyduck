@@ -114,7 +114,7 @@ if (!function_exists('pd_cookie_banner_render')) {
     var COOKIE_NAME = 'pd_cc';
     var COOKIE_DAYS = 365;
 
-    // Google Consent Mode v2 defaults — declared BEFORE any GTM/GA script loads
+    // Google Consent Mode v2 defaults - declared BEFORE any GTM/GA script loads
     // so even if a tag fires later it respects "denied" until we update.
     window.dataLayer = window.dataLayer || [];
     function gtag() { window.dataLayer.push(arguments); }
@@ -230,7 +230,7 @@ if (!function_exists('pd_cookie_banner_render')) {
         attach();
     }
 
-    // Public API — wire a "Cookie settings" link in the footer to window.pdConsent.open()
+    // Public API - wire a "Cookie settings" link in the footer to window.pdConsent.open()
     window.pdConsent = { open: openModal, get: readState, show: showBanner };
 })();
 </script>

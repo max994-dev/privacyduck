@@ -33,7 +33,7 @@ if (($uploadedFile['size'] ?? 0) > 10 * 1024 * 1024) {
     exit;
 }
 
-// MIME-based extension whitelist — scans should always be images.
+// MIME-based extension whitelist - scans should always be images.
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $mime  = $finfo->file($uploadedFile['tmp_name']) ?: '';
 $extMap = [

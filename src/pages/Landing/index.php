@@ -117,7 +117,7 @@ main_head_end();
     <div class="absolute inset-0 z-0 hidden lg:block w-[100%] right-0 top-0 bottom-0">
         <img src="/assets/image/desktop/landing/new/hero_new.jpg" alt="" class="h-full w-full object-cover lg:rounded-l-[40px]" style="min-height:520px" />
     </div>
-    <!-- Radial gradient mesh overlay (pure CSS, no JS) — adds depth to the hero -->
+    <!-- Radial gradient mesh overlay (pure CSS, no JS) - adds depth to the hero -->
     <div class="pd-mesh-overlay z-[1]" aria-hidden="true"></div>
     <div class="relative z-10 flex-1 flex flex-col justify-center px-5 md:px-10 lg:px-20 xl:px-[100px] py-10 sm:py-12 pb-28 lg:pb-12 max-w-[960px]">
         <div class="pd-hero-in" data-delay="0">
@@ -221,7 +221,7 @@ main_head_end();
 
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                     <div data-reveal="left">
-                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">01 — Anonymity</span>
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">01 - Anonymity</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Protect Your Privacy &amp; Anonymity</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
                             Keep your data safe from cyberstalkers, hackers, and unwanted tracking. We remove harmful content, secure your anonymity, and prevent employers or malicious actors from accessing your personal records.
@@ -237,7 +237,7 @@ main_head_end();
                         <img src="/assets/image/desktop/landing/new/img2.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
                     </div>
                     <div data-reveal="right">
-                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">02 — Permanent</span>
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">02 - Permanent</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Permanent Data Removal &amp; Identity Protection</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
                             We ensure your information stays off hundreds of people-finding sites, reducing the risk of identity theft. With PrivacyDuck, you gain peace of mind knowing your private data is consistently removed and protected.
@@ -247,7 +247,7 @@ main_head_end();
 
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                     <div data-reveal="left">
-                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">03 — Deep clean</span>
+                        <span class="inline-block text-[12px] font-bold uppercase tracking-[0.12em] text-brand mb-3">03 - Deep clean</span>
                         <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Erase Public &amp; Genetic Records</h2>
                         <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%] max-w-[480px]">
                             Remove yourself from public records, criminal databases, and genetic sites like Ancestry.com and 23andMe. Safeguard your future from discrimination and unauthorized data usage.
@@ -294,9 +294,9 @@ main_head_end();
                 <p data-reveal data-reveal-delay="120" class="mt-4 text-[#010205]/75 text-[18px] sm:text-[20px] max-w-[820px]">A step-by-step breakdown of what happens after you sign up.</p>
                 <?php
                 $pdSteps = [
-                    ['t' => 'First 24 hours', 'h' => 'Deleting common data brokers',       'b' => 'We start by removing your data from the highest-traffic brokers like Acxiom and Spokeo — the ones most likely to surface in a Google search of your name.'],
-                    ['t' => '48 hours',       'h' => 'Removing from people-search sites',  'b' => 'Next we work through the long tail of people-finding sites (BeenVerified, FastBackgroundCheck, WhitePages and 300+ others) — the ones that resell your address and phone number.'],
-                    ['t' => '72 hours',       'h' => 'Removing from genetic databases',    'b' => 'We file removal requests at genetic data sites such as 23andMe and Ancestry — places that can leak family relationships and health data.'],
+                    ['t' => 'First 24 hours', 'h' => 'Deleting common data brokers',       'b' => 'We start by removing your data from the highest-traffic brokers like Acxiom and Spokeo - the ones most likely to surface in a Google search of your name.'],
+                    ['t' => '48 hours',       'h' => 'Removing from people-search sites',  'b' => 'Next we work through the long tail of people-finding sites (BeenVerified, FastBackgroundCheck, WhitePages and 300+ others) - the ones that resell your address and phone number.'],
+                    ['t' => '72 hours',       'h' => 'Removing from genetic databases',    'b' => 'We file removal requests at genetic data sites such as 23andMe and Ancestry - places that can leak family relationships and health data.'],
                     ['t' => 'Rest of the year','h' => 'Continuous sweeping',               'b' => 'Brokers re-upload your data on a quarterly cycle. We monitor and re-submit removal requests as soon as your information reappears, every year you stay subscribed.'],
                 ];
                 ?>

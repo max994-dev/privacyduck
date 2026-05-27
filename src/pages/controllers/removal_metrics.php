@@ -26,7 +26,7 @@ if ($userId <= 0) {
 
 $conn = getDBConnection();
 // kind=1 = removal site list. step: 0 pending, 1 in progress, 2 removed, 3 not found (terminal).
-// Dashboard ring uses (step >= 2) / total — same as done_* below. Use COALESCE so NULL steps count as pending.
+// Dashboard ring uses (step >= 2) / total - same as done_* below. Use COALESCE so NULL steps count as pending.
 $sql = "SELECT
             SUM(CASE WHEN kind = 1 THEN 1 ELSE 0 END) AS total_sites,
             SUM(CASE WHEN kind = 1 AND COALESCE(step, 0) = 0 THEN 1 ELSE 0 END) AS pending_sites,

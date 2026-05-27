@@ -1,6 +1,6 @@
 <?php
 /**
- * Logged-out header for redesigned long-form landing (e.g. /new) — matches Figma nav.
+ * Logged-out header for redesigned long-form landing (e.g. /new) - matches Figma nav.
  */
 function landing_logout_header($x = "white")
 {

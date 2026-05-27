@@ -8,7 +8,7 @@
                 <h2 class="text-[#010205] font-bold text-[18px] sm:text-[24px] tracking-[-0.01em]">It Starts with a Scan</h2>
                 <p class="text-[#010205] text-[14px] sm:text-[18px] leading-[120%] tracking-[-0.01em]">
                     We monitor popular people search websites across the U.S. to locate your exposed personal
-                    data—such as your name, address, phone number, and more. When we identify records,
+                    data-such as your name, address, phone number, and more. When we identify records,
                     we immediately begin sending data removal requests on your behalf.
                 </p>
             </div>
@@ -34,7 +34,7 @@
             <div class="pl-[18px] pt-[30px] flex flex-col gap-[16px] max-w-[217px]">
                 <h2 class="text-[#010205] font-bold text-[18px] sm:text-[24px] tracking-[-0.01em]">Real Progress</h2>
                 <p class="text-[#010205] text-[14px] sm:text-[18px] leading-[120%] tracking-[-0.01em]">
-                    We don’t just find threats—we act fast. When your data shows up on broker sites,
+                    We don’t just find threats-we act fast. When your data shows up on broker sites,
                     we send removal requests right away.
                 </p>
             </div>

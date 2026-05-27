@@ -8,7 +8,7 @@ if (!isset($_SESSION["planable"]) || $_SESSION["planable"] == 0) {
 header("Content-Type: application/json");
 
 // Trust: user returned from hosted Stripe checkout (closing the checkout window).
-// No email code — allow invite_member on this session (TTL enforced in check_status).
+// No email code - allow invite_member on this session (TTL enforced in check_status).
 unset($_SESSION["verify_code"]);
 $_SESSION["invite_pay_verified"] = true;
 $_SESSION["invite_pay_verified_at"] = time();

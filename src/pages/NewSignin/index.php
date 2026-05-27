@@ -1,7 +1,7 @@
 <?php
 isReverseLogin();
 
-$meta_title = 'PrivacyDuck — Sign in';
+$meta_title = 'PrivacyDuck - Sign in';
 $meta_description = 'Sign in to PrivacyDuck.';
 $meta_url = 'https://privacyduck.com/new_signin';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';
@@ -115,7 +115,7 @@ main_head_end();
 
 <script>
 (function() {
-    /** Same-origin paths only — do not use WEB_DOMAIN here: www vs apex breaks fetch() without CORS. */
+    /** Same-origin paths only - do not use WEB_DOMAIN here: www vs apex breaks fetch() without CORS. */
     function apiUrl(path) {
         return path.indexOf('/') === 0 ? path : '/' + path;
     }

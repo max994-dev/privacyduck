@@ -25,7 +25,7 @@
     if (!defined('FAMILY_MEMBER_ADDON_STRIPE_LINK')) {
         define('FAMILY_MEMBER_ADDON_STRIPE_LINK', 'https://buy.stripe.com/00w4gy1Zp3Ce15ybOWdwc0W');
     }
-    /** Stripe Payment Link for PRO annual ($299.99) — overrides DB link for matching plans. */
+    /** Stripe Payment Link for PRO annual ($299.99) - overrides DB link for matching plans. */
     if (!defined('PRO_PLAN_STRIPE_PAYMENT_LINK')) {
         define('PRO_PLAN_STRIPE_PAYMENT_LINK', 'https://buy.stripe.com/14AfZg7jJa0CbKcf18dwc0Y');
     }

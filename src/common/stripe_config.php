@@ -10,11 +10,11 @@ if (!defined('STRIPE_MODE')) {
     define('STRIPE_MODE', 'test');
 }
 
-/** Publishable key (live) — pk_live_… */
+/** Publishable key (live) - pk_live_… */
 if (!defined('STRIPE_PUBLISHABLE_KEY_LIVE')) {
     define('STRIPE_PUBLISHABLE_KEY_LIVE', 'pk_live_51NnPaLCqUk2FODuHsjoSwco3FniR1031fy4tXQT8ebrY7IkaLy0wChdhmBdSoB3MeUt25FsEQdXOYAwWBJk4ZfUD00UMCUKYaV');
 }
-/** Secret key (live) — sk_live_… */
+/** Secret key (live) - sk_live_… */
 if (!defined('STRIPE_SECRET_KEY_LIVE')) {
     define('STRIPE_SECRET_KEY_LIVE', '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');
 }
@@ -23,17 +23,17 @@ if (!defined('STRIPE_WEBHOOK_SECRET_LIVE')) {
     define('STRIPE_WEBHOOK_SECRET_LIVE', 'whsec_qp5kgRq4Lvj4DV31dwBo3H5imiWIQvvs');
 }
 
-/** Publishable key (test) — pk_test_… */
+/** Publishable key (test) - pk_test_… */
 if (!defined('STRIPE_PUBLISHABLE_KEY_TEST')) {
     define('STRIPE_PUBLISHABLE_KEY_TEST', 'pk_test_51NnPaLCqUk2FODuHFKKs4aYRhos4gvUVpcLkIPUyUYQtKqiLDtjEwbMcbmr25NolQ4dosbAcoC5EdGRUYz4okLBI00V8d4qRVj');
 }
-/** Secret key (test) — sk_test_… */
+/** Secret key (test) - sk_test_… */
 if (!defined('STRIPE_SECRET_KEY_TEST')) {
     define('STRIPE_SECRET_KEY_TEST', 'sk_test_51NnPaLCqUk2FODuHtNQscSDsITgLluZBeKbyAGnKsnBJeOtDkH58gLEMear3nxKBxieiPYOMWG6UjwdIv8Cd0byp00tLcqA3u6');
 }
 /**
  * Webhook signing secret (test mode). Replace with the secret from Stripe test-mode webhook endpoint.
- * (Previously commented next to live secret in stripeWebHook.php — verify in Dashboard if signatures fail.)
+ * (Previously commented next to live secret in stripeWebHook.php - verify in Dashboard if signatures fail.)
  */
 if (!defined('STRIPE_WEBHOOK_SECRET_TEST')) {
     define('STRIPE_WEBHOOK_SECRET_TEST', 'whsec_cHYXKI7XQnNMaAiz0q95Appsvvh4rEKP');
@@ -47,7 +47,7 @@ if (!defined('STRIPE_WEBHOOK_SECRET_TEST')) {
  */
 
 /**
- * Legacy `privacypros.php` export uses a different Stripe account — not switched by STRIPE_MODE.
+ * Legacy `privacypros.php` export uses a different Stripe account - not switched by STRIPE_MODE.
  */
 if (!defined('STRIPE_PRIVACYPROS_SECRET_KEY')) {
     define('STRIPE_PRIVACYPROS_SECRET_KEY', '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');

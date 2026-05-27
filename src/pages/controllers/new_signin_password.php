@@ -3,7 +3,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/config.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/utils.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/database.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/auth_redirect.php');
-// mailer.php (PHPMailer + autoload) is loaded only when we send a verification email — not on normal password login.
+// mailer.php (PHPMailer + autoload) is loaded only when we send a verification email - not on normal password login.
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

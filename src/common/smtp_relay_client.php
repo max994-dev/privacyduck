@@ -100,7 +100,7 @@ if (!function_exists('pd_smtp_relay_send_html')) {
             $j = json_decode((string) $response, true);
             if (is_array($j) && isset($j['error'])) {
                 error_log('pd_smtp_relay_send_html: HTTP ' . $code . ' relay error: ' . $j['error']
-                    . (isset($j['hint']) ? ' — ' . $j['hint'] : '')
+                    . (isset($j['hint']) ? ' - ' . $j['hint'] : '')
                     . (isset($j['client_ip']) ? ' (client seen as ' . $j['client_ip'] . ')' : ''));
             } else {
                 error_log('pd_smtp_relay_send_html: HTTP ' . $code . ' body: ' . $snippet);

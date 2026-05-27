@@ -83,7 +83,7 @@
             if (isNaN(ongoing)) ongoing = 0;
             if (isNaN(removed)) removed = 0;
             if (isNaN(notfound)) notfound = 0;
-            // No broker-removal rows yet — always Pending (avoids false "Completed" right after invite).
+            // No broker-removal rows yet - always Pending (avoids false "Completed" right after invite).
             if (kind1 === 0) {
                 return "Pending";
             }

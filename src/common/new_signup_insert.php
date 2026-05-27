@@ -105,11 +105,11 @@ function pd_new_signup_age_from_birthdate(string $birthYmd): int
  * $profile: output of pd_new_signup_parse_profile_from_post()['data'], or null for legacy minimal row.
  *
  * UK GDPR Art. 7(1) audit trail params:
- *   $consentVersion       — effective date of the privacy policy version the
+ *   $consentVersion       - effective date of the privacy policy version the
  *                           user accepted (e.g. '2026-05-26'). NULL for legacy.
- *   $policyConsentAt      — DATETIME string (Y-m-d H:i:s) when the user
+ *   $policyConsentAt      - DATETIME string (Y-m-d H:i:s) when the user
  *                           accepted the policy. NULL for legacy.
- *   $marketingConsentAt   — DATETIME string when the user opted in to
+ *   $marketingConsentAt   - DATETIME string when the user opted in to
  *                           marketing emails. NULL when they did not opt in.
  *
  * @param array<string,string>|null $profile

@@ -10,7 +10,7 @@ if (isset($_GET['email'])) {
     }
 }
 
-$meta_title = 'PrivacyDuck — Account setup';
+$meta_title = 'PrivacyDuck - Account setup';
 $meta_description = 'Complete your PrivacyDuck account.';
 $meta_url = 'https://privacyduck.com/new_signup';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';
@@ -22,7 +22,7 @@ main_head_start(['slim' => true]);
 <style>
     body {
         font-family: system-ui, -apple-system, sans-serif;
-        /* Soft brand-tinted gradient backdrop — more premium than flat #f8fafc.
+        /* Soft brand-tinted gradient backdrop - more premium than flat #f8fafc.
            Uses fixed attachment so it doesn't repaint on scroll on long forms. */
         background:
             radial-gradient(60% 50% at 80% 0%, rgba(36, 165, 86, 0.07), transparent 60%),
@@ -31,7 +31,7 @@ main_head_start(['slim' => true]);
         background-attachment: fixed;
         min-height: 100vh;
     }
-    /* Brand-green focus glow scoped to the signup form — overrides main.css's
+    /* Brand-green focus glow scoped to the signup form - overrides main.css's
        black-border rule that would otherwise hijack focus styling. */
     #ns-signup-form input[type="text"],
     #ns-signup-form input[type="email"],
@@ -371,9 +371,9 @@ main_head_end();
         var BAR_COLORS = ['bg-slate-200', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
         var LABELS = [
             { text: 'At least 8 characters. Mix upper + lower + digits + symbols for a stronger password.', cls: 'text-slate-500' },
-            { text: 'Weak — too short or one character class.',  cls: 'text-red-500' },
-            { text: 'Fair — add more variety (case, digits, symbols).', cls: 'text-orange-500' },
-            { text: 'Good — a bit longer or one more class would be great.', cls: 'text-yellow-600' },
+            { text: 'Weak - too short or one character class.',  cls: 'text-red-500' },
+            { text: 'Fair - add more variety (case, digits, symbols).', cls: 'text-orange-500' },
+            { text: 'Good - a bit longer or one more class would be great.', cls: 'text-yellow-600' },
             { text: 'Strong password.', cls: 'text-emerald-700' }
         ];
         function scorePassword(s) {

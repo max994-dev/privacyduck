@@ -9,7 +9,7 @@ if (empty($_SESSION['password_reset_allowed']) || empty($_SESSION['password_rese
 
 $resetEmail = $_SESSION['password_reset_email'];
 
-$meta_title = 'PrivacyDuck — Reset password';
+$meta_title = 'PrivacyDuck - Reset password';
 $meta_description = 'Set a new password for your PrivacyDuck account.';
 $meta_url = 'https://privacyduck.com/new_reset_password';
 $meta_image = 'https://privacyduck.com/assets/pageSEO/landing.jpg';

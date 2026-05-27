@@ -13,7 +13,7 @@ if (empty($_SESSION['work_isAuthenticated']) || empty($_SESSION['work_user_id'])
 }
 
 $mindmap_id = isset($_POST['mindmap_id']) ? (int) $_POST['mindmap_id'] : 0;
-// Coordinates may legitimately be 0 — only reject if missing, not if "empty"-falsy.
+// Coordinates may legitimately be 0 - only reject if missing, not if "empty"-falsy.
 $x = isset($_POST['x']) && is_numeric($_POST['x']) ? (int) $_POST['x'] : null;
 $y = isset($_POST['y']) && is_numeric($_POST['y']) ? (int) $_POST['y'] : null;
 

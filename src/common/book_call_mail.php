@@ -4,7 +4,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/mailer.php';
 
 function book_call_send_confirmation(string $to, string $name, string $whenLocalPst, string $verifyNoteHtml): bool
 {
-    $subject = 'PrivacyDuck — your onboarding call is booked';
+    $subject = 'PrivacyDuck - your onboarding call is booked';
     $body = '
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 10px; background: #ffffff;">
         <h1 style="color: #010205; font-size: 20px;">Hi ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ',</h1>
