@@ -177,6 +177,54 @@ main_head_end();
             </div>
         </section>
     </div>
+    <!-- Features: 3 alternating image+text rows explaining what PrivacyDuck does.
+         Ported from /new because the original landing didn't clearly state the
+         service. This block carries id="features" (was on ultimate.php; moved
+         here because this section is the canonical "Features"). -->
+    <div class="landing-section bg-[#F5F5F0]" data-header="dark">
+        <section class="px-5 md:px-10 py-16 md:py-24 scroll-mt-[120px]" id="features">
+            <div class="max-w-[1200px] mx-auto space-y-20 md:space-y-28">
+
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    <div>
+                        <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Protect Your Privacy &amp; Anonymity</h2>
+                        <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
+                            Keep your data safe from cyberstalkers, hackers, and unwanted tracking. We remove harmful content, secure your anonymity, and prevent employers or malicious actors from accessing your personal records.
+                        </p>
+                    </div>
+                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px] order-first lg:order-last">
+                        <img src="/assets/image/desktop/landing/new/img1.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px] order-first">
+                        <img src="/assets/image/desktop/landing/new/img2.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Permanent Data Removal &amp; Identity Protection</h2>
+                        <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%]">
+                            We ensure your information stays off hundreds of people-finding sites, reducing the risk of identity theft. With PrivacyDuck, you gain peace of mind knowing your private data is consistently removed and protected.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    <div>
+                        <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%]">Erase Public &amp; Genetic Records</h2>
+                        <p class="mt-6 text-[#010205]/85 text-[15px] sm:text-[17px] leading-[175%] max-w-[480px]">
+                            Remove yourself from public records, criminal databases, and genetic sites like Ancestry.com and 23andMe. Safeguard your future from discrimination and unauthorized data usage.
+                        </p>
+                    </div>
+                    <div class="w-[80%] max-w-[520px] mx-auto aspect-[3/2] overflow-hidden rounded-[28px]">
+                        <img src="/assets/image/desktop/landing/new/img3.jpg" alt="" loading="lazy" class="w-full h-full object-cover object-center" />
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
     <div class="landing-section" data-header="dark">
         <?php
         require("ultimate.php");
@@ -197,6 +245,46 @@ main_head_end();
         require("journey.php");
         ?>
     </div>
+
+    <!-- How We Do It: 4-step timeline porting in the process narrative from /new.
+         Helps contract evaluators / new visitors understand the concrete
+         operational flow (vs the marketing fluff above). -->
+    <div class="landing-section bg-white" data-header="dark">
+        <section class="px-5 md:px-10 py-16 md:py-24">
+            <div class="max-w-[1280px] mx-auto">
+                <h2 class="font-bold text-[#010205] text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.1] tracking-[-0.02em]">How We Do It</h2>
+                <p class="mt-4 text-[#010205]/75 text-[18px] sm:text-[20px] max-w-[820px]">A step-by-step breakdown of what happens after you sign up.</p>
+                <?php
+                $pdSteps = [
+                    ['t' => 'First 24 hours', 'h' => 'Deleting common data brokers',       'b' => 'We start by removing your data from the highest-traffic brokers like Acxiom and Spokeo — the ones most likely to surface in a Google search of your name.'],
+                    ['t' => '48 hours',       'h' => 'Removing from people-search sites',  'b' => 'Next we work through the long tail of people-finding sites (BeenVerified, FastBackgroundCheck, WhitePages and 300+ others) — the ones that resell your address and phone number.'],
+                    ['t' => '72 hours',       'h' => 'Removing from genetic databases',    'b' => 'We file removal requests at genetic data sites such as 23andMe and Ancestry — places that can leak family relationships and health data.'],
+                    ['t' => 'Rest of the year','h' => 'Continuous sweeping',               'b' => 'Brokers re-upload your data on a quarterly cycle. We monitor and re-submit removal requests as soon as your information reappears, every year you stay subscribed.'],
+                ];
+                ?>
+                <div class="mt-12 grid md:grid-cols-2 xl:grid-cols-4 gap-6 xl:gap-5">
+                    <?php foreach ($pdSteps as $idx => $s): ?>
+                        <article class="rounded-2xl border border-[#E5E7EB] bg-white p-6 md:p-7 shadow-sm">
+                            <div class="relative flex items-center gap-2.5 pb-5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-brand shrink-0"></span>
+                                <span class="text-[15px] font-bold text-brand leading-7 uppercase tracking-wide"><?= htmlspecialchars($s['t'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php if ($idx < count($pdSteps) - 1): ?>
+                                    <span class="hidden xl:block absolute left-[170px] right-[-26px] top-[5px] h-px bg-gray-900/15"></span>
+                                <?php endif; ?>
+                            </div>
+                            <h3 class="text-[#111827] font-bold text-[22px] sm:text-[24px] md:text-[26px] leading-[1.25] md:min-h-[74px]">
+                                <?= htmlspecialchars($s['h'], ENT_QUOTES, 'UTF-8'); ?>
+                            </h3>
+                            <p class="mt-4 text-[#6B7280] text-[16px] sm:text-[17px] md:text-[18px] leading-[1.6] md:min-h-[140px]">
+                                <?= htmlspecialchars($s['b'], ENT_QUOTES, 'UTF-8'); ?>
+                            </p>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <div class="landing-section" data-header="dark">
         <?php
         require("mobile_animation.php");

@@ -1,4 +1,4 @@
-<div class="px-[16px] scroll-mt-[120px]" id="features">
+<div class="px-[16px]">
     <div class="rounded-[30px] bg-white px-[16px] sm:px-[80px] pb-[32px] sm:pb-[82px] pt-[82px]">
         <div class="flex flex-col justify-center items-center">
             <fieldset>

@@ -38,7 +38,7 @@ main_header("black");
                     Who we are
                 </h2>
                 <p class="text-gray-700">
-                    PrivacyDuck.com is operated by <strong>[Legal entity name TBD]</strong>, a US-based company that helps individuals, families, and businesses remove personal information from data brokers and people-search sites. We are the <strong>controller</strong> of the personal data described in this notice.
+                    PrivacyDuck.com is operated by <strong>PrivacyDuck</strong>, a US-based company that helps individuals, families, and businesses remove personal information from data brokers and people-search sites. We are the <strong>controller</strong> of the personal data described in this notice.
                 </p>
             </section>
 
@@ -134,7 +134,7 @@ main_header("black");
                             <tr><td class="px-4 py-2 border-b">Google LLC (Tag Manager, Analytics 4)</td><td class="px-4 py-2 border-b">Website analytics (only with cookie consent)</td><td class="px-4 py-2 border-b">IP, page events, cookies</td><td class="px-4 py-2 border-b">US</td><td class="px-4 py-2 border-b">UK IDTA / EU SCCs</td></tr>
                             <tr><td class="px-4 py-2 border-b">Google LLC (Maps Extended Library)</td><td class="px-4 py-2 border-b">Address autocomplete on signup</td><td class="px-4 py-2 border-b">Address text entered</td><td class="px-4 py-2 border-b">US</td><td class="px-4 py-2 border-b">UK IDTA / EU SCCs</td></tr>
                             <tr><td class="px-4 py-2 border-b">Tawk.to</td><td class="px-4 py-2 border-b">Live chat (only with cookie consent)</td><td class="px-4 py-2 border-b">Name, email if provided, chat content, IP</td><td class="px-4 py-2 border-b">US / partner regions</td><td class="px-4 py-2 border-b">DPA + SCCs</td></tr>
-                            <tr><td class="px-4 py-2"><strong>[Hosting Provider TBD]</strong></td><td class="px-4 py-2">Server infrastructure</td><td class="px-4 py-2">All processed data</td><td class="px-4 py-2">US</td><td class="px-4 py-2">UK IDTA / EU SCCs</td></tr>
+                            <tr><td class="px-4 py-2"><strong>DigitalOcean, LLC</strong></td><td class="px-4 py-2">Server infrastructure (compute &amp; managed database)</td><td class="px-4 py-2">All processed data</td><td class="px-4 py-2">US</td><td class="px-4 py-2">UK IDTA / EU SCCs</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -277,7 +277,7 @@ main_header("black");
                     <p class="text-gray-700 mt-2">Privacy queries: <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a></p>
                     <p class="text-gray-700">General: <a href="mailto:hello@privacyduck.com" class="text-[#24A556] font-medium hover:underline">hello@privacyduck.com</a></p>
                     <p class="text-gray-700">Website: <a href="https://privacyduck.com" class="text-[#24A556] font-medium hover:underline">https://privacyduck.com</a></p>
-                    <p class="text-gray-700 mt-2"><strong>Privacy Lead:</strong> [Name TBD]</p>
+                    <p class="text-gray-700 mt-2"><strong>Privacy enquiries:</strong> PrivacyDuck Privacy Team — <a href="mailto:privacy@privacyduck.com" class="text-[#24A556] font-medium hover:underline">privacy@privacyduck.com</a></p>
                 </div>
             </section>
 
