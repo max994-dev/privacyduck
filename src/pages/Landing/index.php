@@ -90,12 +90,18 @@ main_head_end();
     📞
 </a> -->
 
-<div id="white-header">
+<?php /*
+    Wrapper classes np-header-wrapper-white / np-header-wrapper-black are REQUIRED:
+    landing_header.php's .np-top-overlay frosted-bar bg only activates inside one
+    of those wrappers + .np-header-scrolled. Without them, the topbar stays
+    permanently transparent and nav text overlaps the page content under it.
+*/ ?>
+<div id="white-header" class="np-header-wrapper np-header-wrapper-white">
     <?php
     landing_main_header();
     ?>
 </div>
-<div id="black-header" class="hidden">
+<div id="black-header" class="hidden np-header-wrapper np-header-wrapper-black">
     <?php
     landing_main_header("black");
     ?>
@@ -767,6 +773,30 @@ main_head_end();
         };
         window.addEventListener("scroll", onHeaderScroll, { passive: true });
         window.addEventListener("load", updateHeader); // run on first load
+
+        /* Frosted-bar toggle: add .np-header-scrolled to both header wrappers
+           once we've scrolled past the hero. landing_header.php's CSS uses
+           this flag to switch the .np-top-overlay from transparent to
+           blurred bg. Without it, the topbar has no background and nav text
+           overlaps content scrolling underneath. */
+        const heroSection = sections.length ? sections[0] : null;
+        function updateHeaderBg() {
+            const y = window.scrollY || 0;
+            const pastHero = heroSection
+                ? y >= heroSection.offsetTop + heroSection.offsetHeight - 96
+                : y > 100;
+            white_header.classList.toggle("np-header-scrolled", pastHero);
+            black_header.classList.toggle("np-header-scrolled", pastHero);
+        }
+        let bgRaf = 0;
+        const onHeaderBgScroll = () => {
+            if (bgRaf) return;
+            bgRaf = requestAnimationFrame(() => { bgRaf = 0; updateHeaderBg(); });
+        };
+        window.addEventListener("scroll", onHeaderBgScroll, { passive: true });
+        window.addEventListener("resize", updateHeaderBg);
+        window.addEventListener("load", updateHeaderBg);
+        updateHeaderBg();
     }
     auto_landing_header();
     landing_init();
