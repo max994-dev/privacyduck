@@ -10,37 +10,38 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Pull latest on VPS and restart services
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          command_timeout: 5m
-          script_stop: false
-          script: |
-            cd /var/www/html || { echo "ERROR: cannot cd /var/www/html"; exit 1; }
+      - name: Install sshpass
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
 
-            if [ ! -d .git ]; then
-              echo "ERROR: /var/www/html is not a git checkout. Bootstrap with:"
-              echo "  sudo rm -rf /var/www/html && sudo git clone https://github.com/max994-dev/privacyduck.git /var/www/html"
-              exit 1
-            fi
-
-            # Hard sync to origin/main. We discard any local edits on the VPS.
-            git fetch --all --prune || { echo "ERROR: git fetch failed"; exit 1; }
-            git reset --hard origin/main || { echo "ERROR: git reset failed"; exit 1; }
-
-            # Best-effort composer (already installed at /usr/bin/composer, but skip
-            # if missing). Don't let composer warnings/funding-asks fail the deploy.
-            if [ -f composer.json ] && command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --optimize-autoloader --no-interaction >/tmp/composer.log 2>&1 || true
-            fi
-
-            # Restart web servers. Both are active on this VPS. Suppress stderr
-            # so any benign warnings don't trip the action's failure detection.
-            systemctl restart apache2 >/dev/null 2>&1 || true
-            systemctl restart nginx >/dev/null 2>&1 || true
-
-            echo "Deployed: $(git log -1 --pretty=format:'%h %s' 2>/dev/null || echo 'unknown')"
-            exit 0
+      - name: Deploy via SSH (raw, bypassing appleboy/ssh-action)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          # Strict host check off because we use password auth - the host fingerprint
+          # changing would just fail the connection here rather than alert us.
+          sshpass -p "$VPS_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            "$VPS_USER@$VPS_HOST" \
+            'bash -s' << 'REMOTE'
+              set -u
+              cd /var/www/html || { echo "ERR: cannot cd /var/www/html"; exit 1; }
+              if [ ! -d .git ]; then
+                echo "ERR: /var/www/html is not a git checkout. Bootstrap with:"
+                echo "  sudo rm -rf /var/www/html && sudo git clone https://github.com/max994-dev/privacyduck.git /var/www/html"
+                exit 1
+              fi
+              git fetch --all --prune || { echo "ERR: git fetch failed"; exit 1; }
+              git reset --hard origin/main || { echo "ERR: git reset failed"; exit 1; }
+              if [ -f composer.json ] && command -v composer >/dev/null 2>&1; then
+                composer install --no-dev --optimize-autoloader --no-interaction >/tmp/composer.log 2>&1 || true
+              fi
+              systemctl restart apache2 >/dev/null 2>&1 || true
+              systemctl restart nginx >/dev/null 2>&1 || true
+              echo "Deployed: $(git log -1 --pretty=format:'%h %s' 2>/dev/null || echo unknown)"
+              exit 0
+          REMOTE
