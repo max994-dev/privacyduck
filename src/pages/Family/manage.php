@@ -19,7 +19,7 @@
                 <?php
                 $datas = [
                     "Send invitations",
-                    "Сheck exposure statuses",
+                    "Check exposure statuses",
                     "Track removals progress",
                     "Upgrade members’ plans",
                     "And much more…"

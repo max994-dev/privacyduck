@@ -359,7 +359,7 @@ main_head_end();
         <div class="max-w-[1200px] mx-auto px-5 md:px-10 py-12 md:py-16 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div>
                 <h2 class="font-semibold text-[#010205] text-[26px] sm:text-[32px] lg:text-[36px] leading-[120%] tracking-[-0.02em]">Remove your data from 400+ data brokers</h2><br>
-                <p class="mt-3 text-[#010205]/70 text-[15px] sm:text-[17px]">Most services cover a limited set of sources. PrivacyDuck uses real local workers to remove your data across more sources, including the ones other services miss. We cover 400+ people search sites, data brokers, and other databases in our sweep, including cusotmized deletion from google..</p>
+                <p class="mt-3 text-[#010205]/70 text-[15px] sm:text-[17px]">Most services cover a limited set of sources. PrivacyDuck uses real local workers to remove your data across more sources, including the ones other services miss. We cover 400+ people search sites, data brokers, and other databases in our sweep, including customized deletion from Google.</p>
             </div>
             <a href="/new_signup" class="inline-flex justify-center items-center rounded-full np-bg-green text-white font-semibold text-[16px] px-10 py-4 hover:opacity-95 w-full sm:w-auto shrink-0 shadow-md">Start removing now</a>
         </div>

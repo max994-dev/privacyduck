@@ -28,7 +28,7 @@
                 on your first course</h2>
             <div class="flex justify-center">
                 <div>
-                    <h2 class="font-bold text-[18px] text-[#020609] max-w-[325px]">You’ll also receivce:</h2>
+                    <h2 class="font-bold text-[18px] text-[#020609] max-w-[325px]">You’ll also receive:</h2>
                     <ul class="mt-[17px] text-left text-[#010205] flex flex-col gap-[8px]">
                         <li class="flex items-center gap-x-[4px]">
                             <i class="fa-solid fa-square-check" style="color: #24A556;"></i>

@@ -897,7 +897,7 @@ function business_header($x = "white")
                 <a href="/login" class="text-[#FFCF50]">Customer Login</a>
             </div>
             <div class="flex justify-center items-center w-full">
-                <a href="business/quote/signup" class="cursor-pointer w-full max-w-[330px] h-[56px] flex justify-center items-center rounded-full 
+                <a href="/business/quote/signup" class="cursor-pointer w-full max-w-[330px] h-[56px] flex justify-center items-center rounded-full 
                 bg-[#00530F] shadow-[0px_4px_4px_0px_#24A5561A] uppercase font-bold text-[16px] leading-[140%] 
                 tracking-[-0.02em] text-[#FFCF50]" style="font-family: 'Manrope', sans-serif;">Enterprise Login</a>
             </div>

@@ -234,6 +234,6 @@ foreach ($routes as $pattern => $file) {
 }
 
 http_response_code(404);
-echo "404 - Page not found";
+require BASEPATH . "/src/pages/Error/404.php";
 
 ?>

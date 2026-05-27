@@ -12,7 +12,7 @@
                     <?php require(BASEPATH . '/src/common/svgs/business/landing/duck.php'); ?>
                 </div>
                 <h1 style="font-family: 'Alatsi', sans-serif;" class="relative top-[-10px] uppercase text-[20px] tracking-[-0.02em] text-white">
-                    Enterprice
+                    Enterprise
                 </h1>
             </div>
         </a>

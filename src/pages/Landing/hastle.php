@@ -1,6 +1,6 @@
 <div class="mt-[70px] sm:mt-[120px] px-[8px] sm:px-[23px] bg-[#FAFAFA]">
     <h2 class="text-[#010205] text-center sm:text-left px-[18px] sm:pl-[57px] sm:pr-0 font-semibold text-[32px] sm:text-[48px] leading-[130%] tracking-[-0.03em]">
-        Data privacy shouldn’t be a hastle
+        Data privacy shouldn’t be a hassle
     </h2>
     <div class="mt-[60px] sm:px-[8px] flex flex-col xl:flex-row gap-[16px] justify-between items-stretch">
         <div class="flex flex-col sm:flex-row sm:flex-1 sm:justify-between pt-[27.5px] pb-[19.5px] sm:py-[50.25px] pl-[18px] sm:items-center gap-[10px] bg-[#FEFEFE] border border-[#F6F6F6] rounded-[30px]">

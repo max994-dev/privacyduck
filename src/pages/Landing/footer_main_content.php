@@ -140,8 +140,7 @@
                                                 <i class="fa-solid fa-location-dot text-[24px]" style="color: #24A556;"></i>
                                                 <h4 style="font-family: 'Roboto', sans-serif;"
                                                     class="text-[14px] text-[#9B9B9C]">
-                                                    2972 Westheimer Rd. Santa Ana,
-                                                    Illinois 85486 </h4>
+                                                    2101 Arrowhead Drive, Carson City, Nevada, USA </h4>
                                             </div>
                                         </div>
                                         <div class="flex justify-center">
