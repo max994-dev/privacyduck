@@ -1,8 +1,15 @@
 <?php
-// require_once("sesion.php");
+// Security hardening MUST run before session_start() — once the session
+// cookie is sent without HttpOnly/Secure/SameSite, the browser has them
+// without those flags for the rest of the visit.
+require_once __DIR__ . '/security.php';
+pd_security_init_session();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Emit CSP / Referrer-Policy / Permissions-Policy. nginx already sets
+// X-Frame-Options / HSTS / X-Content-Type-Options at the vhost level.
+pd_security_send_headers();
 
 require_once __DIR__ . '/cookie_banner.php';
 

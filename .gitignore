@@ -34,3 +34,10 @@ smtp_test*.php
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Backups (auto-rollback files from deploy scripts)
+*.bak
+*.bak.*
+
+# Local Claude config + helpers
+/.claude/launch.json

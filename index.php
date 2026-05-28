@@ -225,6 +225,18 @@ $routes = [
     
 ];
 
+// Serve RFC 9116 security disclosure file. nginx may serve this directly
+// in some configs, but it falls through here on the prod box.
+if ($request === '.well-known/security.txt') {
+    $secPath = BASEPATH . '/.well-known/security.txt';
+    if (is_readable($secPath)) {
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Cache-Control: public, max-age=3600');
+        readfile($secPath);
+        exit;
+    }
+}
+
 foreach ($routes as $pattern => $file) {
     if (preg_match("#^$pattern$#", $request, $matches)) {
         $GLOBALS['matches'] = $matches;

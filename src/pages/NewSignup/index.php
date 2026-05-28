@@ -113,6 +113,7 @@ main_head_end();
     </div>
 
     <form id="ns-signup-form" data-reveal="scale" data-reveal-delay="180" method="post" action="<?= htmlspecialchars(WEB_DOMAIN . '/new_signup_process', ENT_QUOTES, 'UTF-8'); ?>" class="relative space-y-4 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        <?= pd_csrf_field(); ?>
         <fieldset class="space-y-4 border-0 p-0 m-0">
             <legend class="text-sm font-semibold text-slate-800">Personal information</legend>
 

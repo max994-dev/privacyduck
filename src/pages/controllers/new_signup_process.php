@@ -33,6 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     new_signup_redirect_error('Invalid request.');
 }
 
+// CSRF guard — signup is the highest-impact public form (creates an
+// authenticated session) so it gets a token check before anything else.
+if (!pd_csrf_check()) {
+    new_signup_redirect_error('Your session has expired. Please refresh the page and try again.');
+}
+
+// Throttle signup attempts per (IP, email) — stops scripted enumeration
+// runs against the "is this email registered?" response below.
+$_pd_signup_ip = pd_client_ip();
+$_pd_signup_email_key = strtolower(trim($_POST['email'] ?? ''));
+if (pd_ratelimit_hit("signup:$_pd_signup_ip:$_pd_signup_email_key", 5, 600) ||
+    pd_ratelimit_hit("signup:$_pd_signup_ip", 30, 600)) {
+    new_signup_redirect_error('Too many signup attempts. Please wait a few minutes.');
+}
+
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';

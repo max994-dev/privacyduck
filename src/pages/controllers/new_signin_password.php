@@ -26,6 +26,19 @@ if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+// Rate limits — keyed by IP (/24) and by IP+email. The per-(IP+email) bucket
+// stops credential stuffing of a known account; the per-IP bucket stops
+// horizontal spraying. Numbers tuned to be invisible to humans but lethal
+// to bots: 8 attempts per 10 min per (ip, email); 40 per 10 min per ip.
+$_pd_ip = pd_client_ip();
+$_pd_email_key = strtolower($email);
+if (pd_ratelimit_hit("login:$_pd_ip:$_pd_email_key", 8, 600) ||
+    pd_ratelimit_hit("login:$_pd_ip", 40, 600)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'Too many attempts. Please wait a few minutes and try again.']);
+    exit;
+}
+
 $conn = getDBConnection();
 $stmt = $conn->prepare('SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(?) LIMIT 1');
 $stmt->bind_param('s', $email);
