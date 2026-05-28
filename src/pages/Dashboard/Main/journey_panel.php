@@ -165,12 +165,10 @@ $donutOffset = $donutCirc * (1 - $pdDonePct / 100);
 $pdDailyMax = max(1, max($pdDaily));
 ?>
 
-<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-3 gap-[16px]">
+<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-4 gap-[16px]">
 
-    <!-- HERO: hierarchy is BIG NUMBER > phase > donut.
-         Previously donut was 200px and dominated the headline number;
-         now it's 160px and sits on the side as a supporting visual. -->
-    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[32px] flex flex-col sm:flex-row items-center gap-[24px] sm:gap-[40px]">
+    <!-- HERO: 50% width on desktop. Hierarchy is BIG NUMBER > phase > donut. -->
+    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px] flex flex-col sm:flex-row items-center gap-[20px] sm:gap-[28px]">
         <div class="flex-1 min-w-0 text-center sm:text-left order-2 sm:order-1">
             <div class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.14em] text-[#24A556]">
                 Phase <?= $pdPhaseNum ?: '-' ?> &middot; <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8') ?>
@@ -228,19 +226,20 @@ $pdDailyMax = max(1, max($pdDaily));
         </div>
     </div>
 
-    <!-- 14-DAY ACTIVITY BAR CHART -->
-    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[24px]">
-        <div class="flex items-baseline justify-between">
-            <div>
+    <!-- 14-DAY ACTIVITY BAR CHART (25% width). Padding tightened so the
+         chart breathes against the smaller column width. -->
+    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[20px] flex flex-col">
+        <div class="flex items-baseline justify-between gap-[8px]">
+            <div class="min-w-0">
                 <div class="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#878C91]">Last 14 days</div>
-                <div class="mt-[2px] text-[20px] font-bold text-[#010205] leading-none">
+                <div class="mt-[2px] text-[20px] font-bold text-[#010205] leading-none whitespace-nowrap">
                     <?= number_format(array_sum($pdDaily)) ?>
-                    <span class="text-[13px] font-medium text-[#5B5F66]">removed</span>
+                    <span class="text-[12px] font-medium text-[#5B5F66]">removed</span>
                 </div>
             </div>
-            <div class="text-[11px] text-[#878C91]">avg <?= number_format($pdAvg7Day, 1) ?>/day</div>
+            <div class="text-[11px] text-[#878C91] whitespace-nowrap">avg <?= number_format($pdAvg7Day, 1) ?>/day</div>
         </div>
-        <svg viewBox="0 0 280 110" preserveAspectRatio="none" class="w-full h-[100px] mt-[14px]">
+        <svg viewBox="0 0 280 110" preserveAspectRatio="none" class="w-full h-[100px] mt-[12px] flex-1">
             <?php foreach ($pdDaily as $i => $count):
                 $barHeight = max(2, ($count / $pdDailyMax) * 100);
                 $x = $i * 20 + 2;
@@ -255,38 +254,41 @@ $pdDailyMax = max(1, max($pdDaily));
                 </rect>
             <?php endforeach; ?>
         </svg>
-        <div class="mt-[6px] flex justify-between text-[9px] text-[#878C91] font-medium uppercase tracking-wide">
+        <div class="mt-[8px] flex justify-between text-[9px] text-[#878C91] font-medium uppercase tracking-wide">
             <span><?= date('M j', strtotime('-13 days')) ?></span>
             <span>today</span>
         </div>
     </div>
 
-    <!-- STAT ROW: 4 small cells -->
-    <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-[16px]">
-        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
-            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Removed</div>
-            <div class="mt-[4px] text-[28px] font-bold text-[#24A556] leading-none" data-pd-count="done"><?= number_format($pdCounts['done']) ?></div>
-            <div class="mt-[6px] text-[11px] text-[#5B5F66]">of <?= number_format($pdCounts['total']) ?> total</div>
+    <!-- STATS COLUMN (25% width, 2x2 grid inside). MOVED here from a
+         full-width row below per UX request -- now sits at the right end
+         of the chart row so all summary info is on one line. Each cell
+         compact: smaller padding, smaller number font to fit the column. -->
+    <div class="grid grid-cols-2 gap-[10px] content-start">
+        <div class="rounded-[16px] bg-white border border-[#F1F1F1] p-[14px]">
+            <div class="text-[10px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Removed</div>
+            <div class="mt-[4px] text-[22px] font-bold text-[#24A556] leading-none tabular-nums" data-pd-count="done"><?= number_format($pdCounts['done']) ?></div>
+            <div class="mt-[4px] text-[10px] text-[#878C91] leading-tight">of <?= number_format($pdCounts['total']) ?></div>
         </div>
-        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
-            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Last 24h</div>
-            <div class="mt-[4px] text-[28px] font-bold text-[#3B82F6] leading-none" data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']) ?></div>
-            <div class="mt-[6px] text-[11px] text-[#5B5F66]">new removals</div>
+        <div class="rounded-[16px] bg-white border border-[#F1F1F1] p-[14px]">
+            <div class="text-[10px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Last 24h</div>
+            <div class="mt-[4px] text-[22px] font-bold text-[#3B82F6] leading-none tabular-nums" data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']) ?></div>
+            <div class="mt-[4px] text-[10px] text-[#878C91] leading-tight">new removals</div>
         </div>
-        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
-            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Scheduled</div>
-            <div class="mt-[4px] text-[28px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdCounts['queued'] + $pdCounts['failed'] + $pdCounts['not_impl']) ?></div>
-            <div class="mt-[6px] text-[11px] text-[#5B5F66]">in pipeline</div>
+        <div class="rounded-[16px] bg-white border border-[#F1F1F1] p-[14px]">
+            <div class="text-[10px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Scheduled</div>
+            <div class="mt-[4px] text-[22px] font-bold text-[#010205] leading-none tabular-nums" data-pd-count="queued"><?= number_format($pdCounts['queued'] + $pdCounts['failed'] + $pdCounts['not_impl']) ?></div>
+            <div class="mt-[4px] text-[10px] text-[#878C91] leading-tight">in pipeline</div>
         </div>
-        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
-            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Needs info</div>
-            <div class="mt-[4px] text-[28px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#2563EB]' : 'text-[#010205]' ?> leading-none" data-pd-count="missing_pii"><?= number_format($pdCounts['missing_pii']) ?></div>
-            <div class="mt-[6px] text-[11px] text-[#5B5F66]">awaiting profile field</div>
+        <div class="rounded-[16px] bg-white border border-[#F1F1F1] p-[14px]">
+            <div class="text-[10px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Needs info</div>
+            <div class="mt-[4px] text-[22px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#2563EB]' : 'text-[#010205]' ?> leading-none tabular-nums" data-pd-count="missing_pii"><?= number_format($pdCounts['missing_pii']) ?></div>
+            <div class="mt-[4px] text-[10px] text-[#878C91] leading-tight">awaiting profile</div>
         </div>
     </div>
 
-    <!-- RECENT REMOVALS FEED -->
-    <div class="lg:col-span-3 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
+    <!-- RECENT REMOVALS FEED (full width across the 4-column grid) -->
+    <div class="lg:col-span-4 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
         <div class="flex items-center justify-between mb-[16px]">
             <h3 class="text-[16px] sm:text-[17px] font-bold text-[#010205]">Recent activity</h3>
             <span class="inline-flex items-center gap-[6px] text-[11px] font-semibold text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
