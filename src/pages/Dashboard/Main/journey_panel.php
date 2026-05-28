@@ -167,15 +167,19 @@ $donutOffset = $donutCirc * (1 - $pdDonePct / 100);
 $pdDailyMax = max(1, max($pdDaily));
 ?>
 
-<!-- items-start so cards size to their content instead of all stretching
-     to the tallest card. Previously hero pushed chart+stats to ~530px tall
-     leaving big empty bottoms. -->
-<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-4 gap-[16px] items-start">
+<!-- items-start so cards size to their content. Inline grid-template-columns
+     bypasses Tailwind purge issues: `lg:col-span-2` was getting tree-shaken
+     out of the CSS build because tailwind.config didn't see this file
+     correctly, leaving the hero squished to 1/4 width. Explicit grid-template
+     here works without needing the build to know about it. -->
+<div id="pd-journey-panel"
+     class="mt-[24px] grid gap-[16px] items-start"
+     style="grid-template-columns: 1fr;"
+     data-pd-desktop-grid="2fr 1fr 1fr">
 
-    <!-- HERO: 50% width on desktop. Hierarchy is BIG NUMBER > phase > donut.
-         Tighter padding so the card isn't gratuitously tall when there's
-         no plan ETA / no extra pills to show. -->
-    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[20px] sm:p-[24px] flex flex-col sm:flex-row items-center gap-[16px] sm:gap-[24px]">
+    <!-- HERO: 2fr (50% of the 4-fr total). Tighter padding so the card
+         isn't gratuitously tall when there's no extra pills to show. -->
+    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[20px] sm:p-[24px] flex flex-col sm:flex-row items-center gap-[16px] sm:gap-[24px]">
         <div class="flex-1 min-w-0 text-center sm:text-left order-2 sm:order-1">
             <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#24A556]">
                 Phase <?= $pdPhaseNum ?: '-' ?> &middot; <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8') ?>
@@ -294,8 +298,11 @@ $pdDailyMax = max(1, max($pdDaily));
         </div>
     </div>
 
-    <!-- RECENT REMOVALS FEED (full width across the 4-column grid) -->
-    <div class="lg:col-span-4 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
+    <!-- RECENT REMOVALS FEED (full width across the 3-column desktop grid).
+         style sets the grid-column to span all tracks so this row breaks
+         out of the 2fr/1fr/1fr layout above. -->
+    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]"
+         style="grid-column: 1 / -1;">
         <div class="flex items-center justify-between mb-[16px]">
             <h3 class="text-[16px] sm:text-[17px] font-bold text-[#010205]">Recent activity</h3>
             <span class="inline-flex items-center gap-[6px] text-[11px] font-semibold text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
@@ -339,6 +346,21 @@ $pdDailyMax = max(1, max($pdDaily));
 </div>
 
 <script>
+/* Responsive grid: swap grid-template-columns based on viewport width.
+   Doing this in JS instead of via Tailwind classes because the lg:col-span-*
+   variants kept getting purged from the CSS build for this file, leaving
+   the hero squished to 1/4 width. */
+(function () {
+    var panel = document.getElementById('pd-journey-panel');
+    if (!panel) return;
+    var desktop = panel.getAttribute('data-pd-desktop-grid') || '2fr 1fr 1fr';
+    function apply() {
+        panel.style.gridTemplateColumns = (window.innerWidth >= 1024) ? desktop : '1fr';
+    }
+    apply();
+    window.addEventListener('resize', apply);
+})();
+
 /* Live-polling for the dashboard. Polls /api/journey_status every 8s and
    smoothly animates: donut stroke-dashoffset + all numeric counts + the
    recent activity feed. Page Visibility API pause-when-hidden, 30s

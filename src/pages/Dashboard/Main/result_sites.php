@@ -41,13 +41,15 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
     </div>
     <div class="mt-[24px]">
         <div class="overflow-x-auto">
+            <!-- Single-column table: each row's <td> contains a full card
+                 (logo + name + status + screenshot + actions). The JS
+                 row-builder below assumes one column; DataTables threw
+                 "Incorrect column count" when this header had multiple
+                 <th>s. Single header matches the JS reality. -->
             <table id="exposureTable" class="min-w-full">
                 <thead>
-                    <tr class="border-b border-[#F1F1F1]">
-                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px]">Broker</th>
-                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px] hidden sm:table-cell">Status</th>
-                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px] hidden md:table-cell">Screenshot</th>
-                        <th class="text-right text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px]"></th>
+                    <tr>
+                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px]">Broker site &middot; status &middot; screenshot</th>
                     </tr>
                 </thead>
                 <tbody id="results-table" class="divide-y divide-[#F1F1F1]">
