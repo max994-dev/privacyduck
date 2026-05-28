@@ -38,6 +38,28 @@ $phone   = (string) ($primary["phone"]   ?? '');
 $zip     = (string) ($primary["zip"]     ?? '');
 $address = (string) ($primary["address"] ?? '');
 
+// birth_date is optional in the request: absent = preserve existing, supplied
+// + valid = update + recompute age. Brokers require DOB; if the user never
+// provides one the removal pipeline marks their rows missing_pii.
+$birthDateInput = trim((string) ($_POST['birth_date'] ?? ''));
+$birthDateToSave = null;
+$ageToSave = null;
+if ($birthDateInput !== '') {
+    try {
+        $dt = new DateTime($birthDateInput);
+        $today = new DateTime('today');
+        if ($dt > $today || $dt < (new DateTime())->modify('-120 years')) {
+            echo json_encode(["error" => "Please enter a realistic date of birth."]);
+            exit;
+        }
+        $birthDateToSave = $dt->format('Y-m-d');
+        $ageToSave = (int) $dt->diff($today)->y;
+    } catch (Exception $e) {
+        echo json_encode(["error" => "Invalid date of birth."]);
+        exit;
+    }
+}
+
 if ($firstname === '' || $lastname === '') {
     echo json_encode(["error" => "Missing firstname or lastname."]);
     exit;
@@ -96,8 +118,30 @@ try {
 
     $json_contacts = json_encode($contacts);
 
-    $stmt = $conn->prepare("UPDATE users SET firstname = ?, lastname = ?, phone = ?, city = ?, zip = ?, state = ?, address = ?, contacts = ?, url = ? WHERE id = ?");
-    $stmt->bind_param("sssssssssi", $firstname, $lastname, $phone, $city, $zip, $state, $address, $json_contacts, $filename, $user_id);
+    // Two UPDATE shapes: when birth_date is being set we also bump age, so
+    // both legs stay in sync. Otherwise the existing columns are left
+    // untouched. Keeping the bind_param matched to the SQL shape is more
+    // explicit than building one query with conditional NULLs.
+    if ($birthDateToSave !== null) {
+        $stmt = $conn->prepare(
+            "UPDATE users SET firstname = ?, lastname = ?, phone = ?, city = ?, zip = ?, state = ?, address = ?, contacts = ?, url = ?, birth_date = ?, age = ? WHERE id = ?"
+        );
+        $stmt->bind_param(
+            "ssssssssssii",
+            $firstname, $lastname, $phone, $city, $zip, $state,
+            $address, $json_contacts, $filename, $birthDateToSave,
+            $ageToSave, $user_id
+        );
+    } else {
+        $stmt = $conn->prepare(
+            "UPDATE users SET firstname = ?, lastname = ?, phone = ?, city = ?, zip = ?, state = ?, address = ?, contacts = ?, url = ? WHERE id = ?"
+        );
+        $stmt->bind_param(
+            "sssssssssi",
+            $firstname, $lastname, $phone, $city, $zip, $state,
+            $address, $json_contacts, $filename, $user_id
+        );
+    }
     $stmt->execute();
     $stmt->close();
 

@@ -251,30 +251,84 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
 	}
         $contacts = $userData["contacts"] ?? "[]";
 	$contacts = json_decode($contacts, true) ?: [];
+
+        // birth_date (DATE column added 2026-05) is the canonical DOB.
+        // Decompose to day/month/year strings for the broker JSON; the
+        // Python pipeline's REQUIRED_FIELDS check needs all three present
+        // and non-empty before it'll dispatch to a broker. Empty strings
+        // when null so the pipeline correctly marks the row missing_pii
+        // instead of dispatching with garbage like "0/0/0".
+        $birthDay = '';
+        $birthMonth = '';
+        $birthYear = '';
+        if (!empty($userData["birth_date"]) && $userData["birth_date"] !== '0000-00-00') {
+            try {
+                $dt = new DateTime($userData["birth_date"]);
+                $birthDay = $dt->format('d');
+                $birthMonth = $dt->format('m');
+                $birthYear = $dt->format('Y');
+            } catch (Exception $e) {
+                // malformed DATE — leave empty, downstream will skip the row
+            }
+        }
+
+        $buildPayload = function (array $userData, array $contact = []) use ($birthDay, $birthMonth, $birthYear) {
+            return [
+                "email"       => $userData["email"]     ?? '',
+                "firstname"   => $userData["firstname"] ?? '',
+                "lastname"    => $userData["lastname"]  ?? '',
+                "age"         => $userData["age"]       ?? '',
+                "birth_day"   => $birthDay,
+                "birth_month" => $birthMonth,
+                "birth_year"  => $birthYear,
+                "city"        => $contact["city"]    ?? ($userData["city"]    ?? ''),
+                "zip"         => $contact["zip"]     ?? ($userData["zip"]     ?? ''),
+                "state"       => $contact["state"]   ?? ($userData["state"]   ?? ''),
+                "phone"       => $contact["phone"]   ?? ($userData["phone"]   ?? ''),
+                "address"     => $contact["address"] ?? ($userData["address"] ?? ''),
+            ];
+        };
+
         if (count($contacts) > 0) {
             foreach ($contacts as $contact) {
-                plan($userId, $websites, $websitesUrl, json_encode([
-                    "email" => $userData["email"],
-                    "firstname" => $userData["firstname"],
-                    "lastname" => $userData["lastname"],
-                    "age" => $userData["age"],
-                    "city" => $contact["city"],
-                    "zip" => $contact["zip"],
-                    "state" => $contact["state"],
-                    "phone" => $contact["phone"],
-                    "address" => $contact["address"],
-                ]));
+                plan($userId, $websites, $websitesUrl, json_encode($buildPayload($userData, $contact)));
             }
         } else {
-            plan($userId, $websites, $websitesUrl, json_encode([
-                "email" => $userData["email"],
-                "firstname" => $userData["firstname"],
-                "lastname" => $userData["lastname"],
-                "age" => $userData["age"]
-            ]));
+            plan($userId, $websites, $websitesUrl, json_encode($buildPayload($userData)));
         }
     }
     removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
+
+    // If the user has now provided complete-enough PII (birth_date + at
+    // least city + state + zip), reset any previously-rejected rows
+    // (step=5, missing_pii) back to step=0 so the pipeline picks them up
+    // on the next tick. Without this, a user who added their DOB after
+    // the pipeline saw them once would have to wait 90 days for the
+    // periodic resweep in plan().
+    $checkStmt = $conn->prepare(
+        "SELECT birth_date, city, state, zip FROM users WHERE id = ?"
+    );
+    $checkStmt->bind_param("i", $_SESSION["user_id"]);
+    $checkStmt->execute();
+    $check = $checkStmt->get_result()->fetch_assoc();
+    $checkStmt->close();
+    if ($check
+        && !empty($check["birth_date"]) && $check["birth_date"] !== '0000-00-00'
+        && !empty($check["city"]) && !empty($check["state"]) && !empty($check["zip"])
+    ) {
+        $resetStmt = $conn->prepare(
+            "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step = 5"
+        );
+        $resetStmt->bind_param("i", $_SESSION["user_id"]);
+        $resetStmt->execute();
+        if ($resetStmt->affected_rows > 0) {
+            error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
+                      " profile now complete, reset " . $resetStmt->affected_rows .
+                      " step=5 rows to step=0");
+        }
+        $resetStmt->close();
+    }
+
     $main_stmt = $conn->prepare("SELECT * FROM family WHERE core_id = ? AND status = 0");
     $main_stmt->bind_param("i", $_SESSION["user_id"]);
     $main_stmt->execute();

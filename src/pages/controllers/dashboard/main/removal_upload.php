@@ -1,5 +1,10 @@
 <?php
-define("BASEPATH", $_SERVER["DOCUMENT_ROOT"]);
+// When invoked via the router, index.php has already defined BASEPATH and
+// pre-loaded config + utils. Direct hits to this file (e.g. nginx
+// rewrite-bypass) still need the defines below.
+if (!defined('BASEPATH')) {
+    define('BASEPATH', $_SERVER['DOCUMENT_ROOT']);
+}
 include_once(BASEPATH . "/src/common/config.php");
 include_once(BASEPATH . "/src/common/utils.php");
 

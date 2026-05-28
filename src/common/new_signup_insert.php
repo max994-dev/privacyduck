@@ -145,6 +145,7 @@ function pd_insert_new_signup_user(
         $state = $profile['state'];
         $zip = $profile['zip'];
         $age = pd_new_signup_age_from_birthdate($profile['birth_date']);
+        $birthDate = $profile['birth_date'];  // 'Y-m-d' from parse_profile
         $country = $profile['country'];
         $nameVariations = $profile['name_variations'];
         $phoneCountry = $profile['phone_country'];
@@ -157,6 +158,7 @@ function pd_insert_new_signup_user(
         $state = '';
         $zip = '';
         $age = 0;
+        $birthDate = null;
         $country = '';
         $nameVariations = '';
         $phoneCountry = '';
@@ -177,12 +179,23 @@ function pd_insert_new_signup_user(
     $createdAt = date('Y-m-d H:i:s');
     $url = '';
 
+    // birth_date (DATE column, nullable) joins age in the row. Brokers
+    // need day/month/year separately; storing the full DATE lets us
+    // derive whichever component each broker needs without inventing
+    // values (see __removal.py REQUIRED_FIELDS).
+    //
+    // Type-string ↔ var mapping (17 placeholders):
+    //   email s | firstname s | lastname s | phone s | city s |
+    //   zip s  | state s     | age i      | birth_date s |
+    //   address s | contacts s | created_at s | password s | url s |
+    //   consent_policy_version s | policy_consent_at s |
+    //   marketing_consent_at s
     $stmt = $conn->prepare(
-        'INSERT INTO users (email, firstname, lastname, phone, city, zip, state, age, address, contacts, role, created_at, password, url, consent_policy_version, policy_consent_at, marketing_consent_at) '
-        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)'
+        'INSERT INTO users (email, firstname, lastname, phone, city, zip, state, age, birth_date, address, contacts, role, created_at, password, url, consent_policy_version, policy_consent_at, marketing_consent_at) '
+        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->bind_param(
-        'sssssssisssssssss',
+        'sssssssisssssssss',  // 17 type chars for 17 placeholders
         $email,
         $firstname,
         $lastname,
@@ -191,6 +204,7 @@ function pd_insert_new_signup_user(
         $zip,
         $state,
         $age,
+        $birthDate,
         $address,
         $contactsJson,
         $createdAt,

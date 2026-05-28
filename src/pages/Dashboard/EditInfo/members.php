@@ -175,10 +175,16 @@
                 {
                     id: "edit_email",
                     item: "email"
+                },
+                {
+                    id: "edit_birth_date",
+                    item: "birth_date"
                 }
             ]
             ids.forEach((v) => {
-                document.getElementById(v.id).value = res[0][v.item] || "";
+                const el = document.getElementById(v.id);
+                if (!el) return;  // field may be optional on some forms
+                el.value = res[0][v.item] || "";
             })
             getcontacts(res[0]["contacts"] || []);
             const init_previewDiv = document.getElementById('preview');

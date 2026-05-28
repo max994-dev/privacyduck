@@ -1,5 +1,7 @@
 <?php
-define("BASEPATH", $_SERVER["DOCUMENT_ROOT"]);
+if (!defined('BASEPATH')) {
+    define('BASEPATH', $_SERVER['DOCUMENT_ROOT']);
+}
 include_once(BASEPATH . "/src/common/config.php");
 include_once(BASEPATH . "/src/common/utils.php");
 

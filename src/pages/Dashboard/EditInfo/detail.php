@@ -16,6 +16,10 @@
                     $datas = [
                         ["name" => "First Name *", "type" => "text", "id" => "edit_firstname", "placeholder" => "John", "size" => "full"],
                         ["name" => "Last Name *", "type" => "text", "id" => "edit_lastname", "placeholder" => "Doe", "size" => "full"],
+                        // Required by data brokers (Acxiom, BeenVerified, etc.) to verify
+                        // identity before they action the removal request. Without DOB
+                        // the removal pipeline skips the row (step=5 missing_pii).
+                        ["name" => "Date of Birth *", "type" => "date", "id" => "edit_birth_date", "placeholder" => "YYYY-MM-DD", "size" => "full"],
                     ];
                     function searchIndex($array, $value)
                     {
@@ -215,6 +219,7 @@
         formData.append("first_name", $("#edit_firstname").val().trim());
         formData.append("last_name", $("#edit_lastname").val().trim());
         formData.append("email", $("#edit_email").val().trim());
+        formData.append("birth_date", $("#edit_birth_date").val().trim());
         formData.append("contacts", JSON.stringify(window.contacts));
         formData.append("file", file);
         $.ajax({
