@@ -220,6 +220,7 @@ $routes = [
     'odoo_removal_export'=> 'controllers/odoo_removal_export.php',
     'temp_backfill_removal_sites'=> 'controllers/temp_backfill_removal_sites.php',
     'removal_metrics'=> 'controllers/removal_metrics.php',
+    'internal/weekly-digest'=> 'controllers/weekly_digest.php',
 
     'new_dashboard(?:/(\w+))?'=> 'NewDashboard/index.php',
 
