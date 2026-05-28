@@ -70,6 +70,22 @@ if ($mig && $mig->num_rows === 0) {
     $conn->query("ALTER TABLE users ADD COLUMN weekly_digest_opt_out TINYINT(1) NOT NULL DEFAULT 0 AFTER last_digest_sent_at");
     echo "  migrated users + weekly_digest_opt_out column\n";
 }
+// results.updated_at: required so "this week" actually means "this week".
+// On first add we set ON UPDATE CURRENT_TIMESTAMP so every future step
+// transition through `UPDATE results SET step = ...` stamps the row.
+// Existing rows are backfilled to a far past sentinel so the FIRST digest
+// run doesn't tell every existing user we "removed N sites this week"
+// when in fact those removals are lifetime. After that, only genuinely
+// recent transitions appear in the 7-day window.
+$mig = $conn->query("SHOW COLUMNS FROM results LIKE 'updated_at'");
+if ($mig && $mig->num_rows === 0) {
+    $conn->query("ALTER TABLE results ADD COLUMN updated_at DATETIME NOT NULL "
+               . "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+    // backfill to a sentinel far before the 7-day window so existing data
+    // doesn't fire on the first digest run
+    $conn->query("UPDATE results SET updated_at = '2000-01-01 00:00:00'");
+    echo "  migrated results + updated_at column (backfilled to sentinel)\n";
+}
 
 // --- candidate users: paid + has had a step transition in last 7 days ---
 $where = "u.plan_id IS NOT NULL AND u.plan_id > 0 AND u.plan_end > NOW() "
@@ -79,12 +95,18 @@ if ($forceUser > 0) {
     $where = "u.id = " . $forceUser;  // bypass all gating for a manual test send
 }
 
+// 7-day window filter applied at the JOIN level so SUM() counts only
+// rows that changed in the window, not lifetime totals. For the force
+// test-send case (?user_id=N) we still need to show *something*, so we
+// fall back to a 365-day window there.
+$windowDays = $forceUser > 0 ? 365 : 7;
 $q = "SELECT u.id, u.email, u.firstname,
              SUM(r.step = 2) AS done_week,
              SUM(r.step = 3) AS failed_week,
              SUM(r.step = 5) AS missing_pii_week
       FROM users u
       JOIN results r ON r.user_id = u.id AND r.kind = 1
+                    AND r.updated_at >= NOW() - INTERVAL $windowDays DAY
       WHERE $where
       GROUP BY u.id, u.email, u.firstname
       HAVING done_week > 0 OR failed_week > 0 OR missing_pii_week > 0
@@ -108,15 +130,18 @@ while ($u = $result->fetch_assoc()) {
     $failed = (int) $u['failed_week'];
     $blocked = (int) $u['missing_pii_week'];
 
-    // top 10 brokers done this week (by name)
+    // top 10 brokers done this week (by name), filtered to the same
+    // 7-day window the candidate query used. For ?user_id=N test sends
+    // we widen to a year so the test email isn't empty.
     $top = [];
     $totalDone = 0;
     $st = $conn->prepare(
         "SELECT target_domain FROM results
          WHERE user_id = ? AND kind = 1 AND step = 2
-         ORDER BY id DESC LIMIT 100"
+           AND updated_at >= NOW() - INTERVAL ? DAY
+         ORDER BY updated_at DESC LIMIT 100"
     );
-    $st->bind_param("i", $userId);
+    $st->bind_param("ii", $userId, $windowDays);
     $st->execute();
     foreach ($st->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
         $totalDone++;
