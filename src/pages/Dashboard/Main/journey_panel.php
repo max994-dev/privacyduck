@@ -112,7 +112,7 @@ function pd_step_label(int $step): array
         case 1: return ['In progress now', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
         case 3: return ['Broker rejected (will retry)', '#F59E0B', 'M12 9v4m0 4h.01'];
         case 4: return ['Broker not yet supported', '#878C91', 'M19 11H5v2h14v-2z'];
-        case 5: return ['Waiting on your profile info', '#DC2626', 'M12 9v4m0 4h.01'];
+        case 5: return ['Broker wants more info', '#2563EB', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
         default: return ['Scheduled', '#878C91', 'M5 13l4 4L19 7'];
     }
 }
@@ -169,8 +169,8 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
             <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdCounts['queued']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">Needs attention</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#DC2626]' : 'text-[#010205]'; ?> leading-none" data-pd-count="missing_pii">
+            <div class="text-[13px] text-[#878C91] font-medium">Want more info</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#2563EB]' : 'text-[#010205]'; ?> leading-none" data-pd-count="missing_pii">
                 <?= number_format($pdCounts['missing_pii']); ?>
             </div>
         </div>
@@ -244,7 +244,7 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         1: '#3B82F6',  /* in flight  */
         3: '#F59E0B',  /* failed     */
         4: '#878C91',  /* not impl   */
-        5: '#DC2626',  /* missing pii*/
+        5: '#2563EB',  /* broker wants more info — same blue as profile banner */
         0: '#878C91'
     };
     var ICONS = {
@@ -252,7 +252,7 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         1: 'M12 6v6m0 0l4-4m-4 4l-4-4',
         3: 'M12 9v4m0 4h.01',
         4: 'M19 11H5v2h14v-2z',
-        5: 'M12 9v4m0 4h.01',
+        5: 'M12 6v6m0 0l4-4m-4 4l-4-4',
         0: 'M5 13l4 4L19 7'
     };
     var nextDelay = INTERVAL_OK;

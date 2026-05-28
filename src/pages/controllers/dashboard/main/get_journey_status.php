@@ -84,7 +84,7 @@ try {
             1 => 'In progress now',
             3 => 'Broker rejected (will retry)',
             4 => 'Broker not yet supported',
-            5 => 'Waiting on your profile info',
+            5 => 'Broker wants more info',
             default => 'Scheduled',
         };
         $recent[] = [

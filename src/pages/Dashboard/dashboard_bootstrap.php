@@ -299,35 +299,28 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     }
     removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
 
-    // If the user has now provided complete-enough PII (birth_date + at
-    // least city + state + zip), reset any previously-rejected rows
-    // (step=5, missing_pii) back to step=0 so the pipeline picks them up
-    // on the next tick. Without this, a user who added their DOB after
-    // the pipeline saw them once would have to wait 90 days for the
-    // periodic resweep in plan().
-    $checkStmt = $conn->prepare(
-        "SELECT birth_date, city, state, zip FROM users WHERE id = ?"
+    // Reset ANY step=5 (missing_pii) rows back to step=0 so the pipeline
+    // tries them again. Policy: if a user is paid, we run removals
+    // immediately -- we never "pause everything" waiting for a complete
+    // profile. The Python pipeline's per-broker validation will re-mark
+    // step=5 ONLY for brokers that individually need a field the user
+    // hasn't provided (most don't). Brokers that need only Name will
+    // succeed regardless of whether DOB or city is set.
+    //
+    // Old behavior gated this reset on birth_date+city+state+zip all
+    // being populated -- meant a user who paid but didn't fill in their
+    // ZIP saw nothing happen for 90 days. New behavior: we always try.
+    $resetStmt = $conn->prepare(
+        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step = 5"
     );
-    $checkStmt->bind_param("i", $_SESSION["user_id"]);
-    $checkStmt->execute();
-    $check = $checkStmt->get_result()->fetch_assoc();
-    $checkStmt->close();
-    if ($check
-        && !empty($check["birth_date"]) && $check["birth_date"] !== '0000-00-00'
-        && !empty($check["city"]) && !empty($check["state"]) && !empty($check["zip"])
-    ) {
-        $resetStmt = $conn->prepare(
-            "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step = 5"
-        );
-        $resetStmt->bind_param("i", $_SESSION["user_id"]);
-        $resetStmt->execute();
-        if ($resetStmt->affected_rows > 0) {
-            error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
-                      " profile now complete, reset " . $resetStmt->affected_rows .
-                      " step=5 rows to step=0");
-        }
-        $resetStmt->close();
+    $resetStmt->bind_param("i", $_SESSION["user_id"]);
+    $resetStmt->execute();
+    if ($resetStmt->affected_rows > 0) {
+        error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
+                  " reset " . $resetStmt->affected_rows .
+                  " step=5 rows to step=0 (try-again policy)");
     }
+    $resetStmt->close();
 
     $main_stmt = $conn->prepare("SELECT * FROM family WHERE core_id = ? AND status = 0");
     $main_stmt->bind_param("i", $_SESSION["user_id"]);
