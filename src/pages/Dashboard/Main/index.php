@@ -5,29 +5,14 @@
 // complete or for unpaid users.
 require_once BASEPATH . '/src/pages/Dashboard/Main/profile_banner.php';
 
-// Compute removal counts ONCE up here so we don't double-fetch later.
-// We need them both for the unpaid-user "scan count" badge AND for any
-// conditional rendering below.
-$pdConn = getDBConnection();
-$pdMainStmt = $pdConn->prepare(
-    "SELECT step, COUNT(*) AS n FROM results WHERE user_id = ? AND kind = 1 GROUP BY step"
-);
-$pdMainStmt->bind_param("i", $_SESSION["user_id"]);
-$pdMainStmt->execute();
-$pdMainCounts = ['queued' => 0, 'in_flight' => 0, 'done' => 0, 'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0];
-foreach ($pdMainStmt->get_result()->fetch_all(MYSQLI_ASSOC) as $pdR) {
-    $pdN = (int) $pdR['n'];
-    $pdMainCounts['total'] += $pdN;
-    switch ((int) $pdR['step']) {
-        case 0: $pdMainCounts['queued']     += $pdN; break;
-        case 1: $pdMainCounts['in_flight']  += $pdN; break;
-        case 2: $pdMainCounts['done']       += $pdN; break;
-        case 3: $pdMainCounts['failed']     += $pdN; break;
-        case 4: $pdMainCounts['not_impl']   += $pdN; break;
-        case 5: $pdMainCounts['missing_pii']+= $pdN; break;
-    }
-}
-$pdMainStmt->close();
+// Removal-count computation has moved INTO journey_panel.php where the
+// data is actually consumed. Previously this file ran a duplicate
+// GROUP BY at the top + journey_panel ran the same one again -- two
+// full table scans per dashboard load against an unindexed 875K-row
+// `results` table (~2-5 seconds total). Composite index
+// idx_results_user_kind_step was added the same day; even with the
+// index, running the query twice is wasteful when journey_panel is
+// the only consumer. Removed the upfront query entirely.
 
 $pdIsPaid = !empty($_SESSION['plan_id']) && !empty($_SESSION['planable']);
 
@@ -42,17 +27,32 @@ if (!$pdIsPaid) {
     }
 }
 ?>
-<div class="flex items-center justify-between xl:justify-normal" data-reveal="fade">
-    <h1 class="font-semibold text-[16px] sm:text-[20px] md:text-[24px] text-[#010205] pointer-events-none">
-        Welcome, <?php echo htmlspecialchars((string) ($_SESSION["fullName"] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
-    </h1>
-    <?php if (!$pdIsPaid) { ?>
-        <button onclick="navigateTo('/dashboard/plans')"
-            class="pd-btn-press pd-shine flex xl:hidden items-center bg-gradient-to-r from-[#77B248] to-[#24A556] px-[8px] md:px-[14px] py-[6px] md:py-[5px] rounded-full space-x-[2px]">
-            <?php require(BASEPATH . "/src/common/svgs/dashboard/sidebar/fixed_menu_protect_user.php"); ?>
-            <h1 class="text-[10px] md:text-[14px] text-white font-semibold tracking-[0.01em]">Protect Yourself</h1>
-        </button>
-    <?php } ?>
+<!-- Greeting bar. Bigger, more confident heading + a status pill that
+     gives the page weight (was previously a small h1 floating alone
+     above the bright journey panel, which felt orphaned). -->
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-[12px]" data-reveal="fade">
+    <div>
+        <div class="text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.12em] text-[#5B5F66]">
+            Dashboard
+        </div>
+        <h1 class="mt-[4px] font-bold text-[24px] sm:text-[30px] md:text-[34px] text-[#010205] leading-[1.15]">
+            Welcome, <?php echo htmlspecialchars((string) ($_SESSION["fullName"] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+        </h1>
+    </div>
+    <div class="flex items-center gap-[10px]">
+        <?php if ($pdIsPaid): ?>
+            <span class="inline-flex items-center gap-[8px] rounded-full bg-[#E8F7EF] text-[#1A7F40] px-[14px] py-[7px] text-[12px] sm:text-[13px] font-semibold whitespace-nowrap">
+                <span class="w-[7px] h-[7px] rounded-full bg-[#24A556]"></span>
+                Plan active &mdash; removal running
+            </span>
+        <?php else: ?>
+            <button onclick="navigateTo('/dashboard/plans')"
+                class="pd-btn-press pd-shine inline-flex items-center bg-gradient-to-r from-[#77B248] to-[#24A556] px-[16px] py-[8px] rounded-full gap-[6px] text-white font-semibold text-[13px] sm:text-[14px]">
+                <?php require(BASEPATH . "/src/common/svgs/dashboard/sidebar/fixed_menu_protect_user.php"); ?>
+                <span>Protect Yourself</span>
+            </button>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if (!$pdIsPaid): ?>
@@ -104,13 +104,13 @@ require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
 <?php endif; ?>
 
 <div data-reveal data-reveal-delay="120"
-    class="pd-card-lift relative mt-[32px] rounded-[30px] bg-white/50 border border-[#F6F6F6] after:content-['Highly&nbsp;sensitive&nbsp;info'] after:absolute after:top-[-11.5px] after:right-0 after:bg-[#24A556] after:w-[143px] after:h-[23px] after:text-center after:text-[10px] after:text-white after:font-semibold after:rounded-full after:flex after:justify-center after:items-center">
+    class="pd-card-lift relative mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
 </div>
-<div class="mt-[32px]" data-reveal data-reveal-delay="180">
+<div class="mt-[24px]" data-reveal data-reveal-delay="180">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
 </div>
-<div class="mt-[32px] rounded-[30px] bg-[#FFFFFFE3] border border-[#F6F6F6]" data-reveal data-reveal-delay="240">
+<div class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden" data-reveal data-reveal-delay="240">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/result_sites.php"); ?>
 </div>
 

@@ -304,27 +304,31 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     //   step=3 (broker_raised: scraper exception)  -> retry
     //   step=5 (missing_pii: broker wants a field) -> retry
     //
-    // step=4 (module_missing) is INTENTIONALLY not reset. That state
-    // means we don't have a scraper script for the broker -- retrying
-    // accomplishes nothing until someone writes the implementation,
-    // and resetting it on every dashboard load wastes pipeline cycles
-    // (the worker will just re-mark it step=4 on the next tick).
-    // When a new broker implementation lands, the periodic 90-day
-    // sweep in plan() picks those rows up.
+    // step=4 (module_missing) is INTENTIONALLY not reset (no
+    // scraper exists; retrying churns the pipeline for no benefit).
+    // step=1 (in_flight) NOT reset (actively claimed).
+    // step=2 (done) is terminal.
     //
-    // step=1 (in_flight) is NOT reset -- it's actively being worked.
-    // step=2 (done) is terminal success and stays.
-    $resetStmt = $conn->prepare(
-        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 5)"
-    );
-    $resetStmt->bind_param("i", $_SESSION["user_id"]);
-    $resetStmt->execute();
-    if ($resetStmt->affected_rows > 0) {
-        error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
-                  " reset " . $resetStmt->affected_rows .
-                  " step={3,5} rows to step=0 (try-again policy)");
+    // CACHED per-session: this UPDATE used to run on EVERY dashboard
+    // load. For users with many failed rows, that's a slow write
+    // on a 875K-row table. New behavior: run at most once every
+    // 5 minutes per session. The pipeline's own loop will pick up
+    // newly-reset rows within seconds anyway.
+    $lastResetAt = (int) ($_SESSION['pd_last_step_reset_at'] ?? 0);
+    if (time() - $lastResetAt > 300) {
+        $resetStmt = $conn->prepare(
+            "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 5)"
+        );
+        $resetStmt->bind_param("i", $_SESSION["user_id"]);
+        $resetStmt->execute();
+        if ($resetStmt->affected_rows > 0) {
+            error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
+                      " reset " . $resetStmt->affected_rows .
+                      " step={3,5} rows to step=0 (try-again policy)");
+        }
+        $resetStmt->close();
+        $_SESSION['pd_last_step_reset_at'] = time();
     }
-    $resetStmt->close();
 
     $main_stmt = $conn->prepare("SELECT * FROM family WHERE core_id = ? AND status = 0");
     $main_stmt->bind_param("i", $_SESSION["user_id"]);
