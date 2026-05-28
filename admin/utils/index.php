@@ -1,13 +1,22 @@
 <?php
+// Bring in the central security helpers (CSRF, rate limit, header emitter)
+// so the admin UI uses the same primitives as the main site instead of a
+// parallel half-built version.
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/security.php';
+pd_security_init_session();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+pd_security_send_headers();
 
 function main_head_start()
 { ?>
     <meta charset="UTF-8">
     <meta name='keywords' content='privacyduck.com'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php /* CSRF token surfaced for the admin AJAX helpers (see foot of
+       main_head_end). Empty string before any session exists. */ ?>
+    <meta name="csrf-token" content="<?= htmlspecialchars(pd_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
@@ -139,6 +148,45 @@ function main_head_end()
     </head>
 
     <body>
+        <?php /* Admin AJAX CSRF auto-injector. Mirror of the main site's
+           bootstrap (utils.php). Patches jQuery.ajaxSetup AND window.fetch
+           so any same-origin POST automatically carries X-CSRF-Token —
+           without touching every dsar/emailing AJAX call individually. */ ?>
+        <script>
+        (function () {
+          var meta = document.querySelector('meta[name="csrf-token"]');
+          var token = meta ? meta.getAttribute('content') : '';
+          if (!token) return;
+          window.PD_CSRF = token;
+          if (window.jQuery) {
+            jQuery.ajaxSetup({
+              beforeSend: function (xhr, settings) {
+                var m = (settings.type || 'GET').toUpperCase();
+                if (m === 'GET' || m === 'HEAD' || m === 'OPTIONS') return;
+                var u = settings.url || '';
+                if (/^https?:\/\//.test(u) && u.indexOf(location.origin) !== 0) return;
+                xhr.setRequestHeader('X-CSRF-Token', token);
+              }
+            });
+          }
+          if (window.fetch) {
+            var orig = window.fetch.bind(window);
+            window.fetch = function (input, init) {
+              init = init || {};
+              var m = (init.method || (typeof input === 'object' && input && input.method) || 'GET').toUpperCase();
+              if (m !== 'GET' && m !== 'HEAD' && m !== 'OPTIONS') {
+                var u = typeof input === 'string' ? input : (input && input.url) || '';
+                var same = !/^https?:\/\//.test(u) || u.indexOf(location.origin) === 0;
+                if (same) {
+                  init.headers = new Headers(init.headers || (typeof input === 'object' && input && input.headers) || {});
+                  if (!init.headers.has('X-CSRF-Token')) init.headers.set('X-CSRF-Token', token);
+                }
+              }
+              return orig(input, init);
+            };
+          }
+        })();
+        </script>
         <div id="custom-alert" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 hidden px-[16px]">
             <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
                 <div class="flex items-center">

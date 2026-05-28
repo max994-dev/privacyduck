@@ -1,12 +1,12 @@
 <?php
+// Pull admin/utils so security helpers are present + session is hardened
+// before we touch auth state.
+require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/utils/index.php';
+
 header("Content-Type: application/json");
 
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/config.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/src/common/database.php');
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 if (empty($_SESSION['admin']['isAdminAuthenticated'])) {
     http_response_code(401);
@@ -17,6 +17,17 @@ if (empty($_SESSION['admin']['isAdminAuthenticated'])) {
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
+    exit;
+}
+
+// CSRF: admin-side DSAR update is a state mutation (changes status,
+// appends staff notes). The admin AJAX bootstrap (admin/utils/index.php
+// main_head_end) injects X-CSRF-Token on every same-origin fetch — and
+// this controller's caller in dsar/content.php is a same-origin fetch
+// with method POST, so the header is always present.
+if (!pd_csrf_check()) {
+    http_response_code(403);
+    echo json_encode(["error" => "Invalid CSRF token. Reload the page and try again."]);
     exit;
 }
 

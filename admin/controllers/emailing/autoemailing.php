@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/utils/index.php';
 include_once($_SERVER["DOCUMENT_ROOT"] . "/vendor/autoload.php");
 require_once $_SERVER["DOCUMENT_ROOT"] . "/src/common/smtp_env.php";
 require_once $_SERVER["DOCUMENT_ROOT"] . "/src/common/smtp_relay_client.php";
@@ -13,6 +14,16 @@ $isAdmin = $_SESSION['admin']['isAdminAuthenticated'] ?? '';
 if (!$isAdmin) {
     http_response_code(401);
     echo json_encode(["status" => "error", "message" => "Admin not authenticated."]);
+    exit;
+}
+
+// CSRF: triggers a real outbound email send. Any same-origin POST from
+// the admin UI will carry X-CSRF-Token thanks to the AJAX bootstrap; an
+// attacker tricking an admin's browser into hitting this endpoint cross-
+// origin won't have the token.
+if (!pd_csrf_check()) {
+    http_response_code(403);
+    echo json_encode(["status" => "error", "message" => "Invalid CSRF token."]);
     exit;
 }
 
