@@ -1,5 +1,62 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (latest+4): pipeline starvation fix + data integrity normalization
+
+Customer reported dhofman.work@gmail.com (user_id=1992) had ZERO removal
+progress despite paying 57 days ago. Investigation revealed two
+compounding bugs:
+
+### Bug 1: pipeline starvation (high-id users never reached)
+
+`manage.py:get_pending_removal()` had `ORDER BY user_id ASC LIMIT 1000`.
+The lowest 5 user_ids (13, 16, 29, 52, 58) had 1,164 queued rows
+combined. So the LIMIT 1000 NEVER returned rows for user_id > 58.
+Every paid user past that point was silently starved -- they could
+sit at "0% progress" indefinitely.
+
+**Fix:** wrap the query with `ROW_NUMBER() OVER (PARTITION BY user_id
+ORDER BY id) AS rn` and filter `WHERE rn <= 10`. Each user contributes
+up to 10 rows per tick. With ~100 paid users that's a fair 1000-row
+batch.
+
+Verified live: post-restart log shows events for user_ids 13, 29, 52,
+58, AND 1992 — previously only the first 5 ever appeared.
+
+### Bug 2: data integrity (some users had 0/301/700+ rows instead of 413)
+
+Three populations:
+- 33 paid users had ZERO rows (`plan()` race-condition during signup
+  never inserted any)
+- 62 paid users had only 301 rows (signed up before broker list was
+  expanded; `plan()` only inserts when `num_rows == 0`)
+- 3 paid users had 1024/995/959 rows (duplicate target_domains from
+  `plan()` being called concurrently)
+
+**Fix:** one-time script `scripts/fix_results_integrity.php` that:
+- Deduplicates per (user_id, target_domain), keeping the row with
+  highest step priority (2 > 1 > 0 > 5 > 3 > 4 so "done" never lost)
+- Backfills missing brokers from the canonical 413-broker list in
+  `sites_data.php` with step=0 + planable=1 + sample PII data
+
+Result: all 116 paid users now have exactly 413 rows.
+
+### What this DOESN'T fix
+
+User 1992 still has `firstname=John lastname=Doe` and empty
+city/state/zip/address/phone. Form-based brokers will reject as
+invalid identity. Only the CCPA email-based brokers (59 of 414) will
+go through cleanly with that data.
+
+Open follow-ups:
+- "First-burst" mode: process email-based brokers IMMEDIATELY after
+  payment (bypass rate limit). Each takes <500ms; first hour could
+  show 30-50 removals for instant gratification.
+- Stronger UI prompt when PII is incomplete (currently a subtle
+  blue banner; should be impossible to miss).
+- Before/after exposure framing on the dashboard
+  ("Before: your data was on X broker sites. After PrivacyDuck:
+  Y removed, Z in progress").
+
 ## UPDATE 2026-05-28 (latest+3): ZERO stubs remaining (112 of 112 done)
 
 Knocked out the final 34. All via `run_ccpa_email_optout` since:
