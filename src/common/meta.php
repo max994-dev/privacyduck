@@ -39,6 +39,12 @@ $meta_keywords = $meta_keywords ?? "best online privacy protection";
     <!-- Favicons -->
     <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
 
+    <?php /* CSRF token surfaced as a meta tag so JS / jQuery ajaxSetup
+       (see utils.php) can grab it without inlining PHP into JS files.
+       Browsers can read it via document.querySelector('meta[name=csrf-token]').
+       Empty string for not-yet-authenticated pages — that's fine. */ ?>
+    <meta name="csrf-token" content="<?= htmlspecialchars(function_exists('pd_csrf_token') ? pd_csrf_token() : '', ENT_QUOTES, 'UTF-8') ?>">
+
     <!-- Structured Data (JSON-LD) -->
     <?php if (!empty($json_ld)): ?>
     <script type="application/ld+json">

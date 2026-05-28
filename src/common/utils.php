@@ -254,6 +254,52 @@ function main_head_end()
     </head>
 
     <body>
+        <?php /* CSRF auto-injection for AJAX. Runs once on body load. Picks
+           up the token from the <meta name="csrf-token"> tag injected by
+           meta.php, then patches jQuery's $.ajaxSetup AND wraps window.fetch
+           to append the X-CSRF-Token header on every same-origin POST.
+           Cross-origin POSTs (e.g. Stripe checkout) are left alone. */ ?>
+        <script>
+        (function () {
+          var meta = document.querySelector('meta[name="csrf-token"]');
+          var token = meta ? meta.getAttribute('content') : '';
+          if (!token) return;
+          window.PD_CSRF = token;
+
+          if (window.jQuery) {
+            jQuery.ajaxSetup({
+              beforeSend: function (xhr, settings) {
+                var method = (settings.type || 'GET').toUpperCase();
+                if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return;
+                // Same-origin only — don't leak token to Stripe/etc.
+                var url = settings.url || '';
+                if (/^https?:\/\//.test(url) && url.indexOf(location.origin) !== 0) return;
+                xhr.setRequestHeader('X-CSRF-Token', token);
+              }
+            });
+          }
+
+          // Wrap window.fetch so non-jQuery callers also get the token.
+          if (window.fetch) {
+            var orig = window.fetch.bind(window);
+            window.fetch = function (input, init) {
+              init = init || {};
+              var method = (init.method || (typeof input === 'object' && input && input.method) || 'GET').toUpperCase();
+              if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+                var urlStr = typeof input === 'string' ? input : (input && input.url) || '';
+                var sameOrigin = !/^https?:\/\//.test(urlStr) || urlStr.indexOf(location.origin) === 0;
+                if (sameOrigin) {
+                  init.headers = new Headers(init.headers || (typeof input === 'object' && input && input.headers) || {});
+                  if (!init.headers.has('X-CSRF-Token')) {
+                    init.headers.set('X-CSRF-Token', token);
+                  }
+                }
+              }
+              return orig(input, init);
+            };
+          }
+        })();
+        </script>
         <?php /* UK GDPR cookie banner: must render on every page; gates GTM/GA/Tawk.to. */ ?>
         <?php pd_cookie_banner_render(); ?>
         <div id="custom-alert" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 hidden px-[16px]">

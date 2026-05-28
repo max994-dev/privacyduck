@@ -157,6 +157,7 @@ main_head_end();
                     </h1>
                 </div>
                 <form id="verification-form" class="space-y-6 mt-[32px]" action="" method="POST">
+                    <?= pd_csrf_field(); ?>
                     <div class="flex space-x-2 justify-center">
                         <input type="text" name="verify_code[]" autocomplete="off" maxlength="1"
                             class="verification-box text-[#010205]" required>

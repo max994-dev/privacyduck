@@ -1,4 +1,14 @@
 <?php
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/security.php';
+
+// CSRF: state-mutating endpoint. Token comes from either
+// <input name="csrf_token"> in the form OR the X-CSRF-Token header
+// (utils.php injects it globally on jQuery.ajax/fetch).
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if (function_exists('pd_csrf_require')) { pd_csrf_require(); }
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo "method-not-allowed";

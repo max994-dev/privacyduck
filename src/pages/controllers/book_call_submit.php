@@ -8,6 +8,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/book_call_mail.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/odoo_jsonrpc.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/stripe_signup_sync.php';
 
+// CSRF: state-mutating endpoint. Token comes from either
+// <input name="csrf_token"> in the form OR the X-CSRF-Token header
+// (utils.php injects it globally on jQuery.ajax/fetch).
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if (function_exists('pd_csrf_require')) { pd_csrf_require(); }
+}
+
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

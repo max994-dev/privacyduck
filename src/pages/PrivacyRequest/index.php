@@ -34,6 +34,7 @@ if ($prefillEmail !== '' && !filter_var($prefillEmail, FILTER_VALIDATE_EMAIL)) {
 
         <form method="post" action="/privacy-request/submit"
               class="space-y-6 rounded-xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+            <?= pd_csrf_field(); ?>
 
             <fieldset class="space-y-3">
                 <legend class="text-sm font-semibold text-slate-900 mb-2">What would you like to do? <span class="text-red-600">*</span></legend>
