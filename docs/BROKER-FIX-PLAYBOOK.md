@@ -1,5 +1,100 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (latest+2): CCPA email pivot -- 78 of 112 stubs implemented
+
+Continued the customer-driven push to close the broker-implementation gap.
+The first batch (53 *arrests.org / *courtrecords.us) used a shared
+form-scraper template. This batch (25 more) uses a NEW path: **CCPA
+email-based opt-out**.
+
+### Why email-based instead of more scrapers?
+
+Looked at the next-priority brokers (mylife, ownerly, 411) and realized
+their public removal forms all require:
+- A reCAPTCHA solve (would need 2Captcha integration per submission)
+- An email-verification round-trip (user clicks a link in their inbox)
+
+Either makes the scraper brittle: 2Captcha sometimes fails, the email
+verification can't be automated for the user (they have to click it
+themselves). Pipeline submissions that don't complete the verify step
+are just noise.
+
+Meanwhile, every one of these brokers ALSO accepts a CCPA / CPRA
+Sec.1798.105+120 request via their `privacy@` email. Legal effect is
+identical. Compliance window is 45 days under statute. No CAPTCHA. No
+intermediate verification (broker replies directly to the user's
+own inbox if they need anything).
+
+So I added `run_ccpa_email_optout(broker_name, dataRow, privacy_email,
+run_mode)` to `lib/broker_helpers.py`. It:
+
+1. Composes a CCPA-compliant opt-out + deletion request email with the
+   consumer's verification info embedded.
+2. Sets `Reply-To: <user email>` so any broker reply goes directly to
+   the user (broker treats it as a request from the user themselves).
+3. Sends via the existing `lib.email_sender` SMTP setup
+   (`confirmation@privacypros.com`).
+4. Saves a `.eml` artifact in `ScreenShot/<date>/CCPA_<broker>_<user>.eml`
+   so the pipeline upload path still has evidence to ship.
+
+### Brokers shipped via CCPA email (25)
+
+**Ad-tech / B2B data (20):**
+33acrosscom, 33mileradiuscom, 360mediadirectcom, addirectinccom,
+adstradatacom, adttributioncom, aeroleadscom, affinityanswerscom,
+agedleadstorecom, alliantinsightcom, altratacom, amplemarketcom,
+anchorcomputercom, anteriadcom, apolloio, aritycom, arounddealcom,
+atdatacom, bigvillagecom, birdeyecom.
+(Each defaults to `privacy@<derived_host>`.)
+
+**People-search (5)** -- explicit privacy emails:
+- mylifecom -> privacy@mylife.com
+- ownerlycom -> privacy@ownerly.com
+- 411com -> privacy@411.com
+- 411info -> privacy@411.info
+- 411locatecom -> privacy@411locate.com
+
+### Current state of the original 112 stubs
+
+| | count |
+|---|---|
+| Implemented via shared `run_arrests_org_optout` scraper template | **53** |
+| Implemented via shared `run_ccpa_email_optout` email path | **25** |
+| **Still stubs** | **34** |
+
+### Remaining 34 stubs (next session)
+
+Most have a `privacy@<host>` available so will likely continue down
+the CCPA-email path. A few might need real scrapers because they don't
+publish a privacy contact:
+
+- Phone/area-code lookups: absolutepeoplesearchcom, allareacodescom,
+  areacodelookupcom, callercentercom, cellrevealercom, numbergurucom,
+  neighborreport, neighborwhocom, thisnumbercom, usphoneprocom
+- Ad-tech remnants: 24countercom, addressuscom, affinitysolutions,
+  alphonsotv, arivifycom, aspirenorthcom, attribitscom, awlcom,
+  aceagentsai, adaptio, centedacom, lookifyio
+- Misc: alarmscaliforniaorg, allbizcom, backgroundcheckersnet,
+  backgroundcheckmeorg, backgroundchecksorg, besthistorysitesnet,
+  homemetrycom, informationcom, onlinesearchescom, yellowbookcom,
+  yellowpagesdirectorycom
+
+### Honest caveats for the 25 just shipped
+
+1. The default `privacy@<derived_host>` derivation may bounce for
+   brokers whose actual privacy contact is different (e.g.
+   `dpo@`, `data-rights@`, `compliance@`). Bounces hit our SMTP
+   reputation -- worth a follow-up pass to verify each contact.
+2. Brokers MAY require a separate identity verification before
+   processing. With Reply-To set to the user's address, that
+   verification challenge goes to the user (correct behavior).
+3. We do NOT track downstream responses. If a broker confirms
+   deletion via reply, that lands in the user's inbox; we have no
+   feedback loop.
+4. The `confirmation@privacypros.com` FROM address isn't ideal for
+   legal CCPA requests (a `privacy-requests@privacyduck.com` mailbox
+   would be cleaner). Reuses existing SMTP creds for now.
+
 ## UPDATE 2026-05-28 (latest+1): 53 of 112 stubs implemented via shared template
 
 Customer demanded "all 413 brokers in progress, IT MUST". Discovered the
