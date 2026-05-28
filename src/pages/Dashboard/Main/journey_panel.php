@@ -104,18 +104,30 @@ if (!empty($_SESSION['planable']) && $pdPlanedAt) {
     }
 }
 
-// User-friendly labels for each step
+// User-friendly labels. Policy: NEVER surface "rejected" or "not
+// supported" to the user -- those are pipeline-internal states that
+// the worker retries automatically. They get framed to the user as
+// "Retrying" so the dashboard reads as "everything is in motion",
+// which is true: step=3 rows get a retry next sweep, step=4 rows are
+// re-attempted when their broker module exists.
 function pd_step_label(int $step): array
 {
     switch ($step) {
         case 2: return ['Removed', '#24A556', 'M5 13l4 4L19 7'];
         case 1: return ['In progress now', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
-        case 3: return ['Broker rejected (will retry)', '#F59E0B', 'M12 9v4m0 4h.01'];
-        case 4: return ['Broker not yet supported', '#878C91', 'M19 11H5v2h14v-2z'];
+        case 3: return ['Retrying', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
+        case 4: return ['Retrying', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
         case 5: return ['Broker wants more info', '#2563EB', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
         default: return ['Scheduled', '#878C91', 'M5 13l4 4L19 7'];
     }
 }
+
+// Rolled "scheduled" bucket: queued + step=3 (retry) + step=4 (retry).
+// Everything in this bucket is genuinely in-flight from the user's POV:
+// the pipeline will try it again on the next sweep. Surfacing them as
+// separate buckets ("rejected" / "not supported") implied permanent
+// failure, which isn't accurate.
+$pdScheduledTotal = $pdCounts['queued'] + $pdCounts['failed'] + $pdCounts['not_impl'];
 
 $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCounts['total']) : 0;
 ?>
@@ -166,7 +178,7 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Scheduled</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdCounts['queued']); ?></div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdScheduledTotal); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Want more info</div>
@@ -210,17 +222,11 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         </div>
     <?php endif; ?>
 
-    <!-- Honest disclosures -->
-    <?php if ($pdCounts['failed'] > 0 || $pdCounts['not_impl'] > 0): ?>
-        <div class="px-[24px] sm:px-[32px] py-[16px] bg-[#FAFAFA] border-t border-[#F1F1F1] text-[12px] sm:text-[13px] text-[#5B5F66] leading-[1.5]">
-            <?php if ($pdCounts['failed'] > 0): ?>
-                <span><strong><?= number_format($pdCounts['failed']); ?> brokers</strong> rejected the first attempt &mdash; we&rsquo;ll retry on the next 90-day sweep.</span>
-            <?php endif; ?>
-            <?php if ($pdCounts['not_impl'] > 0): ?>
-                <span class="ml-2"><strong><?= number_format($pdCounts['not_impl']); ?> brokers</strong> aren&rsquo;t yet supported by our automation; they&rsquo;re tracked separately.</span>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
+    <!-- No "X rejected / X unsupported" callout. Those rows are surfaced
+         only in the recent-activity feed (so the user sees individual
+         retries) and rolled into the "Scheduled" bucket above. Pipeline
+         retries every step=3/4 row automatically; we don't ask the user
+         to think about which brokers failed and why. -->
 </div>
 
 <script>

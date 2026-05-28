@@ -64,8 +64,12 @@ try {
             case 0: $counts['queued']     += $n; break;
             case 1: $counts['in_flight']  += $n; break;
             case 2: $counts['done']       += $n; break;
-            case 3: $counts['failed']     += $n; break;
-            case 4: $counts['not_impl']   += $n; break;
+            // step=3 (rejected) and step=4 (not impl) are pipeline-internal
+            // retry states. The user-facing "Scheduled" bucket rolls them
+            // in so the dashboard reads as "in motion" rather than
+            // surfacing a misleading "X brokers permanently failed" count.
+            case 3: $counts['queued']     += $n; break;
+            case 4: $counts['queued']     += $n; break;
             case 5: $counts['missing_pii']+= $n; break;
         }
     }
@@ -82,8 +86,8 @@ try {
         $label = match ((int) $r['step']) {
             2 => 'Removed',
             1 => 'In progress now',
-            3 => 'Broker rejected (will retry)',
-            4 => 'Broker not yet supported',
+            3 => 'Retrying',
+            4 => 'Retrying',
             5 => 'Broker wants more info',
             default => 'Scheduled',
         };
