@@ -46,6 +46,7 @@ $userId = (int) $_SESSION['user_id'];
 $counts = [
     'done' => 0, 'in_flight' => 0, 'queued' => 0,
     'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0,
+    'done_24h' => 0,
 ];
 $recent = [];
 
@@ -76,9 +77,19 @@ try {
     $stmt->close();
 
     $stmt = $conn->prepare(
+        "SELECT COUNT(*) AS n FROM results
+         WHERE user_id = ? AND kind = 1 AND step = 2
+           AND updated_at > NOW() - INTERVAL 24 HOUR"
+    );
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $counts['done_24h'] = (int)($stmt->get_result()->fetch_assoc()['n'] ?? 0);
+    $stmt->close();
+
+    $stmt = $conn->prepare(
         "SELECT id, target_domain, step
          FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
-         ORDER BY id DESC LIMIT 5"
+         ORDER BY updated_at DESC LIMIT 5"
     );
     $stmt->bind_param("i", $userId);
     $stmt->execute();

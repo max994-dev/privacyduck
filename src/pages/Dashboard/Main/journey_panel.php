@@ -24,7 +24,7 @@
 
 $pdUserId = (int)($_SESSION["user_id"] ?? 0);
 $pdPlanedAt = null;
-$pdCounts = ['done' => 0, 'in_flight' => 0, 'queued' => 0, 'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0];
+$pdCounts = ['done' => 0, 'in_flight' => 0, 'queued' => 0, 'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0, 'done_24h' => 0];
 $pdRecent = [];
 
 try {
@@ -54,14 +54,27 @@ try {
     }
     $jpStmt->close();
 
-    // Recent activity: last 5 step transitions away from 0. We don't have
-    // an updated_at column yet, so we approximate by ordering by id DESC
-    // (rows are claimed/updated by id roughly in time order for a given
-    // user). When the schema migration adds updated_at, swap to that.
+    // "Processed last 24h" -- step=2 rows whose updated_at is in the last
+    // day. This is a much better proxy for "is the pipeline doing
+    // anything?" than step=1 which transitions to step=2 in seconds and
+    // is almost always 0 in a snapshot. Uses idx_results_user_kind_step.
     $jpStmt = $conn->prepare(
-        "SELECT id, target_domain, step
+        "SELECT COUNT(*) AS n FROM results
+         WHERE user_id = ? AND kind = 1 AND step = 2
+           AND updated_at > NOW() - INTERVAL 24 HOUR"
+    );
+    $jpStmt->bind_param("i", $pdUserId);
+    $jpStmt->execute();
+    $pdCounts['done_24h'] = (int)($jpStmt->get_result()->fetch_assoc()['n'] ?? 0);
+    $jpStmt->close();
+
+    // Recent activity: order by updated_at (now that results.updated_at
+    // exists post-migration) for accurate chronological feed. Includes
+    // step=1 so the user sees rows being actively claimed.
+    $jpStmt = $conn->prepare(
+        "SELECT id, target_domain, step, updated_at
          FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
-         ORDER BY id DESC LIMIT 6"
+         ORDER BY updated_at DESC LIMIT 8"
     );
     $jpStmt->bind_param("i", $pdUserId);
     $jpStmt->execute();
@@ -173,8 +186,8 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
             <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#24A556] leading-none" data-pd-count="done"><?= number_format($pdCounts['done']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">In progress</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none" data-pd-count="in_flight"><?= number_format($pdCounts['in_flight']); ?></div>
+            <div class="text-[13px] text-[#878C91] font-medium">Processed (24h)</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none" data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Scheduled</div>
@@ -340,7 +353,7 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
             if (!data || !data.ok) throw new Error('bad payload');
             var c = data.counts || {};
             setText('[data-pd-count="done"]',        fmtNum(c.done));
-            setText('[data-pd-count="in_flight"]',   fmtNum(c.in_flight));
+            setText('[data-pd-count="done_24h"]',    fmtNum(c.done_24h));
             setText('[data-pd-count="queued"]',      fmtNum(c.queued));
             setText('[data-pd-count="missing_pii"]', fmtNum(c.missing_pii));
             setText('[data-pd-pct]', (data.pct_done || 0) + '%');
