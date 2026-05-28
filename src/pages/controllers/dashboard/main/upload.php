@@ -2,11 +2,14 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/common/security.php';
 
-// CSRF: state-mutating endpoint. Token comes from either
-// <input name="csrf_token"> in the form OR the X-CSRF-Token header
-// (utils.php injects it globally on jQuery.ajax/fetch).
+// Auth: server-to-server from the Windows VPS Python pipeline. Same
+// shape as removal_upload.php — accept upload-secret OR CSRF token.
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    if (function_exists('pd_csrf_require')) { pd_csrf_require(); }
+    if (!pd_upload_secret_check() && (!function_exists('pd_csrf_check') || !pd_csrf_check())) {
+        http_response_code(403);
+        echo json_encode(["error" => "Invalid upload credentials"]);
+        exit;
+    }
 }
 
 header('Content-Type: application/json');

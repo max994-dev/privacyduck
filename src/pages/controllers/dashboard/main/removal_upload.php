@@ -3,11 +3,19 @@ define("BASEPATH", $_SERVER["DOCUMENT_ROOT"]);
 include_once(BASEPATH . "/src/common/config.php");
 include_once(BASEPATH . "/src/common/utils.php");
 
-// CSRF: state-mutating endpoint. Token comes from either
-// <input name="csrf_token"> in the form OR the X-CSRF-Token header
-// (utils.php injects it globally on jQuery.ajax/fetch).
+// Auth: this endpoint is called by the Windows VPS Python pipeline as part
+// of a server-to-server flow (manage.py -> upload_file_to_server). The
+// pipeline can't carry a CSRF token, so we accept EITHER:
+//   (a) a valid X-PD-Upload-Secret header + allow-listed source IP, OR
+//   (b) a valid CSRF token (for any future browser-side upload).
+// One of them must pass. The CSRF retrofit above accidentally blocked the
+// pipeline; this restores it while keeping the protection for browsers.
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    if (function_exists('pd_csrf_require')) { pd_csrf_require(); }
+    if (!pd_upload_secret_check() && (!function_exists('pd_csrf_check') || !pd_csrf_check())) {
+        http_response_code(403);
+        echo json_encode(["error" => "Invalid upload credentials"]);
+        exit;
+    }
 }
 
 

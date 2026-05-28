@@ -289,6 +289,66 @@ function pd_ratelimit_hit(string $key, int $max, int $window): bool
 
 
 /**
+ * Server-to-server upload auth. Used by /scan_api/upload,
+ * /removal_api/upload, /googleScan_api/upload, /faceremoval_api/upload —
+ * called by the Windows VPS Python pipeline, NOT by a browser, so there's
+ * no CSRF token. We require:
+ *   (a) X-PD-Upload-Secret header matching env PD_UPLOAD_SECRET, AND
+ *   (b) caller IP in env PD_UPLOAD_IP_ALLOWLIST (CSV; empty = allow any)
+ *
+ * Either condition by itself isn't enough; both must pass. Defense in
+ * depth: a leaked secret alone won't let an attacker upload from a
+ * different host, and an attacker who can spoof source IP still needs
+ * the secret.
+ *
+ * Returns true if the request is from the trusted pipeline. Caller should
+ * treat as "skip CSRF, this is internal". On mismatch returns false (the
+ * caller should then fall back to the normal CSRF check, which will reject
+ * an external attacker who doesn't have the token either).
+ */
+function pd_upload_secret_check(): bool
+{
+    static $loaded = false;
+    static $secret = '';
+    static $allowlist = [];
+    if (!$loaded) {
+        $loaded = true;
+        // Load from .env at the project root (same loader used by database.php).
+        if (function_exists('pd_db_load_env')) {
+            pd_db_load_env();
+        }
+        $secret = trim((string) getenv('PD_UPLOAD_SECRET'));
+        $rawAllow = (string) getenv('PD_UPLOAD_IP_ALLOWLIST');
+        if ($rawAllow !== '') {
+            foreach (explode(',', $rawAllow) as $ip) {
+                $ip = trim($ip);
+                if ($ip !== '') $allowlist[] = $ip;
+            }
+        }
+    }
+    if ($secret === '') {
+        return false;  // not configured -> fail closed
+    }
+    $supplied = $_SERVER['HTTP_X_PD_UPLOAD_SECRET'] ?? '';
+    if (!is_string($supplied) || !hash_equals($secret, $supplied)) {
+        return false;
+    }
+    if (!empty($allowlist)) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+        // X-F-F may be a list; take the first
+        if (strpos($ip, ',') !== false) {
+            $parts = array_map('trim', explode(',', $ip));
+            $ip = $parts[0] ?? '';
+        }
+        if (!in_array($ip, $allowlist, true)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+/**
  * Stable client IP for rate-limit keys. Honors X-Forwarded-For when nginx
  * is in front, otherwise REMOTE_ADDR. Truncated to /24 for IPv4 so a botnet
  * coming from a single /24 still gets one bucket between them (mild but
