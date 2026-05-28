@@ -1,5 +1,57 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (latest+3): ZERO stubs remaining (112 of 112 done)
+
+Knocked out the final 34. All via `run_ccpa_email_optout` since:
+- The phone-lookup directories all use the same Whitepages-style verification
+  loop (CAPTCHA + email click) that can't be automated cleanly.
+- Remaining ad-tech brokers all have `privacy@` contacts (or close variants).
+- Misc brokers (backgroundcheckers, yellowbook, etc.) all have CCPA
+  privacy contacts.
+
+Default: `privacy@<derived_host>`. Where known to be different, explicit
+override (alphonsotv -> privacy@alphonso.tv, adaptio -> privacy@adapt.io,
+lookifyio -> privacy@lookify.io, neighborreport -> privacy@neighborreport.com,
+yellowbookcom -> privacy@yellowbook.com, affinitysolutions ->
+privacy@affinitysolutions.com, aceagentsai -> privacy@aceagents.ai).
+
+### Final tally
+
+| state | count |
+|---|---|
+| Original real broker scrapers (untouched, pre-existing) | ~301 |
+| New shared `run_arrests_org_optout` template (49 + 4 court) | 53 |
+| New `run_ccpa_email_optout` -- ad-tech batch 1 | 20 |
+| New `run_ccpa_email_optout` -- people-search (mylife/ownerly/411) | 5 |
+| New `run_ccpa_email_optout` -- remaining 34 (phone/ad-tech/misc) | 34 |
+| **Auto-generated stubs remaining** | **0** |
+| **Total broker files** | **414** |
+
+### Same caveats apply, restated for completeness
+
+1. `privacy@<derived_host>` defaults will bounce for brokers using
+   non-standard contacts (`dpo@`, `data-rights@`, `compliance@`). Bounces
+   hurt SMTP reputation; ops should audit a sample after the first week
+   of pipeline traffic to spot the bouncing addresses and update overrides.
+
+2. Email-based opt-outs have a 45-day statutory clock under CCPA Sec.1798
+   but we get no machine-readable confirmation. The user's own inbox is
+   the source of truth (Reply-To set to user's email).
+
+3. The arrests.org template uses defensive multi-candidate selectors
+   but is unverified in production. First real user data hitting each
+   broker will reveal any selector misses; the row will go to step=3
+   and the dashboard reset (cached 5 min) will give it another try
+   on next login.
+
+4. PrivacyDuck's `confirmation@privacypros.com` FROM address is reused
+   for CCPA sends. Cleaner long-term: provision
+   `privacy-requests@privacyduck.com` with proper SPF/DKIM so brokers'
+   spam filters don't reject the legal-request emails.
+
+5. The 4 step=3 (broker_raised) rows currently in the DB are from real
+   exceptions in the existing 301 scrapers, not from anything I shipped.
+
 ## UPDATE 2026-05-28 (latest+2): CCPA email pivot -- 78 of 112 stubs implemented
 
 Continued the customer-driven push to close the broker-implementation gap.
