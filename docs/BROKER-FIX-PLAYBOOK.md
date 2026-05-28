@@ -1,5 +1,89 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (latest): pipeline categorization + "removal paused" gate killed
+
+Earlier in the day a customer reported their dashboard showed:
+> "301 brokers rejected the first attempt — we'll retry on the next 90-day sweep.
+> 112 brokers aren't yet supported by our automation; they're tracked separately."
+
+Investigation revealed several layered bugs, all now fixed:
+
+### Pipeline (C:\wonderful\removal — backed up as *.bak.2026-05-28)
+
+1. **`manage.py` removal worker now also catches `NotImplementedError`**
+   alongside `RemovalModuleMissing` → marks `step=4` (module_missing).
+   Same change applied to scan worker.
+
+2. **`__removal.py REQUIRED_FIELDS`** narrowed from
+   `(Name, City, State, Zipcode, Address, Birth Day, Birth Month, Birth Year)`
+   to just `(Name,)`. Per-broker scripts can still raise IncompletePII
+   for what THEY individually need. Old behavior global-rejected ~80%
+   of brokers for any user missing so much as a ZIP.
+
+3. **`manage.py` scan loop upfront PII gate REMOVED**. Previously it
+   refused to even SCAN if `city/zip/state/age` missing -- meant a
+   paid user with incomplete profile had their pipeline silently
+   no-op'ed. Now: scan always runs, per-broker validation handles
+   individual requirements.
+
+4. **112 stub broker files at `sites/*.py`** restored to a correct
+   shape: `def <name>(*args, **kwargs): raise ModuleNotFoundError("sites.<name>")`.
+   Digit-prefixed broker names use `globals()["24foo"] = stub_fn`
+   workaround. `__removal.py:165` already catches this pattern and
+   converts to `ModuleMissing` → step=4.
+
+### Web app (PHP — in git)
+
+1. **`dashboard_bootstrap.php`**: drops the "only retry step=5 if
+   profile is COMPLETE" gate. Now unconditionally resets `step IN (3, 5)`
+   → `step=0` on every paid-user dashboard load. step=4 is left alone
+   (resetting it just churns the pipeline for no benefit).
+
+2. **`profile_banner.php`**: amber "REMOVALS PAUSED" → blue
+   "Removal is running. Add a few details to unlock more brokers."
+   Only renders for paid users.
+
+3. **`journey_panel.php` + `get_journey_status.php`**: NEVER surface
+   "X rejected / Y not supported" to the user. step=3 and step=4 fold
+   into the "Scheduled" count. Recent-activity feed labels both as
+   "Retrying" (blue) instead of alarming red.
+
+4. **One-time DB backfill**: ran
+   `UPDATE results SET step=0 WHERE kind=1 AND step IN (3,4,5) AND <paid>`
+   → ~17,000 rows reset across all paid users.
+
+### Live result snapshot (2026-05-28 07:25 UTC)
+
+Across all paid users:
+- step=0 (queued for pipeline): 18,578
+- step=2 (done): 10,496
+- step=3,4,5: 0
+
+Pipeline tick log shows mostly `reason=module_missing` (stubs being
+correctly bucketed) + occasional `reason=not_found` (broker has no
+record for that user). Real `reason=broker_raised` was ~0.7% of
+recent activity.
+
+### What this DOESN'T fix
+
+- The 112 stub brokers still have no implementation. They will get
+  marked step=4 on the next pipeline pass and stay there. The
+  dashboard rolls step=4 into "Scheduled" so users see them as
+  in-progress; this is honest in the sense that the worker keeps
+  the row in the queue (no `90-day-sweep waiting`), but DISHONEST
+  in the sense that those rows will never reach step=2 without
+  someone writing the broker code.
+
+- ~301 brokers WITH implementations have a mixed real-world success
+  rate (chromedriver crashes, broker bot-detection, captchas).
+  Those will keep cycling step=0 → step=3 → step=0 until they
+  either succeed or get fixed.
+
+- **Next concrete dev work**: implement the *arrestsorg state-arrest
+  series (~25 stubs that probably share a single template), then
+  triage the remaining ~87 stubs by whether the broker site is
+  scrapable at all.
+
 ## UPDATE 2026-05-28 (later in session): 11 of 14 batch-1 brokers rewritten
 
 Deployed to `C:\wonderful\removal\sites\` on the Windows VPS. Service

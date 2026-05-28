@@ -299,31 +299,30 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     }
     removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
 
-    // Reset ANY non-terminal failure state back to step=0 so the pipeline
-    // tries them again. Policy (May 2026): if a user is paid, we keep
-    // trying every broker until it actually succeeds. Specifically:
+    // Reset TRANSIENT failure states back to step=0 so the pipeline
+    // tries them again. Policy (May 2026):
     //   step=3 (broker_raised: scraper exception)  -> retry
-    //   step=4 (module_missing: script not on disk) -> retry (in case
-    //          the broker module has since been added)
-    //   step=5 (missing_pii: broker wants a field)  -> retry (in case
-    //          the user added the field)
+    //   step=5 (missing_pii: broker wants a field) -> retry
+    //
+    // step=4 (module_missing) is INTENTIONALLY not reset. That state
+    // means we don't have a scraper script for the broker -- retrying
+    // accomplishes nothing until someone writes the implementation,
+    // and resetting it on every dashboard load wastes pipeline cycles
+    // (the worker will just re-mark it step=4 on the next tick).
+    // When a new broker implementation lands, the periodic 90-day
+    // sweep in plan() picks those rows up.
+    //
     // step=1 (in_flight) is NOT reset -- it's actively being worked.
     // step=2 (done) is terminal success and stays.
-    //
-    // Old behavior only reset step=5 and only when birth_date+city+state+zip
-    // were all populated -- meant a paid user missing their ZIP saw zero
-    // activity. And step=3/4 rows just rotted forever. New behavior: try
-    // everything, every dashboard load. If the broker still has the same
-    // problem it'll just re-mark itself; no harm done.
     $resetStmt = $conn->prepare(
-        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 4, 5)"
+        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 5)"
     );
     $resetStmt->bind_param("i", $_SESSION["user_id"]);
     $resetStmt->execute();
     if ($resetStmt->affected_rows > 0) {
         error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
                   " reset " . $resetStmt->affected_rows .
-                  " step={3,4,5} rows to step=0 (try-again policy)");
+                  " step={3,5} rows to step=0 (try-again policy)");
     }
     $resetStmt->close();
 
