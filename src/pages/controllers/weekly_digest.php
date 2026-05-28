@@ -14,10 +14,10 @@
  * service-related transactional email. Honors a per-user
  * users.weekly_digest_opt_out flag (added if needed below).
  *
- * Schedule: cron weekly. Recommended Saturday 09:00 local server time:
- *   0 9 * * 6  curl -fsS "https://privacyduck.com/internal/weekly-digest?key=$DIGEST_KEY"
- * (with DIGEST_KEY set on the host's environment matching PD_DIGEST_KEY
- * in /var/www/html/.env)
+ * Schedule (LIVE): installed at /etc/cron.d/pd-weekly-digest on the
+ * web VPS. Runs Saturday 09:00 UTC. The cron line sources
+ * /var/www/html/.env so PD_DIGEST_KEY isn't duplicated. Per-run output
+ * is appended to /var/log/pd-digest.log (root:adm 640).
  *
  * Auth: requires ?key=<PD_DIGEST_KEY> query param matching env. Refuses
  * if env not set. Refuses access from any non-trusted source.
