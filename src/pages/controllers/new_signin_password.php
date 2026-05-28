@@ -74,6 +74,15 @@ if (!pd_user_may_login($data)) {
 $stored = $data['password'] ?? null;
 $hasPassword = is_string($stored) && $stored !== '';
 
+// Diagnostic logging (added 2026-05-28 to investigate report that
+// verify still fires after password login). Logs which branch fires
+// per request so we can see in production which path real users hit.
+error_log(sprintf(
+    '[signin_password] email=%s has_password=%s password_len_provided=%d',
+    $email, $hasPassword ? 'yes' : 'NO',
+    is_string($password) ? strlen($password) : 0
+));
+
 if (!$hasPassword) {
     try {
         if (email_verification_bypassed($email)) {
@@ -116,14 +125,17 @@ if (!is_string($password) || $password === '') {
 }
 
 if (!password_verify($password, $stored)) {
+    error_log("[signin_password] email=$email branch=PASSWORD_MISMATCH");
     echo json_encode(['error' => 'Invalid email or password.']);
     exit;
 }
 
 pd_apply_user_session_from_row($data, $email);
+$redirectUrl = pd_new_landing_post_auth_redirect_url($data);
+error_log("[signin_password] email=$email branch=SUCCESS redirect=$redirectUrl");
 echo json_encode([
     'success' => true,
-    'redirect' => pd_new_landing_post_auth_redirect_url($data),
+    'redirect' => $redirectUrl,
 ]);
 exit;
 
