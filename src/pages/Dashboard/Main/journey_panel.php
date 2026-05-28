@@ -120,7 +120,7 @@ function pd_step_label(int $step): array
 $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCounts['total']) : 0;
 ?>
 
-<div class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
+<div id="pd-journey-panel" class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
     <!-- Phase header -->
     <div class="px-[24px] sm:px-[32px] pt-[24px] sm:pt-[28px] pb-[20px] bg-gradient-to-r from-[#F8FBF6] to-[#FFFFFF] border-b border-[#F1F1F1]">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -136,7 +136,7 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
                 </p>
             </div>
             <div class="text-left sm:text-right">
-                <div class="text-[36px] sm:text-[42px] font-bold text-[#24A556] leading-none"><?= $pdDonePct; ?>%</div>
+                <div class="text-[36px] sm:text-[42px] font-bold text-[#24A556] leading-none" data-pd-pct><?= $pdDonePct; ?>%</div>
                 <div class="text-[12px] sm:text-[13px] text-[#878C91] font-medium uppercase tracking-wide">complete</div>
             </div>
         </div>
@@ -158,19 +158,19 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
     <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-[#F1F1F1]">
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Removed</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#24A556] leading-none"><?= number_format($pdCounts['done']); ?></div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#24A556] leading-none" data-pd-count="done"><?= number_format($pdCounts['done']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">In progress</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none"><?= number_format($pdCounts['in_flight']); ?></div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none" data-pd-count="in_flight"><?= number_format($pdCounts['in_flight']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Scheduled</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none"><?= number_format($pdCounts['queued']); ?></div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdCounts['queued']); ?></div>
         </div>
         <div class="px-[20px] py-[18px]">
             <div class="text-[13px] text-[#878C91] font-medium">Needs attention</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#DC2626]' : 'text-[#010205]'; ?> leading-none">
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#DC2626]' : 'text-[#010205]'; ?> leading-none" data-pd-count="missing_pii">
                 <?= number_format($pdCounts['missing_pii']); ?>
             </div>
         </div>
@@ -179,8 +179,14 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
     <!-- Recent activity -->
     <?php if (!empty($pdRecent)): ?>
         <div class="px-[24px] sm:px-[32px] py-[20px] sm:py-[24px] border-t border-[#F1F1F1]">
-            <h3 class="text-[15px] sm:text-[16px] font-bold text-[#010205] mb-[14px]">Recent activity</h3>
-            <ul class="space-y-[10px]">
+            <div class="flex items-center justify-between mb-[14px]">
+                <h3 class="text-[15px] sm:text-[16px] font-bold text-[#010205]">Recent activity</h3>
+                <span class="inline-flex items-center gap-[6px] text-[11px] font-medium text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
+                    <span class="w-[6px] h-[6px] rounded-full bg-[#24A556] animate-pulse"></span>
+                    <span data-pd-live-text>Live</span>
+                </span>
+            </div>
+            <ul class="space-y-[10px]" data-pd-recent>
                 <?php foreach (array_slice($pdRecent, 0, 5) as $r): list($lbl, $color, $iconPath) = pd_step_label((int)$r['step']); ?>
                     <li class="flex items-center gap-[12px]">
                         <span class="shrink-0 w-[28px] h-[28px] rounded-full flex items-center justify-center" style="background: <?= $color; ?>14; color: <?= $color; ?>;">
@@ -216,3 +222,147 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+/* Live-polling for the Removal Journey panel.
+   Polls /api/journey_status every 8s, updates counts + pct + the recent
+   activity list in place. Pauses when the tab is hidden (no point
+   polling for a user who isn't watching) and pauses for 5 minutes after
+   any error (network blip, server transient) -- exponential-ish backoff
+   means we don't hammer a broken backend.
+
+   The page started with server-rendered HTML, so even with JS disabled
+   the user sees a correct snapshot -- this just keeps it fresh. */
+(function () {
+    var panel = document.getElementById('pd-journey-panel');
+    if (!panel) return;
+
+    var INTERVAL_OK  = 8000;     // happy path: 8s
+    var INTERVAL_ERR = 30000;    // after error: back off to 30s
+    var COLORS = {
+        2: '#24A556',  /* done       */
+        1: '#3B82F6',  /* in flight  */
+        3: '#F59E0B',  /* failed     */
+        4: '#878C91',  /* not impl   */
+        5: '#DC2626',  /* missing pii*/
+        0: '#878C91'
+    };
+    var ICONS = {
+        2: 'M5 13l4 4L19 7',
+        1: 'M12 6v6m0 0l4-4m-4 4l-4-4',
+        3: 'M12 9v4m0 4h.01',
+        4: 'M19 11H5v2h14v-2z',
+        5: 'M12 9v4m0 4h.01',
+        0: 'M5 13l4 4L19 7'
+    };
+    var nextDelay = INTERVAL_OK;
+    var inflight = false;
+    var lastRecentSignature = '';
+
+    function fmtNum(n) {
+        n = Number(n) || 0;
+        return n.toLocaleString();
+    }
+
+    function setText(sel, value) {
+        var els = panel.querySelectorAll(sel);
+        for (var i = 0; i < els.length; i++) els[i].textContent = value;
+    }
+
+    function rebuildRecent(items) {
+        var ul = panel.querySelector('[data-pd-recent]');
+        if (!ul) return;
+        var sig = items.map(function (r) { return r.id + ':' + r.step; }).join('|');
+        if (sig === lastRecentSignature) return; /* nothing changed */
+        lastRecentSignature = sig;
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+            var r = items[i];
+            var color = COLORS[r.step] || '#878C91';
+            var icon = ICONS[r.step] || ICONS[0];
+            /* escape target_domain — only [a-z0-9-_] expected but be safe */
+            var dom = String(r.target_domain || '').replace(/[<>&"]/g, function (c) {
+                return ({'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'})[c];
+            });
+            var lbl = String(r.label || '').replace(/[<>&"]/g, function (c) {
+                return ({'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'})[c];
+            });
+            html += '<li class="flex items-center gap-[12px]">';
+            html +=   '<span class="shrink-0 w-[28px] h-[28px] rounded-full flex items-center justify-center" ';
+            html +=        'style="background:' + color + '14; color:' + color + ';">';
+            html +=     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">';
+            html +=       '<path d="' + icon + '" stroke="currentColor" stroke-width="2.4" ';
+            html +=             'stroke-linecap="round" stroke-linejoin="round"/>';
+            html +=     '</svg>';
+            html +=   '</span>';
+            html +=   '<span class="flex-1 min-w-0 text-[13px] sm:text-[14px] text-[#010205] truncate">';
+            html +=     '<strong>' + dom + '</strong>';
+            html +=     '<span class="text-[#878C91]"> &mdash; ' + lbl + '</span>';
+            html +=   '</span>';
+            html += '</li>';
+        }
+        ul.innerHTML = html;
+    }
+
+    function showLive(state) {
+        /* state: 'live' | 'paused' | 'error' */
+        var t = panel.querySelector('[data-pd-live-text]');
+        var dot = panel.querySelector('[data-pd-live-indicator] span:first-child');
+        if (!t || !dot) return;
+        if (state === 'live')  { t.textContent = 'Live';   dot.style.background = '#24A556'; }
+        if (state === 'paused'){ t.textContent = 'Paused'; dot.style.background = '#9CA3AF'; }
+        if (state === 'error') { t.textContent = 'Retrying'; dot.style.background = '#F59E0B'; }
+    }
+
+    function tick() {
+        if (inflight || document.hidden) {
+            scheduleNext();
+            return;
+        }
+        inflight = true;
+        var ctrl = (window.AbortController) ? new AbortController() : null;
+        var to = setTimeout(function () { ctrl && ctrl.abort(); }, 12000);
+        fetch('/api/journey_status', {
+            credentials: 'same-origin',
+            signal: ctrl ? ctrl.signal : undefined,
+            headers: { 'Accept': 'application/json' }
+        }).then(function (r) {
+            clearTimeout(to);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        }).then(function (data) {
+            if (!data || !data.ok) throw new Error('bad payload');
+            var c = data.counts || {};
+            setText('[data-pd-count="done"]',        fmtNum(c.done));
+            setText('[data-pd-count="in_flight"]',   fmtNum(c.in_flight));
+            setText('[data-pd-count="queued"]',      fmtNum(c.queued));
+            setText('[data-pd-count="missing_pii"]', fmtNum(c.missing_pii));
+            setText('[data-pd-pct]', (data.pct_done || 0) + '%');
+            rebuildRecent(data.recent || []);
+            showLive('live');
+            nextDelay = INTERVAL_OK;
+        }).catch(function (err) {
+            /* network blip / 5xx / timeout — back off, try again later */
+            showLive('error');
+            nextDelay = INTERVAL_ERR;
+        }).then(function () {
+            inflight = false;
+            scheduleNext();
+        });
+    }
+
+    function scheduleNext() {
+        setTimeout(tick, nextDelay);
+    }
+
+    /* Pause polling when the tab is hidden — Page Visibility API. */
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) showLive('paused');
+        else showLive('live');
+    });
+
+    /* First poll fires 4s after page load so we don't fight initial render. */
+    setTimeout(tick, 4000);
+})();
+</script>
+

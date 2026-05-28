@@ -210,6 +210,7 @@ $routes = [
     'delete_user_address'=>'controllers/dashboard/editinfo/delete_user_address.php',
 
     'welcome'=> 'Welcome/index.php',
+    'api/journey_status'=> 'controllers/dashboard/main/get_journey_status.php',
     'book-call'=> 'BookCall/index.php',
     'book_call_set_intent'=> 'controllers/book_call_set_intent.php',
     'book_call_submit'=> 'controllers/book_call_submit.php',
