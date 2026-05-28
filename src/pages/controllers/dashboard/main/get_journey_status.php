@@ -87,9 +87,9 @@ try {
     $stmt->close();
 
     $stmt = $conn->prepare(
-        "SELECT id, target_domain, step
+        "SELECT id, target_domain, step, updated_at
          FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
-         ORDER BY updated_at DESC LIMIT 5"
+         ORDER BY updated_at DESC LIMIT 8"
     );
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -106,6 +106,7 @@ try {
             'id' => (int) $r['id'],
             'target_domain' => $r['target_domain'],
             'step' => (int) $r['step'],
+            'updated_at' => $r['updated_at'] ?? null,
             'label' => $label,
         ];
     }

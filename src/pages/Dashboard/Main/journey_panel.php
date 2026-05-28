@@ -1,49 +1,48 @@
 <?php
 /**
- * Removal Journey panel.
+ * Removal Journey panel -- the actual dashboard.
  *
- * Replaces the abstract donut-only progress view with a phase indicator
- * + live broker activity feed + user-friendly counts. Goal: a paying
- * user should glance at this and immediately know:
- *   - what phase of the removal journey they're in
- *   - what specifically PrivacyDuck is doing for them RIGHT NOW
- *   - how many brokers are done, in-progress, scheduled, blocked
- *   - which 5 brokers most recently changed state (with timestamp)
+ * Components:
+ *   1. Hero: donut chart (SVG) showing % removed of 413 + big done number + ETA
+ *   2. Stat row: Removed | Processed (24h) | Scheduled | Needs attention
+ *   3. 14-day activity bar chart (SVG): visual proof of recent throughput
+ *   4. Recent removals feed (last 8 broker state changes with timestamps)
  *
- * Includer must have $conn + $_SESSION['user_id'] + $_SESSION['planedAt']
- * (or the user's planedAt is fetched fresh) + $_SESSION['planable'].
+ * All data live from `results` table. Single broker = single target_domain
+ * row. Total = 413 (canonical broker count after May 2026 normalization).
  *
- * Step codes from the pipeline:
- *   0  = queued / scheduled
- *   1  = in flight (claimed by worker)
- *   2  = removed successfully
- *   3  = broker rejected / failed (will retry)
- *   4  = broker not yet implemented (won't retry)
- *   5  = missing PII (user needs to complete profile)
+ * Requires $conn from dashboard_bootstrap.php. Renders nothing if user
+ * has no rows (paid-but-not-yet-planned new account).
  */
 
 $pdUserId = (int)($_SESSION["user_id"] ?? 0);
-$pdPlanedAt = null;
-$pdCounts = ['done' => 0, 'in_flight' => 0, 'queued' => 0, 'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0, 'done_24h' => 0];
+
+// --- Single SQL pass for counts + 24h activity (uses idx_results_user_kind_step) ---
+$pdCounts = ['done' => 0, 'queued' => 0, 'in_flight' => 0, 'failed' => 0,
+             'not_impl' => 0, 'missing_pii' => 0, 'total' => 0, 'done_24h' => 0];
+$pdDaily = array_fill(0, 14, 0);  // last 14 days, oldest first
 $pdRecent = [];
+$pdPlanedAt = null;
 
 try {
-    $jpStmt = $conn->prepare("SELECT planedAt FROM users WHERE id = ?");
-    $jpStmt->bind_param("i", $pdUserId);
-    $jpStmt->execute();
-    $row = $jpStmt->get_result()->fetch_assoc();
-    $pdPlanedAt = $row['planedAt'] ?? null;
-    $jpStmt->close();
+    // Plan start date
+    $stmt = $conn->prepare("SELECT planedAt FROM users WHERE id = ?");
+    $stmt->bind_param("i", $pdUserId);
+    $stmt->execute();
+    $pdPlanedAt = $stmt->get_result()->fetch_assoc()['planedAt'] ?? null;
+    $stmt->close();
 
-    $jpStmt = $conn->prepare(
-        "SELECT step, COUNT(*) AS n FROM results WHERE user_id = ? AND kind = 1 GROUP BY step"
+    // Step counts (full table for this user)
+    $stmt = $conn->prepare(
+        "SELECT step, COUNT(*) AS n FROM results
+         WHERE user_id = ? AND kind = 1 GROUP BY step"
     );
-    $jpStmt->bind_param("i", $pdUserId);
-    $jpStmt->execute();
-    foreach ($jpStmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
-        $n = (int)$r['n'];
+    $stmt->bind_param("i", $pdUserId);
+    $stmt->execute();
+    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
+        $n = (int) $r['n'];
         $pdCounts['total'] += $n;
-        switch ((int)$r['step']) {
+        switch ((int) $r['step']) {
             case 0: $pdCounts['queued']     += $n; break;
             case 1: $pdCounts['in_flight']  += $n; break;
             case 2: $pdCounts['done']       += $n; break;
@@ -52,294 +51,369 @@ try {
             case 5: $pdCounts['missing_pii']+= $n; break;
         }
     }
-    $jpStmt->close();
+    $stmt->close();
 
-    // "Processed last 24h" -- step=2 rows whose updated_at is in the last
-    // day. This is a much better proxy for "is the pipeline doing
-    // anything?" than step=1 which transitions to step=2 in seconds and
-    // is almost always 0 in a snapshot. Uses idx_results_user_kind_step.
-    $jpStmt = $conn->prepare(
+    // Processed in last 24h (for the headline "things are moving" indicator)
+    $stmt = $conn->prepare(
         "SELECT COUNT(*) AS n FROM results
          WHERE user_id = ? AND kind = 1 AND step = 2
            AND updated_at > NOW() - INTERVAL 24 HOUR"
     );
-    $jpStmt->bind_param("i", $pdUserId);
-    $jpStmt->execute();
-    $pdCounts['done_24h'] = (int)($jpStmt->get_result()->fetch_assoc()['n'] ?? 0);
-    $jpStmt->close();
+    $stmt->bind_param("i", $pdUserId);
+    $stmt->execute();
+    $pdCounts['done_24h'] = (int)($stmt->get_result()->fetch_assoc()['n'] ?? 0);
+    $stmt->close();
 
-    // Recent activity: order by updated_at (now that results.updated_at
-    // exists post-migration) for accurate chronological feed. Includes
-    // step=1 so the user sees rows being actively claimed.
-    $jpStmt = $conn->prepare(
-        "SELECT id, target_domain, step, updated_at
-         FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
+    // 14-day activity (step=2 transitions per day)
+    $stmt = $conn->prepare(
+        "SELECT DATE(updated_at) AS d, COUNT(*) AS n FROM results
+         WHERE user_id = ? AND kind = 1 AND step = 2
+           AND updated_at >= CURDATE() - INTERVAL 13 DAY
+         GROUP BY DATE(updated_at)"
+    );
+    $stmt->bind_param("i", $pdUserId);
+    $stmt->execute();
+    $daily = [];
+    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
+        $daily[$r['d']] = (int) $r['n'];
+    }
+    $stmt->close();
+    for ($i = 13; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        $pdDaily[13 - $i] = $daily[$d] ?? 0;
+    }
+
+    // Recent activity (last 8 rows that moved)
+    $stmt = $conn->prepare(
+        "SELECT id, target_domain, step, updated_at FROM results
+         WHERE user_id = ? AND kind = 1 AND step IN (1, 2, 3, 4, 5)
          ORDER BY updated_at DESC LIMIT 8"
     );
-    $jpStmt->bind_param("i", $pdUserId);
-    $jpStmt->execute();
-    $pdRecent = $jpStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $jpStmt->close();
+    $stmt->bind_param("i", $pdUserId);
+    $stmt->execute();
+    $pdRecent = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
 } catch (Throwable $e) {
     error_log('journey_panel read failed: ' . $e->getMessage());
 }
 
-// Figure out which phase the user is in based on time since plan started.
+// --- Derived values ---
+$pdTotal       = max(1, $pdCounts['total']);  // never divide by zero
+$pdDonePct     = (int) round(($pdCounts['done'] * 100) / $pdTotal);
+$pdRemaining   = $pdCounts['total'] - $pdCounts['done'];
+$pdAvg7Day     = array_sum(array_slice($pdDaily, 7)) / 7.0;  // avg over last 7 days
+$pdEtaDays     = ($pdAvg7Day > 0 && $pdRemaining > 0)
+                   ? (int) ceil($pdRemaining / $pdAvg7Day)
+                   : null;
+
+// Phase indicator (kept from old design but tightened)
 $pdPhaseNum = 0;
 $pdPhaseLabel = 'Waiting to start';
 $pdPhaseDesc = 'Add a plan to begin your removal journey.';
-$pdPhaseDays = 0;
 if (!empty($_SESSION['planable']) && $pdPlanedAt) {
     try {
-        $plannedTime = new DateTime($pdPlanedAt);
-        $now = new DateTime();
-        $diff = $now->diff($plannedTime);
-        $pdPhaseDays = ((int)$diff->format('%a'));
-        if ($pdPhaseDays < 1) {
-            $pdPhaseNum = 1;
-            $pdPhaseLabel = 'Day 1';
-            $pdPhaseDesc = 'Removing your data from the highest-traffic brokers.';
-        } elseif ($pdPhaseDays < 3) {
-            $pdPhaseNum = 2;
-            $pdPhaseLabel = 'First 72 hours';
-            $pdPhaseDesc = 'Working through the long tail of people-search sites.';
-        } elseif ($pdPhaseDays < 30) {
-            $pdPhaseNum = 3;
-            $pdPhaseLabel = 'Week 1 - 4';
-            $pdPhaseDesc = 'Brokers process requests at their own pace. Confirmations rolling in.';
-        } else {
-            $pdPhaseNum = 4;
-            $pdPhaseLabel = 'Active monitoring';
-            $pdPhaseDesc = 'We re-sweep every 90 days to catch re-appearances.';
-        }
-    } catch (Exception $e) {
-        // bad date string; keep default
-    }
+        $days = (int) (new DateTime())->diff(new DateTime($pdPlanedAt))->format('%a');
+        if      ($days < 1)  { $pdPhaseNum = 1; $pdPhaseLabel = 'Day 1';
+                               $pdPhaseDesc = 'Hitting the highest-traffic brokers first.'; }
+        elseif  ($days < 3)  { $pdPhaseNum = 2; $pdPhaseLabel = 'First 72 hours';
+                               $pdPhaseDesc = 'Working through people-search sites.'; }
+        elseif  ($days < 30) { $pdPhaseNum = 3; $pdPhaseLabel = 'Week 1-4';
+                               $pdPhaseDesc = 'Submitting to long-tail brokers; confirmations rolling in.'; }
+        else                 { $pdPhaseNum = 4; $pdPhaseLabel = 'Active monitoring';
+                               $pdPhaseDesc = 'Re-sweep every 90 days to catch re-appearances.'; }
+    } catch (Exception $e) {}
 }
 
-// User-friendly labels. Policy: NEVER surface "rejected" or "not
-// supported" to the user -- those are pipeline-internal states that
-// the worker retries automatically. They get framed to the user as
-// "Retrying" so the dashboard reads as "everything is in motion",
-// which is true: step=3 rows get a retry next sweep, step=4 rows are
-// re-attempted when their broker module exists.
-function pd_step_label(int $step): array
-{
+// Per-step label + color for the recent activity feed
+function pd_step_meta(int $step): array {
     switch ($step) {
-        case 2: return ['Removed', '#24A556', 'M5 13l4 4L19 7'];
-        case 1: return ['In progress now', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
-        case 3: return ['Retrying', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
-        case 4: return ['Retrying', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
-        case 5: return ['Broker wants more info', '#2563EB', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
-        default: return ['Scheduled', '#878C91', 'M5 13l4 4L19 7'];
+        case 2: return ['Removed',                    '#24A556'];
+        case 1: return ['In progress now',            '#3B82F6'];
+        case 3: return ['Retrying',                   '#3B82F6'];
+        case 4: return ['Retrying',                   '#3B82F6'];
+        case 5: return ['Broker requested more info', '#2563EB'];
     }
+    return ['Scheduled', '#878C91'];
 }
 
-// Rolled "scheduled" bucket: queued + step=3 (retry) + step=4 (retry).
-// Everything in this bucket is genuinely in-flight from the user's POV:
-// the pipeline will try it again on the next sweep. Surfacing them as
-// separate buckets ("rejected" / "not supported") implied permanent
-// failure, which isn't accurate.
-$pdScheduledTotal = $pdCounts['queued'] + $pdCounts['failed'] + $pdCounts['not_impl'];
+// Format a time-ago string from a SQL datetime
+function pd_time_ago(?string $iso): string {
+    if (!$iso) return '';
+    $t = strtotime($iso);
+    if (!$t) return '';
+    $d = time() - $t;
+    if ($d < 60)        return $d . 's ago';
+    if ($d < 3600)      return (int)($d / 60) . 'm ago';
+    if ($d < 86400)     return (int)($d / 3600) . 'h ago';
+    if ($d < 86400 * 7) return (int)($d / 86400) . 'd ago';
+    return date('M j', $t);
+}
 
-$pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCounts['total']) : 0;
+// SVG donut math
+$donutR = 90;
+$donutCirc = 2 * M_PI * $donutR;
+$donutOffset = $donutCirc * (1 - $pdDonePct / 100);
+
+// 14-day bar chart math
+$pdDailyMax = max(1, max($pdDaily));
 ?>
 
-<div id="pd-journey-panel" class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
-    <!-- Phase header -->
-    <div class="px-[24px] sm:px-[32px] pt-[24px] sm:pt-[28px] pb-[20px] bg-gradient-to-r from-[#F8FBF6] to-[#FFFFFF] border-b border-[#F1F1F1]">
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div>
-                <div class="text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.12em] text-[#24A556]">
-                    Removal journey
-                </div>
-                <h2 class="mt-[6px] text-[22px] sm:text-[28px] font-bold text-[#010205] leading-[1.15]">
-                    Phase <?= $pdPhaseNum ?: '-'; ?>: <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8'); ?>
-                </h2>
-                <p class="mt-[6px] text-[14px] sm:text-[15px] text-[#5B5F66] leading-[1.5]">
-                    <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8'); ?>
-                </p>
-            </div>
-            <div class="text-left sm:text-right">
-                <div class="text-[36px] sm:text-[42px] font-bold text-[#24A556] leading-none" data-pd-pct><?= $pdDonePct; ?>%</div>
-                <div class="text-[12px] sm:text-[13px] text-[#878C91] font-medium uppercase tracking-wide">complete</div>
-            </div>
-        </div>
-        <!-- Phase progress bar -->
-        <div class="mt-[20px] grid grid-cols-4 gap-[6px]">
-            <?php foreach ([1,2,3,4] as $p): ?>
-                <div class="h-[6px] rounded-full <?= $p <= $pdPhaseNum ? 'bg-[#24A556]' : 'bg-[#E5E7EB]'; ?>"></div>
-            <?php endforeach; ?>
-        </div>
-        <div class="mt-[8px] grid grid-cols-4 gap-[6px] text-[10px] sm:text-[11px] text-[#878C91] font-medium">
-            <div>Day 1</div>
-            <div>72 hours</div>
-            <div>Week 1-4</div>
-            <div class="text-right sm:text-left">Ongoing</div>
-        </div>
-    </div>
+<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-3 gap-[16px]">
 
-    <!-- Counts grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-[#F1F1F1]">
-        <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">Removed</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#24A556] leading-none" data-pd-count="done"><?= number_format($pdCounts['done']); ?></div>
-        </div>
-        <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">Processed (24h)</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none" data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']); ?></div>
-        </div>
-        <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">Scheduled</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdScheduledTotal); ?></div>
-        </div>
-        <div class="px-[20px] py-[18px]">
-            <div class="text-[13px] text-[#878C91] font-medium">Want more info</div>
-            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#2563EB]' : 'text-[#010205]'; ?> leading-none" data-pd-count="missing_pii">
-                <?= number_format($pdCounts['missing_pii']); ?>
+    <!-- HERO: donut + headline number + ETA -->
+    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px] flex flex-col sm:flex-row items-center gap-[28px]">
+        <!-- SVG donut. Stroke-dasharray trick: full circumference set as
+             dash length, then offset controls how much of the stroke is
+             "hidden" -> percentage filled. CSS transition makes the AJAX
+             updates animate smoothly. -->
+        <div class="relative shrink-0">
+            <svg width="200" height="200" viewBox="0 0 200 200" class="-rotate-90">
+                <circle cx="100" cy="100" r="<?= $donutR ?>"
+                        fill="none" stroke="#F3F4F6" stroke-width="16"/>
+                <circle id="pd-donut-progress" cx="100" cy="100" r="<?= $donutR ?>"
+                        fill="none" stroke="#24A556" stroke-width="16"
+                        stroke-linecap="round"
+                        stroke-dasharray="<?= $donutCirc ?>"
+                        stroke-dashoffset="<?= $donutOffset ?>"
+                        style="transition: stroke-dashoffset 800ms ease-out;"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div class="text-[44px] font-bold text-[#010205] leading-none" data-pd-pct><?= $pdDonePct ?>%</div>
+                <div class="text-[11px] uppercase tracking-[0.1em] text-[#878C91] font-semibold mt-[4px]">removed</div>
             </div>
         </div>
-    </div>
 
-    <!-- Recent activity -->
-    <?php if (!empty($pdRecent)): ?>
-        <div class="px-[24px] sm:px-[32px] py-[20px] sm:py-[24px] border-t border-[#F1F1F1]">
-            <div class="flex items-center justify-between mb-[14px]">
-                <h3 class="text-[15px] sm:text-[16px] font-bold text-[#010205]">Recent activity</h3>
-                <span class="inline-flex items-center gap-[6px] text-[11px] font-medium text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
-                    <span class="w-[6px] h-[6px] rounded-full bg-[#24A556] animate-pulse"></span>
-                    <span data-pd-live-text>Live</span>
+        <div class="flex-1 min-w-0 text-center sm:text-left">
+            <div class="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#24A556]">
+                Removal journey &middot; Phase <?= $pdPhaseNum ?: '-' ?>
+            </div>
+            <h2 class="mt-[4px] text-[22px] sm:text-[26px] font-bold text-[#010205] leading-[1.2]">
+                <span data-pd-count="done"><?= number_format($pdCounts['done']) ?></span>
+                <span class="text-[#878C91] font-medium">of</span>
+                <span><?= number_format($pdCounts['total']) ?></span>
+                data brokers
+            </h2>
+            <p class="mt-[6px] text-[14px] text-[#5B5F66] leading-[1.5]">
+                <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8') ?>
+            </p>
+            <div class="mt-[14px] flex flex-wrap gap-[10px] justify-center sm:justify-start">
+                <span class="inline-flex items-center gap-[6px] rounded-full bg-[#E8F7EF] text-[#1A7F40] px-[12px] py-[6px] text-[12px] font-semibold">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.4"/>
+                    </svg>
+                    <span data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']) ?></span>&nbsp;removed in last 24h
                 </span>
+                <?php if ($pdEtaDays !== null && $pdEtaDays > 0): ?>
+                    <span class="inline-flex items-center gap-[6px] rounded-full bg-[#F4F8FC] text-[#0F2A5F] px-[12px] py-[6px] text-[12px] font-semibold">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ETA ~<?= $pdEtaDays ?> day<?= $pdEtaDays === 1 ? '' : 's' ?> at current pace
+                    </span>
+                <?php elseif ($pdCounts['done'] >= $pdCounts['total'] && $pdCounts['total'] > 0): ?>
+                    <span class="inline-flex items-center gap-[6px] rounded-full bg-[#E8F7EF] text-[#1A7F40] px-[12px] py-[6px] text-[12px] font-semibold">
+                        All brokers complete &mdash; in monitoring
+                    </span>
+                <?php endif; ?>
             </div>
-            <ul class="space-y-[10px]" data-pd-recent>
-                <?php foreach (array_slice($pdRecent, 0, 5) as $r): list($lbl, $color, $iconPath) = pd_step_label((int)$r['step']); ?>
-                    <li class="flex items-center gap-[12px]">
-                        <span class="shrink-0 w-[28px] h-[28px] rounded-full flex items-center justify-center" style="background: <?= $color; ?>14; color: <?= $color; ?>;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="<?= $iconPath; ?>" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span class="flex-1 min-w-0 text-[13px] sm:text-[14px] text-[#010205] truncate">
-                            <strong><?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                            <span class="text-[#878C91]"> &mdash; <?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8'); ?></span>
-                        </span>
+        </div>
+    </div>
+
+    <!-- 14-DAY ACTIVITY BAR CHART -->
+    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[24px]">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <div class="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#878C91]">Last 14 days</div>
+                <div class="mt-[2px] text-[20px] font-bold text-[#010205] leading-none">
+                    <?= number_format(array_sum($pdDaily)) ?>
+                    <span class="text-[13px] font-medium text-[#5B5F66]">removed</span>
+                </div>
+            </div>
+            <div class="text-[11px] text-[#878C91]">avg <?= number_format($pdAvg7Day, 1) ?>/day</div>
+        </div>
+        <svg viewBox="0 0 280 110" preserveAspectRatio="none" class="w-full h-[100px] mt-[14px]">
+            <?php foreach ($pdDaily as $i => $count):
+                $barHeight = max(2, ($count / $pdDailyMax) * 100);
+                $x = $i * 20 + 2;
+                $y = 105 - $barHeight;
+                $isToday = ($i === 13);
+                $fill = $count > 0 ? '#24A556' : '#E5E7EB';
+            ?>
+                <rect x="<?= $x ?>" y="<?= $y ?>" width="16" height="<?= $barHeight ?>"
+                      rx="3" fill="<?= $fill ?>"
+                      <?= $isToday ? 'opacity="1"' : 'opacity="' . (0.55 + 0.45 * ($i / 13)) . '"' ?>>
+                    <title><?= date('M j', strtotime("-" . (13 - $i) . " days")) ?>: <?= $count ?> removed</title>
+                </rect>
+            <?php endforeach; ?>
+        </svg>
+        <div class="mt-[6px] flex justify-between text-[9px] text-[#878C91] font-medium uppercase tracking-wide">
+            <span><?= date('M j', strtotime('-13 days')) ?></span>
+            <span>today</span>
+        </div>
+    </div>
+
+    <!-- STAT ROW: 4 small cells -->
+    <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-[16px]">
+        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
+            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Removed</div>
+            <div class="mt-[4px] text-[28px] font-bold text-[#24A556] leading-none" data-pd-count="done"><?= number_format($pdCounts['done']) ?></div>
+            <div class="mt-[6px] text-[11px] text-[#5B5F66]">of <?= number_format($pdCounts['total']) ?> total</div>
+        </div>
+        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
+            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Last 24h</div>
+            <div class="mt-[4px] text-[28px] font-bold text-[#3B82F6] leading-none" data-pd-count="done_24h"><?= number_format($pdCounts['done_24h']) ?></div>
+            <div class="mt-[6px] text-[11px] text-[#5B5F66]">new removals</div>
+        </div>
+        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
+            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Scheduled</div>
+            <div class="mt-[4px] text-[28px] font-bold text-[#010205] leading-none" data-pd-count="queued"><?= number_format($pdCounts['queued'] + $pdCounts['failed'] + $pdCounts['not_impl']) ?></div>
+            <div class="mt-[6px] text-[11px] text-[#5B5F66]">in pipeline</div>
+        </div>
+        <div class="rounded-[20px] bg-white border border-[#F1F1F1] p-[18px]">
+            <div class="text-[12px] text-[#878C91] font-semibold uppercase tracking-[0.06em]">Needs info</div>
+            <div class="mt-[4px] text-[28px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#2563EB]' : 'text-[#010205]' ?> leading-none" data-pd-count="missing_pii"><?= number_format($pdCounts['missing_pii']) ?></div>
+            <div class="mt-[6px] text-[11px] text-[#5B5F66]">awaiting profile field</div>
+        </div>
+    </div>
+
+    <!-- RECENT REMOVALS FEED -->
+    <div class="lg:col-span-3 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
+        <div class="flex items-center justify-between mb-[16px]">
+            <h3 class="text-[16px] sm:text-[17px] font-bold text-[#010205]">Recent activity</h3>
+            <span class="inline-flex items-center gap-[6px] text-[11px] font-semibold text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
+                <span class="w-[7px] h-[7px] rounded-full bg-[#24A556] animate-pulse"></span>
+                <span data-pd-live-text>Live</span>
+            </span>
+        </div>
+        <?php if (empty($pdRecent)): ?>
+            <p class="text-[14px] text-[#5B5F66] py-[20px]">
+                The pipeline hasn&rsquo;t processed any of your brokers yet.
+                It usually starts within the first hour after sign-up.
+            </p>
+        <?php else: ?>
+            <ul class="divide-y divide-[#F1F1F1]" data-pd-recent>
+                <?php foreach ($pdRecent as $r): list($lbl, $color) = pd_step_meta((int) $r['step']); ?>
+                    <li class="flex items-center gap-[14px] py-[12px]">
+                        <span class="shrink-0 w-[8px] h-[8px] rounded-full" style="background:<?= $color ?>"></span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-[14px] font-semibold text-[#010205] truncate">
+                                <?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                            <div class="text-[12px] text-[#5B5F66] mt-[1px]">
+                                <?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                        </div>
+                        <div class="shrink-0 text-[11px] text-[#878C91] tabular-nums">
+                            <?= pd_time_ago($r['updated_at'] ?? null) ?>
+                        </div>
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <a href="/new_dashboard/personal" class="mt-[14px] inline-flex items-center gap-[4px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
-                See all <?= number_format($pdCounts['total']); ?> sites
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <a href="/new_dashboard/personal" class="inline-flex items-center gap-[4px] mt-[16px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
+                See all <?= number_format($pdCounts['total']) ?> brokers
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </a>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 
-    <!-- No "X rejected / X unsupported" callout. Those rows are surfaced
-         only in the recent-activity feed (so the user sees individual
-         retries) and rolled into the "Scheduled" bucket above. Pipeline
-         retries every step=3/4 row automatically; we don't ask the user
-         to think about which brokers failed and why. -->
 </div>
 
 <script>
-/* Live-polling for the Removal Journey panel.
-   Polls /api/journey_status every 8s, updates counts + pct + the recent
-   activity list in place. Pauses when the tab is hidden (no point
-   polling for a user who isn't watching) and pauses for 5 minutes after
-   any error (network blip, server transient) -- exponential-ish backoff
-   means we don't hammer a broken backend.
-
-   The page started with server-rendered HTML, so even with JS disabled
-   the user sees a correct snapshot -- this just keeps it fresh. */
+/* Live-polling for the dashboard. Polls /api/journey_status every 8s and
+   smoothly animates: donut stroke-dashoffset + all numeric counts + the
+   recent activity feed. Page Visibility API pause-when-hidden, 30s
+   backoff on error. */
 (function () {
     var panel = document.getElementById('pd-journey-panel');
     if (!panel) return;
 
-    var INTERVAL_OK  = 8000;     // happy path: 8s
-    var INTERVAL_ERR = 30000;    // after error: back off to 30s
-    var COLORS = {
-        2: '#24A556',  /* done       */
-        1: '#3B82F6',  /* in flight  */
-        3: '#F59E0B',  /* failed     */
-        4: '#878C91',  /* not impl   */
-        5: '#2563EB',  /* broker wants more info — same blue as profile banner */
-        0: '#878C91'
-    };
-    var ICONS = {
-        2: 'M5 13l4 4L19 7',
-        1: 'M12 6v6m0 0l4-4m-4 4l-4-4',
-        3: 'M12 9v4m0 4h.01',
-        4: 'M19 11H5v2h14v-2z',
-        5: 'M12 6v6m0 0l4-4m-4 4l-4-4',
-        0: 'M5 13l4 4L19 7'
-    };
+    var INTERVAL_OK  = 8000;
+    var INTERVAL_ERR = 30000;
+    var DONUT_R = <?= $donutR ?>;
+    var DONUT_CIRC = 2 * Math.PI * DONUT_R;
     var nextDelay = INTERVAL_OK;
     var inflight = false;
-    var lastRecentSignature = '';
+    var lastRecentSig = '';
 
-    function fmtNum(n) {
-        n = Number(n) || 0;
-        return n.toLocaleString();
-    }
+    function fmtNum(n) { return (Number(n) || 0).toLocaleString(); }
 
     function setText(sel, value) {
         var els = panel.querySelectorAll(sel);
         for (var i = 0; i < els.length; i++) els[i].textContent = value;
     }
 
+    function setDonut(pct) {
+        var c = document.getElementById('pd-donut-progress');
+        if (!c) return;
+        c.setAttribute('stroke-dashoffset', String(DONUT_CIRC * (1 - pct / 100)));
+    }
+
+    function escapeHTML(s) {
+        return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) {
+            return ({'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'})[c];
+        });
+    }
+
+    function timeAgoFromISO(iso) {
+        if (!iso) return '';
+        var t = Date.parse(iso.replace(' ', 'T') + 'Z');
+        if (isNaN(t)) return '';
+        var d = Math.floor((Date.now() - t) / 1000);
+        if (d < 60) return d + 's ago';
+        if (d < 3600) return Math.floor(d / 60) + 'm ago';
+        if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+        if (d < 86400 * 7) return Math.floor(d / 86400) + 'd ago';
+        var dt = new Date(t);
+        return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    var STEP_META = {
+        2: ['Removed',                    '#24A556'],
+        1: ['In progress now',            '#3B82F6'],
+        3: ['Retrying',                   '#3B82F6'],
+        4: ['Retrying',                   '#3B82F6'],
+        5: ['Broker requested more info', '#2563EB'],
+        0: ['Scheduled',                  '#878C91']
+    };
+
     function rebuildRecent(items) {
         var ul = panel.querySelector('[data-pd-recent]');
         if (!ul) return;
-        var sig = items.map(function (r) { return r.id + ':' + r.step; }).join('|');
-        if (sig === lastRecentSignature) return; /* nothing changed */
-        lastRecentSignature = sig;
+        var sig = items.map(function (r) { return r.id + ':' + r.step + ':' + r.updated_at; }).join('|');
+        if (sig === lastRecentSig) return;
+        lastRecentSig = sig;
         var html = '';
         for (var i = 0; i < items.length; i++) {
             var r = items[i];
-            var color = COLORS[r.step] || '#878C91';
-            var icon = ICONS[r.step] || ICONS[0];
-            /* escape target_domain — only [a-z0-9-_] expected but be safe */
-            var dom = String(r.target_domain || '').replace(/[<>&"]/g, function (c) {
-                return ({'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'})[c];
-            });
-            var lbl = String(r.label || '').replace(/[<>&"]/g, function (c) {
-                return ({'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'})[c];
-            });
-            html += '<li class="flex items-center gap-[12px]">';
-            html +=   '<span class="shrink-0 w-[28px] h-[28px] rounded-full flex items-center justify-center" ';
-            html +=        'style="background:' + color + '14; color:' + color + ';">';
-            html +=     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">';
-            html +=       '<path d="' + icon + '" stroke="currentColor" stroke-width="2.4" ';
-            html +=             'stroke-linecap="round" stroke-linejoin="round"/>';
-            html +=     '</svg>';
-            html +=   '</span>';
-            html +=   '<span class="flex-1 min-w-0 text-[13px] sm:text-[14px] text-[#010205] truncate">';
-            html +=     '<strong>' + dom + '</strong>';
-            html +=     '<span class="text-[#878C91]"> &mdash; ' + lbl + '</span>';
-            html +=   '</span>';
+            var meta = STEP_META[r.step] || STEP_META[0];
+            html += '<li class="flex items-center gap-[14px] py-[12px]">';
+            html +=   '<span class="shrink-0 w-[8px] h-[8px] rounded-full" style="background:' + meta[1] + '"></span>';
+            html +=   '<div class="flex-1 min-w-0">';
+            html +=     '<div class="text-[14px] font-semibold text-[#010205] truncate">' + escapeHTML(r.target_domain) + '</div>';
+            html +=     '<div class="text-[12px] text-[#5B5F66] mt-[1px]">' + escapeHTML(meta[0]) + '</div>';
+            html +=   '</div>';
+            html +=   '<div class="shrink-0 text-[11px] text-[#878C91] tabular-nums">' + timeAgoFromISO(r.updated_at) + '</div>';
             html += '</li>';
         }
         ul.innerHTML = html;
     }
 
     function showLive(state) {
-        /* state: 'live' | 'paused' | 'error' */
         var t = panel.querySelector('[data-pd-live-text]');
         var dot = panel.querySelector('[data-pd-live-indicator] span:first-child');
         if (!t || !dot) return;
-        if (state === 'live')  { t.textContent = 'Live';   dot.style.background = '#24A556'; }
-        if (state === 'paused'){ t.textContent = 'Paused'; dot.style.background = '#9CA3AF'; }
-        if (state === 'error') { t.textContent = 'Retrying'; dot.style.background = '#F59E0B'; }
+        if (state === 'live')   { t.textContent = 'Live';     dot.style.background = '#24A556'; }
+        if (state === 'paused') { t.textContent = 'Paused';   dot.style.background = '#9CA3AF'; }
+        if (state === 'error')  { t.textContent = 'Retrying'; dot.style.background = '#F59E0B'; }
     }
 
     function tick() {
-        if (inflight || document.hidden) {
-            scheduleNext();
-            return;
-        }
+        if (inflight || document.hidden) { scheduleNext(); return; }
         inflight = true;
-        var ctrl = (window.AbortController) ? new AbortController() : null;
+        var ctrl = window.AbortController ? new AbortController() : null;
         var to = setTimeout(function () { ctrl && ctrl.abort(); }, 12000);
         fetch('/api/journey_status', {
             credentials: 'same-origin',
@@ -354,14 +428,14 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
             var c = data.counts || {};
             setText('[data-pd-count="done"]',        fmtNum(c.done));
             setText('[data-pd-count="done_24h"]',    fmtNum(c.done_24h));
-            setText('[data-pd-count="queued"]',      fmtNum(c.queued));
+            setText('[data-pd-count="queued"]',      fmtNum((Number(c.queued)||0) + (Number(c.failed)||0) + (Number(c.not_impl)||0)));
             setText('[data-pd-count="missing_pii"]', fmtNum(c.missing_pii));
             setText('[data-pd-pct]', (data.pct_done || 0) + '%');
+            setDonut(data.pct_done || 0);
             rebuildRecent(data.recent || []);
             showLive('live');
             nextDelay = INTERVAL_OK;
-        }).catch(function (err) {
-            /* network blip / 5xx / timeout — back off, try again later */
+        }).catch(function () {
             showLive('error');
             nextDelay = INTERVAL_ERR;
         }).then(function () {
@@ -370,18 +444,12 @@ $pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCount
         });
     }
 
-    function scheduleNext() {
-        setTimeout(tick, nextDelay);
-    }
+    function scheduleNext() { setTimeout(tick, nextDelay); }
 
-    /* Pause polling when the tab is hidden — Page Visibility API. */
     document.addEventListener('visibilitychange', function () {
-        if (document.hidden) showLive('paused');
-        else showLive('live');
+        showLive(document.hidden ? 'paused' : 'live');
     });
 
-    /* First poll fires 4s after page load so we don't fight initial render. */
     setTimeout(tick, 4000);
 })();
 </script>
-
