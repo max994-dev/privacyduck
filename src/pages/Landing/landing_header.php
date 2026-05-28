@@ -103,7 +103,7 @@ function landing_logout_header($x = "white")
                 </ul>
             </nav>
             <div class="flex flex-row items-center gap-1 sm:gap-2 shrink-0">
-                <a href="/login" class="<?php echo htmlspecialchars($logInClass, ENT_QUOTES, "UTF-8"); ?>">Log In</a>
+                <a href="/new_signin" class="<?php echo htmlspecialchars($logInClass, ENT_QUOTES, "UTF-8"); ?>">Log In</a>
                 <a href="/new_signup" class="<?php echo htmlspecialchars($getStartedClass, ENT_QUOTES, "UTF-8"); ?>">Get Started</a>
             </div>
         </div>
@@ -130,7 +130,7 @@ function landing_logout_header($x = "white")
         </div>
         <div class="px-[24px] pb-8 flex flex-col gap-3">
             <a href="/new_signup" class="block w-full text-center font-semibold text-[14px] bg-gradient-to-r from-[#77B248] to-[#24A556] text-white rounded-full py-3 shadow-[0px_4px_4px_0px_#24A5561A]">Get Started</a>
-            <a href="/login" class="block w-full text-center text-[#010205] font-semibold py-3 border-2 border-[var(--np-brand,#24A556)] rounded-full text-[var(--np-brand,#24A556)]">Log In</a>
+            <a href="/new_signin" class="block w-full text-center text-[#010205] font-semibold py-3 border-2 border-[var(--np-brand,#24A556)] rounded-full text-[var(--np-brand,#24A556)]">Log In</a>
         </div>
     </div>
     <script>

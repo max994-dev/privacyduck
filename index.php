@@ -79,8 +79,8 @@ $routes = [
     'verify' => 'Emailverify/index.php',
 
     //Login & logout
-    'login' => 'Login/index.php',
-    'loginProcess' => 'Login/process.php',
+    'login' => 'controllers/login_redirect.php',  // 301 -> /new_signin
+    'loginProcess' => 'Login/process.php',         // legacy old-Login backend; not reachable through /login anymore
     'logout' => 'controllers/logout.php',
 
     //information type

@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (empty($_SESSION["user_id"])) {
-    header("Location: /login");
+    header("Location: /new_signin");
     exit;
 }
 
@@ -246,7 +246,7 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
 	if (!$userData) {
 	     session_unset();
 	     session_destroy();
-	     header("Location: /login.php");
+	     header("Location: /new_signin");
  	     exit;
 	}
         $contacts = $userData["contacts"] ?? "[]";

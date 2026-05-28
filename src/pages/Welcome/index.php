@@ -12,14 +12,14 @@
  * loads skip this page. User can also opt in to see it again via a link
  * at the bottom of the page (handy for support / refreshing memory).
  *
- * Auth: requires a logged-in user. Bounce to /login if not authenticated.
+ * Auth: requires a logged-in user. Bounce to /new_signin if not authenticated.
  * No payment gate on view (so unpaid users who somehow reach this URL
  * still see the same journey, with a "ready to start" CTA pointing at
  * /pricing).
  */
 
 if (empty($_SESSION['isAuthenticated'])) {
-    header('Location: ' . WEB_DOMAIN . '/login');
+    header('Location: ' . WEB_DOMAIN . '/new_signin');
     exit;
 }
 

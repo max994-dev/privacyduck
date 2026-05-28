@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: ' . WEB_DOMAIN . '/login');
+    header('Location: ' . WEB_DOMAIN . '/new_signin');
     exit;
 }
 

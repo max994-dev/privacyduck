@@ -217,7 +217,7 @@ $pdMostPopular = 'couple';
                 var ctaEl = card.querySelector('[data-bind="cta"]');
                 if (!ctaEl) return;
                 if (!isLoggedIn) {
-                    ctaEl.setAttribute('href', '/login?next=/pricing');
+                    ctaEl.setAttribute('href', '/new_signin?next=/pricing');
                     return;
                 }
                 var link = plan.stripe_payment_link || '';

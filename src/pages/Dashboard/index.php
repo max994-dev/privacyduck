@@ -142,7 +142,7 @@ function fixed_menu()
     <!-- Content -->
     <div id="pd-dashboard-main" class="relative flex-1 min-w-0 w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         <?php fixed_menu(); ?>
-        <div id="content" class="min-h-[calc(100vh-146px)] mt-[72px] xl:mt-0 px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
+        <div id="content" class="mt-[72px] xl:mt-0 px-[23px] sm:px-[24px] xl:px-[48px] py-[32px] xl:py-[37px]">
 		  <?php if ($showSignup): ?>
 	   	 <?php require BASEPATH . "/src/pages/Dashboard/signup_info.php"; ?>
 		  <?php else: ?>

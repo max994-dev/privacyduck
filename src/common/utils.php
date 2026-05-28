@@ -379,7 +379,7 @@ function main_logout_header($x)
                         <?php include(BASEPATH . "/src/common/svgs/dashboard/menu/phone.php"); ?>
                         <a href="tel:+17754433727" class="text-[12px] <?php if ($x == 'black') echo 'text-[#010205]'; ?> font-medium">+1&nbsp;&nbsp;775&nbsp; 443&nbsp; 3727</a>
                     </div> -->
-                    <a href="/login" class="font-semibold text-[14px] px-[37px] py-[13px] <?php if ($x == 'black') echo 'text-[#010205]'; ?> hover:text-[#24A556]">Log In</a>
+                    <a href="/new_signin" class="font-semibold text-[14px] px-[37px] py-[13px] <?php if ($x == 'black') echo 'text-[#010205]'; ?> hover:text-[#24A556]">Log In</a>
                     <a href="/signup" class="font-semibold text-[14px] bg-gradient-to-r from-[#77B248] to-[#24A556] shadow-[0px_4px_4px_0px_#24A5561A] hover:bg-green-700 rounded-full text-white px-[35px] py-[13px] transition-all duration-200">Get
                         Started</a>
                 </div>
@@ -430,7 +430,7 @@ function main_logout_header($x)
                 </div>
                 <div class="flex flex-col space-y-4 items-center w-full">
 
-                    <a href="/login" class="<?php if ($x == 'black') echo 'text-[#010205]'; ?> hover:text-[#24A556]">Log In</a>
+                    <a href="/new_signin" class="<?php if ($x == 'black') echo 'text-[#010205]'; ?> hover:text-[#24A556]">Log In</a>
                     <a href="#" class="hover:text-gray-300 bg-[#24A556] rounded-full py-3 w-full text-center">Get
                         Started</a>
                 </div>
@@ -770,7 +770,7 @@ function business_header($x = "white")
                 <a href="/speaksales">
                     <h2>Speak With Sales</h2>
                 </a>
-                <a href="/login">
+                <a href="/new_signin">
                     <h2>Customer Login</h2>
                 </a>
             </div>
@@ -951,7 +951,7 @@ function business_header($x = "white")
                 </div> -->
                 <a href="/" class="text-[#FFCF50]">For Consumers</a>
                 <a href="/speaksales" class="text-[#FFCF50]">Speak With Sales</a>
-                <a href="/login" class="text-[#FFCF50]">Customer Login</a>
+                <a href="/new_signin" class="text-[#FFCF50]">Customer Login</a>
             </div>
             <div class="flex justify-center items-center w-full">
                 <a href="/business/quote/signup" class="cursor-pointer w-full max-w-[330px] h-[56px] flex justify-center items-center rounded-full 

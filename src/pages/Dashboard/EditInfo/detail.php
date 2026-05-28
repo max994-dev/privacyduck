@@ -286,7 +286,7 @@
                 toastr.error(res.error);
             } else {
                 toastr.success("Account deleted successfully");
-                window.location.href = "/login";
+                window.location.href = "/new_signin";
             }
         });
     }
