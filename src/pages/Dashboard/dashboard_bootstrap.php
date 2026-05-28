@@ -299,26 +299,31 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     }
     removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
 
-    // Reset ANY step=5 (missing_pii) rows back to step=0 so the pipeline
-    // tries them again. Policy: if a user is paid, we run removals
-    // immediately -- we never "pause everything" waiting for a complete
-    // profile. The Python pipeline's per-broker validation will re-mark
-    // step=5 ONLY for brokers that individually need a field the user
-    // hasn't provided (most don't). Brokers that need only Name will
-    // succeed regardless of whether DOB or city is set.
+    // Reset ANY non-terminal failure state back to step=0 so the pipeline
+    // tries them again. Policy (May 2026): if a user is paid, we keep
+    // trying every broker until it actually succeeds. Specifically:
+    //   step=3 (broker_raised: scraper exception)  -> retry
+    //   step=4 (module_missing: script not on disk) -> retry (in case
+    //          the broker module has since been added)
+    //   step=5 (missing_pii: broker wants a field)  -> retry (in case
+    //          the user added the field)
+    // step=1 (in_flight) is NOT reset -- it's actively being worked.
+    // step=2 (done) is terminal success and stays.
     //
-    // Old behavior gated this reset on birth_date+city+state+zip all
-    // being populated -- meant a user who paid but didn't fill in their
-    // ZIP saw nothing happen for 90 days. New behavior: we always try.
+    // Old behavior only reset step=5 and only when birth_date+city+state+zip
+    // were all populated -- meant a paid user missing their ZIP saw zero
+    // activity. And step=3/4 rows just rotted forever. New behavior: try
+    // everything, every dashboard load. If the broker still has the same
+    // problem it'll just re-mark itself; no harm done.
     $resetStmt = $conn->prepare(
-        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step = 5"
+        "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 4, 5)"
     );
     $resetStmt->bind_param("i", $_SESSION["user_id"]);
     $resetStmt->execute();
     if ($resetStmt->affected_rows > 0) {
         error_log("dashboard_bootstrap: user_id=" . (int) $_SESSION["user_id"] .
                   " reset " . $resetStmt->affected_rows .
-                  " step=5 rows to step=0 (try-again policy)");
+                  " step={3,4,5} rows to step=0 (try-again policy)");
     }
     $resetStmt->close();
 
