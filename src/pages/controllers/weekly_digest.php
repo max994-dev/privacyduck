@@ -97,19 +97,25 @@ if ($forceUser > 0) {
 
 // 7-day window filter applied at the JOIN level so SUM() counts only
 // rows that changed in the window, not lifetime totals. For the force
-// test-send case (?user_id=N) we still need to show *something*, so we
-// fall back to a 365-day window there.
-$windowDays = $forceUser > 0 ? 365 : 7;
+// test-send case (?user_id=N) we drop the date filter and the HAVING
+// gate entirely -- the goal is "render whatever exists for this user
+// so we can verify the email", not "respect normal cadence".
+$windowDays = 7;
+$dateJoin = $forceUser > 0
+    ? ''
+    : "AND r.updated_at >= NOW() - INTERVAL $windowDays DAY";
+$having = $forceUser > 0
+    ? ''
+    : "HAVING done_week > 0 OR failed_week > 0 OR missing_pii_week > 0";
 $q = "SELECT u.id, u.email, u.firstname,
              SUM(r.step = 2) AS done_week,
              SUM(r.step = 3) AS failed_week,
              SUM(r.step = 5) AS missing_pii_week
       FROM users u
-      JOIN results r ON r.user_id = u.id AND r.kind = 1
-                    AND r.updated_at >= NOW() - INTERVAL $windowDays DAY
+      JOIN results r ON r.user_id = u.id AND r.kind = 1 $dateJoin
       WHERE $where
       GROUP BY u.id, u.email, u.firstname
-      HAVING done_week > 0 OR failed_week > 0 OR missing_pii_week > 0
+      $having
       LIMIT $limit";
 
 $result = $conn->query($q);
@@ -132,16 +138,25 @@ while ($u = $result->fetch_assoc()) {
 
     // top 10 brokers done this week (by name), filtered to the same
     // 7-day window the candidate query used. For ?user_id=N test sends
-    // we widen to a year so the test email isn't empty.
+    // we drop the date filter so the rendered email isn't empty.
     $top = [];
     $totalDone = 0;
-    $st = $conn->prepare(
-        "SELECT target_domain FROM results
-         WHERE user_id = ? AND kind = 1 AND step = 2
-           AND updated_at >= NOW() - INTERVAL ? DAY
-         ORDER BY updated_at DESC LIMIT 100"
-    );
-    $st->bind_param("ii", $userId, $windowDays);
+    if ($forceUser > 0) {
+        $st = $conn->prepare(
+            "SELECT target_domain FROM results
+             WHERE user_id = ? AND kind = 1 AND step = 2
+             ORDER BY id DESC LIMIT 100"
+        );
+        $st->bind_param("i", $userId);
+    } else {
+        $st = $conn->prepare(
+            "SELECT target_domain FROM results
+             WHERE user_id = ? AND kind = 1 AND step = 2
+               AND updated_at >= NOW() - INTERVAL ? DAY
+             ORDER BY updated_at DESC LIMIT 100"
+        );
+        $st->bind_param("ii", $userId, $windowDays);
+    }
     $st->execute();
     foreach ($st->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
         $totalDone++;
