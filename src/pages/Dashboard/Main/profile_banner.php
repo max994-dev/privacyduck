@@ -64,9 +64,9 @@ if ($pdShowBanner):
             Brokers with strict identity checks need these to process your opt-out.
         </p>
     </div>
-    <a href="/new_dashboard/account" class="shrink-0 inline-flex items-center gap-2 rounded-full bg-[#24A556] hover:bg-[#1F8B47] text-white font-semibold text-[13px] sm:text-[14px] px-[18px] py-[9px] transition-colors whitespace-nowrap">
+    <a href="/new_dashboard/account" class="shrink-0 inline-flex items-center gap-[8px] rounded-full bg-[#24A556] hover:bg-[#1F8B47] active:bg-[#1A7F40] text-white font-semibold text-[14px] sm:text-[15px] px-[22px] py-[11px] shadow-[0_2px_8px_-1px_rgba(36,165,86,0.35)] hover:shadow-[0_3px_10px_-1px_rgba(36,165,86,0.45)] transition-all whitespace-nowrap">
         Complete profile
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </a>

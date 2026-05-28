@@ -156,8 +156,10 @@ function pd_time_ago(?string $iso): string {
     return date('M j', $t);
 }
 
-// SVG donut math (smaller now -- it's supporting visual, not the hero)
-$donutR = 70;
+// SVG donut math. Reduced from r=70 (160px diameter) -> r=58 (140px) to
+// keep the hero card less tall when sitting beside the much shorter
+// chart and stats cards.
+$donutR = 58;
 $donutCirc = 2 * M_PI * $donutR;
 $donutOffset = $donutCirc * (1 - $pdDonePct / 100);
 
@@ -165,25 +167,30 @@ $donutOffset = $donutCirc * (1 - $pdDonePct / 100);
 $pdDailyMax = max(1, max($pdDaily));
 ?>
 
-<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-4 gap-[16px]">
+<!-- items-start so cards size to their content instead of all stretching
+     to the tallest card. Previously hero pushed chart+stats to ~530px tall
+     leaving big empty bottoms. -->
+<div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-4 gap-[16px] items-start">
 
-    <!-- HERO: 50% width on desktop. Hierarchy is BIG NUMBER > phase > donut. -->
-    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px] flex flex-col sm:flex-row items-center gap-[20px] sm:gap-[28px]">
+    <!-- HERO: 50% width on desktop. Hierarchy is BIG NUMBER > phase > donut.
+         Tighter padding so the card isn't gratuitously tall when there's
+         no plan ETA / no extra pills to show. -->
+    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[20px] sm:p-[24px] flex flex-col sm:flex-row items-center gap-[16px] sm:gap-[24px]">
         <div class="flex-1 min-w-0 text-center sm:text-left order-2 sm:order-1">
-            <div class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.14em] text-[#24A556]">
+            <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#24A556]">
                 Phase <?= $pdPhaseNum ?: '-' ?> &middot; <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8') ?>
             </div>
-            <h2 class="mt-[6px] text-[36px] sm:text-[44px] font-bold text-[#010205] leading-[1.05] tabular-nums">
+            <h2 class="mt-[4px] text-[32px] sm:text-[38px] font-bold text-[#010205] leading-[1.05] tabular-nums">
                 <span data-pd-count="done"><?= number_format($pdCounts['done']) ?></span>
-                <span class="text-[#9CA3AF] font-semibold text-[24px] sm:text-[28px]">/&nbsp;<?= number_format($pdCounts['total']) ?></span>
+                <span class="text-[#9CA3AF] font-semibold text-[20px] sm:text-[24px]">/&nbsp;<?= number_format($pdCounts['total']) ?></span>
             </h2>
-            <div class="mt-[2px] text-[13px] sm:text-[14px] text-[#5B5F66] font-medium">
+            <div class="mt-[2px] text-[13px] text-[#5B5F66] font-medium">
                 broker sites where your data has been removed
             </div>
-            <p class="mt-[6px] text-[14px] text-[#5B5F66] leading-[1.5]">
+            <p class="mt-[4px] text-[12px] sm:text-[13px] text-[#5B5F66] leading-[1.45]">
                 <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8') ?>
             </p>
-            <div class="mt-[14px] flex flex-wrap gap-[10px] justify-center sm:justify-start">
+            <div class="mt-[10px] flex flex-wrap gap-[8px] justify-center sm:justify-start">
                 <span class="inline-flex items-center gap-[6px] rounded-full bg-[#E8F7EF] text-[#1A7F40] px-[12px] py-[6px] text-[12px] font-semibold">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
@@ -206,22 +213,22 @@ $pdDailyMax = max(1, max($pdDaily));
             </div>
         </div>
 
-        <!-- Supporting donut. Smaller (160px), sits to the side. The big
-             number above is the headline; this is the visual confirmation. -->
+        <!-- Supporting donut (140px). Sits beside the big number/text
+             on the right; on mobile (flex-col) it moves above. -->
         <div class="relative shrink-0 order-1 sm:order-2">
-            <svg width="160" height="160" viewBox="0 0 160 160" class="-rotate-90">
-                <circle cx="80" cy="80" r="<?= $donutR ?>"
-                        fill="none" stroke="#F3F4F6" stroke-width="14"/>
-                <circle id="pd-donut-progress" cx="80" cy="80" r="<?= $donutR ?>"
-                        fill="none" stroke="#24A556" stroke-width="14"
+            <svg width="140" height="140" viewBox="0 0 140 140" class="-rotate-90">
+                <circle cx="70" cy="70" r="<?= $donutR ?>"
+                        fill="none" stroke="#F3F4F6" stroke-width="12"/>
+                <circle id="pd-donut-progress" cx="70" cy="70" r="<?= $donutR ?>"
+                        fill="none" stroke="#24A556" stroke-width="12"
                         stroke-linecap="round"
                         stroke-dasharray="<?= $donutCirc ?>"
                         stroke-dashoffset="<?= $donutOffset ?>"
                         style="transition: stroke-dashoffset 800ms ease-out;"/>
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <div class="text-[32px] font-bold text-[#010205] leading-none tabular-nums" data-pd-pct><?= $pdDonePct ?>%</div>
-                <div class="text-[10px] uppercase tracking-[0.1em] text-[#878C91] font-semibold mt-[3px]">complete</div>
+                <div class="text-[26px] font-bold text-[#010205] leading-none tabular-nums" data-pd-pct><?= $pdDonePct ?>%</div>
+                <div class="text-[9px] uppercase tracking-[0.1em] text-[#878C91] font-semibold mt-[2px]">complete</div>
             </div>
         </div>
     </div>

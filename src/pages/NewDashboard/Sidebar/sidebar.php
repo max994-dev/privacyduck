@@ -1,8 +1,32 @@
 <?php
 /**
- * Full left nav for /new_dashboard: same icon+title rows as classic dashboard, plus former “Website” links (no section heading).
+ * Left nav for /new_dashboard. Sections:
+ *   1. Logo + collapse button
+ *   2. Personal/Work segmented pill
+ *   3. Primary nav (auth-required: Dashboard, Family, Plans, Concierge, ...)
+ *   4. Section divider
+ *   5. Secondary nav (public marketing pages: Features, Business, FAQ, ...)
+ *   6. Upgrade card (unpaid only)
+ *
+ * Active-state highlight: any nav item whose href matches the current
+ * REQUEST_URI gets a green-tinted background + green icon/text. Makes the
+ * sidebar self-orienting -- you can always see "I'm on the Plans page".
  */
 $dashboardSidebarHelpDesk = 'https://tawk.to/chat/6813761a7c6684190de59a7c/1iq60amh0';
+
+// Normalize current path so we can compare to nav hrefs. Strip query string
+// and trailing slashes so '/new_dashboard/plans?x=1' matches 'plans'.
+$pdCurrentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$pdCurrentPath = rtrim($pdCurrentPath, '/');
+function pd_nav_is_active(string $href, string $currentPath): bool {
+    if ($href === '' || $href === '/') {
+        return $currentPath === '/new_dashboard' || $currentPath === '';
+    }
+    // strip leading slash for relative compare
+    $h = '/new_dashboard' . $href;
+    return $currentPath === $h || strpos($currentPath, $h . '/') === 0;
+}
+
 $newDashboardSiteNavRows = [
     ['href' => '/#features', 'svg' => 'key', 'label' => 'Features'],
     ['href' => '/business', 'svg' => 'people', 'label' => 'Business'],
@@ -47,8 +71,8 @@ $newDashboardSiteNavRows = [
         </div>
     </div>
 
-    <div class="mt-[41px] px-[39px] flex-1 overflow-y-auto">
-        <div id="sidebar" class="flex flex-col space-y-[32px]">
+    <div class="mt-[28px] px-[28px] flex-1 overflow-y-auto">
+        <div id="sidebar" class="flex flex-col space-y-[6px]">
             <?php
             $sidebarNavItems = [
                 ['href' => '', 'svg' => 'key', 'label' => 'Dashboard'],
@@ -65,9 +89,11 @@ $newDashboardSiteNavRows = [
                 }
             ?>
                 <div>
-                    <a data-link href="<?= '/new_dashboard' . $item['href'] ?>" class="group flex space-x-[14px] items-center px-[10px] py-[8px] -mx-[10px] rounded-[10px] hover:bg-[#F4F8F6] transition-colors">
+                    <?php $isActive = pd_nav_is_active($item['href'], $pdCurrentPath); ?>
+                    <a data-link href="<?= '/new_dashboard' . $item['href'] ?>"
+                       class="group flex space-x-[12px] items-center px-[12px] py-[10px] rounded-[10px] transition-colors <?= $isActive ? 'bg-[#E8F7EF]' : 'hover:bg-[#F4F8F6]' ?>">
                         <?php require BASEPATH . '/src/common/svgs/dashboard/sidebar/' . $item['svg'] . '.php'; ?>
-                        <h1 class="text-[#4B4B4E] group-hover:text-[#24A556] text-[18px] font-medium tracking-[-0.01em] transition-colors"><?= $item['label'] ?></h1>
+                        <h1 class="text-[16px] tracking-[-0.01em] transition-colors <?= $isActive ? 'text-[#1A7F40] font-semibold' : 'text-[#4B4B4E] font-medium group-hover:text-[#24A556]' ?>"><?= $item['label'] ?></h1>
                     </a>
                     <div class="max-h-[70px] overflow-y-auto relative">
                         <?php
@@ -111,6 +137,15 @@ $newDashboardSiteNavRows = [
                 </div>
             <?php } ?>
 
+            <!-- Section divider + label between primary nav and the
+                 marketing-page links. Makes the visual hierarchy clear. -->
+            <div class="pt-[20px] pb-[4px] px-[12px]">
+                <div class="border-t border-[#F1F1F1]"></div>
+                <div class="mt-[14px] text-[10px] font-semibold uppercase tracking-[0.12em] text-[#878C91]">
+                    PrivacyDuck
+                </div>
+            </div>
+
             <?php foreach ($newDashboardSiteNavRows as $row) {
                 $isExt = !empty($row['external']);
                 $href = $row['href'];
@@ -119,10 +154,10 @@ $newDashboardSiteNavRows = [
             ?>
                 <div>
                     <a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>"
-                        class="group flex space-x-[14px] items-center px-[10px] py-[8px] -mx-[10px] rounded-[10px] hover:bg-[#F4F8F6] transition-colors"
+                        class="group flex space-x-[12px] items-center px-[12px] py-[8px] rounded-[10px] hover:bg-[#F4F8F6] transition-colors"
                         <?php if ($isExt) { ?>target="_blank" rel="noopener noreferrer"<?php } ?>>
                         <?php require BASEPATH . '/src/common/svgs/dashboard/sidebar/' . $svg . '.php'; ?>
-                        <h1 class="text-[#4B4B4E] group-hover:text-[#24A556] text-[18px] font-medium tracking-[-0.01em] transition-colors"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></h1>
+                        <h1 class="text-[#5B5F66] group-hover:text-[#24A556] text-[14px] font-medium tracking-[-0.01em] transition-colors flex-1"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></h1>
                         <?php if ($isExt) { ?><svg width="11" height="11" viewBox="0 0 24 24" fill="none" class="text-[#9CA3AF]" aria-hidden="true"><path d="M14 4h6m0 0v6m0-6L10 14M6 6h4M6 18h12v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><?php } ?>
                     </a>
                 </div>
