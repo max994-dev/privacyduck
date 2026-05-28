@@ -25,24 +25,38 @@ $pdRecent = [];
 $pdPlanedAt = null;
 
 try {
-    // Plan start date
-    $stmt = $conn->prepare("SELECT planedAt FROM users WHERE id = ?");
-    $stmt->bind_param("i", $pdUserId);
-    $stmt->execute();
-    $pdPlanedAt = $stmt->get_result()->fetch_assoc()['planedAt'] ?? null;
-    $stmt->close();
+    // planedAt is in session already (set at signup); avoid a DB roundtrip.
+    $pdPlanedAt = $_SESSION['planedAt'] ?? null;
+    if (!$pdPlanedAt) {
+        // First-time fallback: pull + cache for the rest of the session
+        $stmt = $conn->prepare("SELECT planedAt FROM users WHERE id = ?");
+        $stmt->bind_param("i", $pdUserId);
+        $stmt->execute();
+        $pdPlanedAt = $stmt->get_result()->fetch_assoc()['planedAt'] ?? null;
+        $stmt->close();
+        $_SESSION['planedAt'] = $pdPlanedAt;
+    }
 
-    // Step counts (full table for this user)
+    // SINGLE QUERY for step counts + 24h count + 14-day daily aggregation.
+    // Uses idx_results_user_kind_step. Returns one row per (step, day)
+    // bucket; we fold into the data structures in PHP.
     $stmt = $conn->prepare(
-        "SELECT step, COUNT(*) AS n FROM results
-         WHERE user_id = ? AND kind = 1 GROUP BY step"
+        "SELECT step,
+                CASE WHEN updated_at >= CURDATE() - INTERVAL 13 DAY
+                     THEN DATE(updated_at) ELSE NULL END AS d,
+                COUNT(*) AS n
+         FROM results
+         WHERE user_id = ? AND kind = 1
+         GROUP BY step, d"
     );
     $stmt->bind_param("i", $pdUserId);
     $stmt->execute();
+    $daily = [];
     foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
         $n = (int) $r['n'];
+        $step = (int) $r['step'];
         $pdCounts['total'] += $n;
-        switch ((int) $r['step']) {
+        switch ($step) {
             case 0: $pdCounts['queued']     += $n; break;
             case 1: $pdCounts['in_flight']  += $n; break;
             case 2: $pdCounts['done']       += $n; break;
@@ -50,10 +64,22 @@ try {
             case 4: $pdCounts['not_impl']   += $n; break;
             case 5: $pdCounts['missing_pii']+= $n; break;
         }
+        // Per-day done count (only step=2 within the 14-day window)
+        if ($step === 2 && $r['d']) {
+            $daily[$r['d']] = ($daily[$r['d']] ?? 0) + $n;
+            // Roll up "today" into done_24h (close enough to a sliding 24h)
+            if ($r['d'] === date('Y-m-d') || $r['d'] === date('Y-m-d', strtotime('-1 day'))) {
+                // Only count rows from last 24h precisely
+            }
+        }
     }
     $stmt->close();
-
-    // Processed in last 24h (for the headline "things are moving" indicator)
+    for ($i = 13; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        $pdDaily[13 - $i] = $daily[$d] ?? 0;
+    }
+    // done_24h as a sliding 24h, separate small query (different time
+    // boundary from CURDATE())
     $stmt = $conn->prepare(
         "SELECT COUNT(*) AS n FROM results
          WHERE user_id = ? AND kind = 1 AND step = 2
@@ -64,26 +90,7 @@ try {
     $pdCounts['done_24h'] = (int)($stmt->get_result()->fetch_assoc()['n'] ?? 0);
     $stmt->close();
 
-    // 14-day activity (step=2 transitions per day)
-    $stmt = $conn->prepare(
-        "SELECT DATE(updated_at) AS d, COUNT(*) AS n FROM results
-         WHERE user_id = ? AND kind = 1 AND step = 2
-           AND updated_at >= CURDATE() - INTERVAL 13 DAY
-         GROUP BY DATE(updated_at)"
-    );
-    $stmt->bind_param("i", $pdUserId);
-    $stmt->execute();
-    $daily = [];
-    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
-        $daily[$r['d']] = (int) $r['n'];
-    }
-    $stmt->close();
-    for ($i = 13; $i >= 0; $i--) {
-        $d = date('Y-m-d', strtotime("-$i days"));
-        $pdDaily[13 - $i] = $daily[$d] ?? 0;
-    }
-
-    // Recent activity (last 8 rows that moved)
+    // Recent activity (last 8 rows that moved). Cheap with the index.
     $stmt = $conn->prepare(
         "SELECT id, target_domain, step, updated_at FROM results
          WHERE user_id = ? AND kind = 1 AND step IN (1, 2, 3, 4, 5)
@@ -149,8 +156,8 @@ function pd_time_ago(?string $iso): string {
     return date('M j', $t);
 }
 
-// SVG donut math
-$donutR = 90;
+// SVG donut math (smaller now -- it's supporting visual, not the hero)
+$donutR = 70;
 $donutCirc = 2 * M_PI * $donutR;
 $donutOffset = $donutCirc * (1 - $pdDonePct / 100);
 
@@ -160,39 +167,21 @@ $pdDailyMax = max(1, max($pdDaily));
 
 <div id="pd-journey-panel" class="mt-[24px] grid grid-cols-1 lg:grid-cols-3 gap-[16px]">
 
-    <!-- HERO: donut + headline number + ETA -->
-    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px] flex flex-col sm:flex-row items-center gap-[28px]">
-        <!-- SVG donut. Stroke-dasharray trick: full circumference set as
-             dash length, then offset controls how much of the stroke is
-             "hidden" -> percentage filled. CSS transition makes the AJAX
-             updates animate smoothly. -->
-        <div class="relative shrink-0">
-            <svg width="200" height="200" viewBox="0 0 200 200" class="-rotate-90">
-                <circle cx="100" cy="100" r="<?= $donutR ?>"
-                        fill="none" stroke="#F3F4F6" stroke-width="16"/>
-                <circle id="pd-donut-progress" cx="100" cy="100" r="<?= $donutR ?>"
-                        fill="none" stroke="#24A556" stroke-width="16"
-                        stroke-linecap="round"
-                        stroke-dasharray="<?= $donutCirc ?>"
-                        stroke-dashoffset="<?= $donutOffset ?>"
-                        style="transition: stroke-dashoffset 800ms ease-out;"/>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <div class="text-[44px] font-bold text-[#010205] leading-none" data-pd-pct><?= $pdDonePct ?>%</div>
-                <div class="text-[11px] uppercase tracking-[0.1em] text-[#878C91] font-semibold mt-[4px]">removed</div>
+    <!-- HERO: hierarchy is BIG NUMBER > phase > donut.
+         Previously donut was 200px and dominated the headline number;
+         now it's 160px and sits on the side as a supporting visual. -->
+    <div class="lg:col-span-2 rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[32px] flex flex-col sm:flex-row items-center gap-[24px] sm:gap-[40px]">
+        <div class="flex-1 min-w-0 text-center sm:text-left order-2 sm:order-1">
+            <div class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.14em] text-[#24A556]">
+                Phase <?= $pdPhaseNum ?: '-' ?> &middot; <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8') ?>
             </div>
-        </div>
-
-        <div class="flex-1 min-w-0 text-center sm:text-left">
-            <div class="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#24A556]">
-                Removal journey &middot; Phase <?= $pdPhaseNum ?: '-' ?>
-            </div>
-            <h2 class="mt-[4px] text-[22px] sm:text-[26px] font-bold text-[#010205] leading-[1.2]">
+            <h2 class="mt-[6px] text-[36px] sm:text-[44px] font-bold text-[#010205] leading-[1.05] tabular-nums">
                 <span data-pd-count="done"><?= number_format($pdCounts['done']) ?></span>
-                <span class="text-[#878C91] font-medium">of</span>
-                <span><?= number_format($pdCounts['total']) ?></span>
-                data brokers
+                <span class="text-[#9CA3AF] font-semibold text-[24px] sm:text-[28px]">/&nbsp;<?= number_format($pdCounts['total']) ?></span>
             </h2>
+            <div class="mt-[2px] text-[13px] sm:text-[14px] text-[#5B5F66] font-medium">
+                broker sites where your data has been removed
+            </div>
             <p class="mt-[6px] text-[14px] text-[#5B5F66] leading-[1.5]">
                 <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8') ?>
             </p>
@@ -216,6 +205,25 @@ $pdDailyMax = max(1, max($pdDaily));
                         All brokers complete &mdash; in monitoring
                     </span>
                 <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Supporting donut. Smaller (160px), sits to the side. The big
+             number above is the headline; this is the visual confirmation. -->
+        <div class="relative shrink-0 order-1 sm:order-2">
+            <svg width="160" height="160" viewBox="0 0 160 160" class="-rotate-90">
+                <circle cx="80" cy="80" r="<?= $donutR ?>"
+                        fill="none" stroke="#F3F4F6" stroke-width="14"/>
+                <circle id="pd-donut-progress" cx="80" cy="80" r="<?= $donutR ?>"
+                        fill="none" stroke="#24A556" stroke-width="14"
+                        stroke-linecap="round"
+                        stroke-dasharray="<?= $donutCirc ?>"
+                        stroke-dashoffset="<?= $donutOffset ?>"
+                        style="transition: stroke-dashoffset 800ms ease-out;"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div class="text-[32px] font-bold text-[#010205] leading-none tabular-nums" data-pd-pct><?= $pdDonePct ?>%</div>
+                <div class="text-[10px] uppercase tracking-[0.1em] text-[#878C91] font-semibold mt-[3px]">complete</div>
             </div>
         </div>
     </div>

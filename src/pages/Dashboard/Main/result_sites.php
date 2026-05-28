@@ -2,50 +2,60 @@
 require BASEPATH . "/src/pages/Dashboard/sites_data.php";
 ?>
 <div class="py-[16px] md:px-[41px] md:py-[30px]">
-    <div class="md:flex items-center justify-between">
-        <h1 class="w-[332px] pl-[18px] md:pl-0 text-[#010205] text-[22px] leading-[130%] font-semibold tracking-[-0.01em]">
-            Websites that expose personal information</h1>
-        <div class="flex items-center justify-between md:justify-normal space-x-[18px] mt-[15px] md:mt-0 pl-[18px] md:pl-0">
-            <div class="bg-[#F9FBFF] rounded-[10px] px-[10px] py-[7px] items-center flex w-[200px] md:w-[231.4px] h-[38px]">
-                <img src="/assets/image/desktop/icons/mini_zoom_in.svg" alt="zoom_in" />
-                <input onchange="setSearchOptions({search: this.value})" value="<?php echo isset($_GET["search"]) ? $_GET["search"] : "" ?>" placeholder="Search"
-                    class="ml-[9px] bg-transparent border-none outline-none placeholder:text-[12px] placeholder:text-[#B5B7C0] tracking-[-0.01em] poppins text-[12px] text-[#010205]" />
+    <div class="md:flex items-center justify-between gap-[16px]">
+        <div>
+            <h1 class="text-[#010205] text-[18px] sm:text-[20px] leading-[130%] font-bold tracking-[-0.01em]">
+                All broker sites
+            </h1>
+            <p class="text-[#5B5F66] text-[12px] sm:text-[13px] mt-[2px]">
+                Search or filter to see status of any specific broker.
+            </p>
+        </div>
+        <div class="flex items-center gap-[10px] mt-[15px] md:mt-0">
+            <!-- Search input. Higher-contrast placeholder, brand focus ring. -->
+            <div class="bg-[#F4F5F7] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#24A556] rounded-[10px] px-[12px] py-[8px] items-center flex w-[200px] md:w-[240px] h-[40px] transition-all">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" stroke="#5B5F66" stroke-width="2"/>
+                    <path d="M21 21l-4.3-4.3" stroke="#5B5F66" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input onchange="setSearchOptions({search: this.value})" value="<?php echo isset($_GET["search"]) ? htmlspecialchars($_GET["search"], ENT_QUOTES, 'UTF-8') : "" ?>"
+                       placeholder="Search broker name..."
+                       class="ml-[9px] bg-transparent border-none outline-none w-full placeholder:text-[13px] placeholder:text-[#878C91] text-[13px] text-[#010205]" />
             </div>
-            <div
-                class="relative flex items-center justify-center bg-[#F9FBFF] rounded-[10px] inline-block text-left font-[Poppins] w-[120px] md:w-[165px] h-[38px] px-[10px] py-[7px] ">
-                <div class="cursor-pointer flex items-center space-x-1" id="dropdownButton">
-                    <span class="text-[#9B9B9C] text-[8px] md:text-[12px]">Short by :</span>
-                    <span id="selectedOption" class="text-black font-semibold text-[8px] md:text-[12px]">Name</span>
-                    <svg class="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                            clip-rule="evenodd" />
+            <div class="relative flex items-center justify-center bg-[#F4F5F7] hover:bg-[#ECEDEF] rounded-[10px] w-[150px] h-[40px] px-[12px] cursor-pointer transition-colors" id="dropdownButton">
+                <div class="flex items-center gap-[6px]">
+                    <span class="text-[#5B5F66] text-[12px] font-medium">Sort by:</span>
+                    <span id="selectedOption" class="text-[#010205] font-semibold text-[12px]">Name</span>
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-
-                <div id="dropdownMenu" class="hidden absolute right-0 top-[100%] w-full bg-white rounded-md shadow-lg z-10">
-                    <ul class="py-1 text-[8px] md:text-[12px] text-gray-700">
-                        <li><a href="#" data-value="Name"
-                                class="dropdown-item block px-4 py-2 hover:bg-gray-100" onclick="setSearchOptions({sort: 'target_domain'})">Name</a></li>
-                        <li><a href="#" data-value="Step"
-                                class="dropdown-item block px-4 py-2 hover:bg-gray-100" onclick="setSearchOptions({sort: 'step'})">Step</a></li>
+                <div id="dropdownMenu" class="hidden absolute right-0 top-[110%] w-full bg-white rounded-md shadow-lg z-10 border border-[#F1F1F1]">
+                    <ul class="py-1 text-[12px] text-[#010205]">
+                        <li><a href="#" data-value="Name" class="dropdown-item block px-4 py-2 hover:bg-[#F4F5F7]" onclick="setSearchOptions({sort: 'target_domain'})">Name</a></li>
+                        <li><a href="#" data-value="Status" class="dropdown-item block px-4 py-2 hover:bg-[#F4F5F7]" onclick="setSearchOptions({sort: 'step'})">Status</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-    <div class="mt-[43px]">
+    <div class="mt-[24px]">
         <div class="overflow-x-auto">
             <table id="exposureTable" class="min-w-full">
                 <thead>
-                    <tr>
-                        <th class="text-left text-[8px] lg:text-[14px] font-medium text-[#B5B7C0] tracking-[-0.01em]">
-                            Website</th>
+                    <tr class="border-b border-[#F1F1F1]">
+                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px]">Broker</th>
+                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px] hidden sm:table-cell">Status</th>
+                        <th class="text-left text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px] hidden md:table-cell">Screenshot</th>
+                        <th class="text-right text-[11px] font-semibold text-[#878C91] tracking-[0.06em] uppercase pb-[10px]"></th>
                     </tr>
                 </thead>
-                <tbody id="results-table" class="divide-y ">
+                <tbody id="results-table" class="divide-y divide-[#F1F1F1]">
                 </tbody>
             </table>
+            <p id="results-empty" class="hidden py-[40px] text-center text-[14px] text-[#5B5F66]">
+                No brokers match your search. Try a different term.
+            </p>
         </div>
     </div>
 </div>

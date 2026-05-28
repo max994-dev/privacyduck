@@ -65,34 +65,39 @@ $newDashboardSiteNavRows = [
                 }
             ?>
                 <div>
-                    <a data-link href="<?= '/new_dashboard' . $item['href'] ?>" class="flex space-x-[14px] items-center">
+                    <a data-link href="<?= '/new_dashboard' . $item['href'] ?>" class="group flex space-x-[14px] items-center px-[10px] py-[8px] -mx-[10px] rounded-[10px] hover:bg-[#F4F8F6] transition-colors">
                         <?php require BASEPATH . '/src/common/svgs/dashboard/sidebar/' . $item['svg'] . '.php'; ?>
-                        <h1 class="text-[#4B4B4E] text-[18px] font-medium tracking-[-0.01em]"><?= $item['label'] ?></h1>
+                        <h1 class="text-[#4B4B4E] group-hover:text-[#24A556] text-[18px] font-medium tracking-[-0.01em] transition-colors"><?= $item['label'] ?></h1>
                     </a>
                     <div class="max-h-[70px] overflow-y-auto relative">
                         <?php
+                        // Session-cached: family roster per user is small + rarely
+                        // changes. Was previously a DB query on EVERY page load.
+                        // Now: cache in session, refresh max once per 5 minutes.
                         if ($item['href'] === '/family') {
-                            $conn = getDBConnection();
-                            $sql = '
-                            SELECT users.firstname, users.lastname
-                            FROM family
-                            JOIN users ON users.id = family.invite_id
-                            WHERE family.core_id = ?
-                        ';
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param('i', $_SESSION['user_id']);
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            if ($result->num_rows > 0) {
-                                $data = $result->fetch_all(MYSQLI_ASSOC);
-                                $count = count($data);
-                                for ($i = 0; $i < $count; $i++) {
+                            $cacheKey = 'pd_family_roster';
+                            $cacheTtl = 300;  // 5 min
+                            $cached = $_SESSION[$cacheKey] ?? null;
+                            if (!$cached || (time() - ($cached['t'] ?? 0)) > $cacheTtl) {
+                                $conn = getDBConnection();
+                                $stmt = $conn->prepare(
+                                    'SELECT users.firstname, users.lastname FROM family
+                                     JOIN users ON users.id = family.invite_id
+                                     WHERE family.core_id = ?'
+                                );
+                                $stmt->bind_param('i', $_SESSION['user_id']);
+                                $stmt->execute();
+                                $data = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                                $stmt->close();
+                                $cached = ['t' => time(), 'data' => $data];
+                                $_SESSION[$cacheKey] = $cached;
+                            }
+                            foreach (($cached['data'] ?? []) as $member) {
                         ?>
                                     <a data-link href="/new_dashboard/family" class="cursor-pointer mt-[10px] flex justify-end">
-                                        <h1 class="capitalize text-[#4B4B4E] text-[14px] font-bold tracking-[-0.01em] py-[3px]"><?= $data[$i]['firstname'] . ' ' . $data[$i]['lastname'] ?></h1>
+                                        <h1 class="capitalize text-[#4B4B4E] text-[14px] font-bold tracking-[-0.01em] py-[3px]"><?= htmlspecialchars($member['firstname'] . ' ' . $member['lastname'], ENT_QUOTES, 'UTF-8') ?></h1>
                                     </a>
                         <?php
-                                }
                             }
                         }
                         ?>
@@ -114,10 +119,11 @@ $newDashboardSiteNavRows = [
             ?>
                 <div>
                     <a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>"
-                        class="flex space-x-[14px] items-center"
+                        class="group flex space-x-[14px] items-center px-[10px] py-[8px] -mx-[10px] rounded-[10px] hover:bg-[#F4F8F6] transition-colors"
                         <?php if ($isExt) { ?>target="_blank" rel="noopener noreferrer"<?php } ?>>
                         <?php require BASEPATH . '/src/common/svgs/dashboard/sidebar/' . $svg . '.php'; ?>
-                        <h1 class="text-[#4B4B4E] text-[18px] font-medium tracking-[-0.01em]"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></h1>
+                        <h1 class="text-[#4B4B4E] group-hover:text-[#24A556] text-[18px] font-medium tracking-[-0.01em] transition-colors"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></h1>
+                        <?php if ($isExt) { ?><svg width="11" height="11" viewBox="0 0 24 24" fill="none" class="text-[#9CA3AF]" aria-hidden="true"><path d="M14 4h6m0 0v6m0-6L10 14M6 6h4M6 18h12v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><?php } ?>
                     </a>
                 </div>
             <?php } ?>

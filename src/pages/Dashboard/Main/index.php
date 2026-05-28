@@ -103,10 +103,12 @@ require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
     </div>
 <?php endif; ?>
 
-<div data-reveal data-reveal-delay="120"
-    class="pd-card-lift relative mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
-    <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
-</div>
+<!-- "Sensitive data we cover" detail_item card was removed: it was a
+     read-only info section with no actionable value. The journey panel
+     above already conveys progress + the result_sites table below
+     conveys per-broker state. Saved ~80px of vertical space + reduced
+     visual competition. Restore from history if you want it back. -->
+
 <div class="mt-[24px]" data-reveal data-reveal-delay="180">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
 </div>

@@ -49,28 +49,24 @@ foreach ($pdRequired as $key => $label) {
 $pdShowBanner = !empty($pdMissing) && !empty($_SESSION['planable']);
 if ($pdShowBanner):
 ?>
-<div class="mb-[24px] rounded-[20px] border border-[#DCE7F2] bg-gradient-to-r from-[#F4F8FC] to-[#EFF5FB] p-[18px] sm:p-[22px] flex flex-col sm:flex-row items-start sm:items-center gap-[16px]">
-    <div class="shrink-0 w-[44px] h-[44px] rounded-full bg-[#2563EB]/10 flex items-center justify-center">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
-                stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+<div class="mb-[20px] rounded-[16px] border border-[#D6EFE0] bg-[#F4FBF6] p-[16px] sm:p-[18px] flex flex-col sm:flex-row items-start sm:items-center gap-[14px]">
+    <div class="shrink-0 w-[40px] h-[40px] rounded-full bg-[#24A556]/15 flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 12l2 2 4-4M12 22a10 10 0 100-20 10 10 0 000 20z" stroke="#1A7F40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </div>
     <div class="flex-1 min-w-0">
-        <h2 class="text-[15px] sm:text-[17px] font-bold text-[#0F2A5F] leading-[1.3]">
-            Removal is running. Add a few details to unlock more brokers.
+        <h2 class="text-[14px] sm:text-[16px] font-bold text-[#1A7F40] leading-[1.3]">
+            Removal is running. Complete your profile to unlock <strong><?= count($pdMissing) ?></strong> more broker<?= count($pdMissing) === 1 ? '' : 's' ?>.
         </h2>
-        <p class="mt-[5px] text-[13px] sm:text-[14px] text-[#0F2A5F]/75 leading-[1.55]">
-            Some data brokers require additional info before they&rsquo;ll process an opt-out
-            (typically date of birth + a full address). We&rsquo;re still missing:
-            <strong class="text-[#0F2A5F]">
-                <?= htmlspecialchars(implode(', ', array_values($pdMissing)), ENT_QUOTES, 'UTF-8'); ?></strong>.
-            Adding these lets us submit to every broker that needs them &mdash; not just the ones that work with name + email.
+        <p class="mt-[3px] text-[12px] sm:text-[13px] text-[#1A7F40]/85 leading-[1.5]">
+            Missing: <strong><?= htmlspecialchars(implode(', ', array_values($pdMissing)), ENT_QUOTES, 'UTF-8'); ?></strong>.
+            Brokers with strict identity checks need these to process your opt-out.
         </p>
     </div>
-    <a href="/new_dashboard/account" class="shrink-0 inline-flex items-center gap-2 rounded-full bg-[#2563EB] hover:bg-[#1D4FBF] text-white font-semibold text-[14px] px-[20px] py-[10px] transition-colors whitespace-nowrap">
-        Add details
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <a href="/new_dashboard/account" class="shrink-0 inline-flex items-center gap-2 rounded-full bg-[#24A556] hover:bg-[#1F8B47] text-white font-semibold text-[13px] sm:text-[14px] px-[18px] py-[9px] transition-colors whitespace-nowrap">
+        Complete profile
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </a>
