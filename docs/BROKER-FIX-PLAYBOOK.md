@@ -1,5 +1,79 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (later in session): 11 of 14 batch-1 brokers rewritten
+
+Deployed to `C:\wonderful\removal\sites\` on the Windows VPS. Service
+restarted, imports clean, no startup errors. New shared helper at
+`C:\wonderful\removal\lib\broker_helpers.py` provides:
+
+- `safe_chromium_for_broker()` — JS-enabled context manager, guarantees
+  `.quit()`, optional proxy, per-step screenshots
+- `dismiss_common_consents()` — clears TrustArc / OneTrust / generic
+  cookie banners
+- `find_input()` / `find_button()` — multi-candidate selector fallback so
+  field-name drift (id → name → placeholder) doesn't break the script
+- `safe_select()` — `<select>` by text or value with fallbacks
+- `run_infopay_optout()` — shared flow for the 7 brokers using the same
+  InfoPay backend (infotracer, ndb, NC/OH warrant, searchquarry,
+  staterecords, recordsfinder)
+- `screenshot_step()` — per-step capture for postmortem
+
+### Rewritten (11 brokers)
+
+| Broker | Why it was 0% | Fix |
+|---|---|---|
+| `infotracercom` + `ndbcom` | Old script disabled JS (breaks reCAPTCHA), brittle selectors, no consent dismissal | Both use `run_infopay_optout()` |
+| `northcarolinawarrantorg` + `ohioarrestwarrantorg` | Same InfoPay backend as above | Same |
+| `searchquarrycom` + `staterecordsorg` + `recordsfindercom` | Same InfoPay backend | Same |
+| `thatsthemcom` | Form has clean `id`-attributed fields; old selectors stale | Direct rewrite |
+| `grassrootsanalyticscom` | Wix form with auto-generated IDs but stable `name=` attrs | `name=` attribute selectors |
+| `truthfindercom` | SPA: fields changed `id` → `name`, multi-step UI ("Delete My User Data" tab → form) | Click tab first, fill with `name=` |
+| `openpeoplesearchcom` | Multi-step (state select → continue → form) | Walks the steps |
+
+### Deferred (3 brokers — need deeper per-broker investigation)
+
+| Broker | Why deferred |
+|---|---|
+| `notariescaliforniacom` | Landing is a SEARCH page, not opt-out. Broker probably doesn't expose a public opt-out — needs research / email-based path |
+| `spydialercom` | `wizard.aspx` ASP.NET wizard. Needs full traversal recon |
+| `bvdinfocom` | 113-field Alchemer survey across multiple pages. Largest single fix — consider routing via email |
+
+### How to verify the 11 rewrites actually deliver removals
+
+These rewrites are best-effort based on static recon — real-broker
+behavior (captcha, post-submit confirmation, anti-bot heuristics) can't
+be verified without sending live submissions. The new scripts capture
+per-step screenshots so postmortem is straightforward.
+
+After 30-60 minutes of pipeline runtime, on the VPS:
+
+```
+# per-broker screenshots show what the bot saw
+dir C:\wonderful\removal\ScreenShot\<today>\infotracercom\
+# success path = sequence: 01_landed, 02_filled, 03_results, 04_confirm_filled, 05_submitted
+# failure markers = files prefixed 99_*  (e.g. 99_no_results_table.png)
+
+# live DB outcome
+python C:\temp\broker_outcomes.py | findstr "infotracer thatsthem grassroots truthfinder openpeoplesearch ndb verifyrecords searchquarry staterecords recordsfinder"
+
+# err log -- look for [broker:NAME] entries
+type C:\wonderful\pd_control\logs\pd-removal.err.log | findstr "broker:"
+```
+
+If a broker still shows 0% after 24h of pipeline runtime, open the
+latest screenshot dir under `ScreenShot/<date>/<broker>/` — the `99_*`
+images mark specific failure points. Adjust selectors in the broker
+script (or in `lib/broker_helpers.run_infopay_optout` for the InfoPay
+cluster) and restart pd-removal.
+
+### NOT in git
+
+These rewrites live on the Windows VPS only. The `C:\wonderful\removal\`
+tree is not currently pushed to a git remote. Originals backed up at
+`<file>.bak.20260528-rewrite` on the box.
+
+---
+
 Status as of 2026-05-28. Pipeline currently has **302 real broker scripts**
 + **112 stubs** = 414 total. Of the 302 real, **175 (~58%)** succeed in
 production, **116 (~38%)** are at 0% success, and ~11 are mixed.
