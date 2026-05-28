@@ -209,6 +209,7 @@ $routes = [
     'add_user_address'=>'controllers/dashboard/editinfo/add_user_address.php',
     'delete_user_address'=>'controllers/dashboard/editinfo/delete_user_address.php',
 
+    'welcome'=> 'Welcome/index.php',
     'book-call'=> 'BookCall/index.php',
     'book_call_set_intent'=> 'controllers/book_call_set_intent.php',
     'book_call_submit'=> 'controllers/book_call_submit.php',

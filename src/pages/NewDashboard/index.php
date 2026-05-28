@@ -6,6 +6,15 @@ if (!empty($_SESSION['pd_book_call_intent']) && empty($_SESSION['pd_book_call_do
     exit;
 }
 
+// First-paid-dashboard-load → show the "What Happens Next" page once.
+// Gated on planable so unpaid users don't see it (they see the pricing
+// flow first). pd_welcome_seen is set by Welcome/index.php so this only
+// fires once per account.
+if (!empty($_SESSION['planable']) && empty($_SESSION['pd_welcome_seen'])) {
+    header('Location: ' . WEB_DOMAIN . '/welcome');
+    exit;
+}
+
 $meta_title = 'PrivacyDuck - Dashboard';
 $meta_description = 'Protect your privacy with PrivacyDuck. We remove your personal data from the internet and safeguard your online presence. Get started today!';
 $meta_url = 'https://privacyduck.com/new_dashboard';

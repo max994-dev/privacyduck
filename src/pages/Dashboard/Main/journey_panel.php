@@ -1,0 +1,218 @@
+<?php
+/**
+ * Removal Journey panel.
+ *
+ * Replaces the abstract donut-only progress view with a phase indicator
+ * + live broker activity feed + user-friendly counts. Goal: a paying
+ * user should glance at this and immediately know:
+ *   - what phase of the removal journey they're in
+ *   - what specifically PrivacyDuck is doing for them RIGHT NOW
+ *   - how many brokers are done, in-progress, scheduled, blocked
+ *   - which 5 brokers most recently changed state (with timestamp)
+ *
+ * Includer must have $conn + $_SESSION['user_id'] + $_SESSION['planedAt']
+ * (or the user's planedAt is fetched fresh) + $_SESSION['planable'].
+ *
+ * Step codes from the pipeline:
+ *   0  = queued / scheduled
+ *   1  = in flight (claimed by worker)
+ *   2  = removed successfully
+ *   3  = broker rejected / failed (will retry)
+ *   4  = broker not yet implemented (won't retry)
+ *   5  = missing PII (user needs to complete profile)
+ */
+
+$pdUserId = (int)($_SESSION["user_id"] ?? 0);
+$pdPlanedAt = null;
+$pdCounts = ['done' => 0, 'in_flight' => 0, 'queued' => 0, 'failed' => 0, 'not_impl' => 0, 'missing_pii' => 0, 'total' => 0];
+$pdRecent = [];
+
+try {
+    $jpStmt = $conn->prepare("SELECT planedAt FROM users WHERE id = ?");
+    $jpStmt->bind_param("i", $pdUserId);
+    $jpStmt->execute();
+    $row = $jpStmt->get_result()->fetch_assoc();
+    $pdPlanedAt = $row['planedAt'] ?? null;
+    $jpStmt->close();
+
+    $jpStmt = $conn->prepare(
+        "SELECT step, COUNT(*) AS n FROM results WHERE user_id = ? AND kind = 1 GROUP BY step"
+    );
+    $jpStmt->bind_param("i", $pdUserId);
+    $jpStmt->execute();
+    foreach ($jpStmt->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
+        $n = (int)$r['n'];
+        $pdCounts['total'] += $n;
+        switch ((int)$r['step']) {
+            case 0: $pdCounts['queued']     += $n; break;
+            case 1: $pdCounts['in_flight']  += $n; break;
+            case 2: $pdCounts['done']       += $n; break;
+            case 3: $pdCounts['failed']     += $n; break;
+            case 4: $pdCounts['not_impl']   += $n; break;
+            case 5: $pdCounts['missing_pii']+= $n; break;
+        }
+    }
+    $jpStmt->close();
+
+    // Recent activity: last 5 step transitions away from 0. We don't have
+    // an updated_at column yet, so we approximate by ordering by id DESC
+    // (rows are claimed/updated by id roughly in time order for a given
+    // user). When the schema migration adds updated_at, swap to that.
+    $jpStmt = $conn->prepare(
+        "SELECT id, target_domain, step
+         FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
+         ORDER BY id DESC LIMIT 6"
+    );
+    $jpStmt->bind_param("i", $pdUserId);
+    $jpStmt->execute();
+    $pdRecent = $jpStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $jpStmt->close();
+} catch (Throwable $e) {
+    error_log('journey_panel read failed: ' . $e->getMessage());
+}
+
+// Figure out which phase the user is in based on time since plan started.
+$pdPhaseNum = 0;
+$pdPhaseLabel = 'Waiting to start';
+$pdPhaseDesc = 'Add a plan to begin your removal journey.';
+$pdPhaseDays = 0;
+if (!empty($_SESSION['planable']) && $pdPlanedAt) {
+    try {
+        $plannedTime = new DateTime($pdPlanedAt);
+        $now = new DateTime();
+        $diff = $now->diff($plannedTime);
+        $pdPhaseDays = ((int)$diff->format('%a'));
+        if ($pdPhaseDays < 1) {
+            $pdPhaseNum = 1;
+            $pdPhaseLabel = 'Day 1';
+            $pdPhaseDesc = 'Removing your data from the highest-traffic brokers.';
+        } elseif ($pdPhaseDays < 3) {
+            $pdPhaseNum = 2;
+            $pdPhaseLabel = 'First 72 hours';
+            $pdPhaseDesc = 'Working through the long tail of people-search sites.';
+        } elseif ($pdPhaseDays < 30) {
+            $pdPhaseNum = 3;
+            $pdPhaseLabel = 'Week 1 - 4';
+            $pdPhaseDesc = 'Brokers process requests at their own pace. Confirmations rolling in.';
+        } else {
+            $pdPhaseNum = 4;
+            $pdPhaseLabel = 'Active monitoring';
+            $pdPhaseDesc = 'We re-sweep every 90 days to catch re-appearances.';
+        }
+    } catch (Exception $e) {
+        // bad date string; keep default
+    }
+}
+
+// User-friendly labels for each step
+function pd_step_label(int $step): array
+{
+    switch ($step) {
+        case 2: return ['Removed', '#24A556', 'M5 13l4 4L19 7'];
+        case 1: return ['In progress now', '#3B82F6', 'M12 6v6m0 0l4-4m-4 4l-4-4'];
+        case 3: return ['Broker rejected (will retry)', '#F59E0B', 'M12 9v4m0 4h.01'];
+        case 4: return ['Broker not yet supported', '#878C91', 'M19 11H5v2h14v-2z'];
+        case 5: return ['Waiting on your profile info', '#DC2626', 'M12 9v4m0 4h.01'];
+        default: return ['Scheduled', '#878C91', 'M5 13l4 4L19 7'];
+    }
+}
+
+$pdDonePct = $pdCounts['total'] > 0 ? round(($pdCounts['done'] * 100) / $pdCounts['total']) : 0;
+?>
+
+<div class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
+    <!-- Phase header -->
+    <div class="px-[24px] sm:px-[32px] pt-[24px] sm:pt-[28px] pb-[20px] bg-gradient-to-r from-[#F8FBF6] to-[#FFFFFF] border-b border-[#F1F1F1]">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div>
+                <div class="text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.12em] text-[#24A556]">
+                    Removal journey
+                </div>
+                <h2 class="mt-[6px] text-[22px] sm:text-[28px] font-bold text-[#010205] leading-[1.15]">
+                    Phase <?= $pdPhaseNum ?: '-'; ?>: <?= htmlspecialchars($pdPhaseLabel, ENT_QUOTES, 'UTF-8'); ?>
+                </h2>
+                <p class="mt-[6px] text-[14px] sm:text-[15px] text-[#5B5F66] leading-[1.5]">
+                    <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8'); ?>
+                </p>
+            </div>
+            <div class="text-left sm:text-right">
+                <div class="text-[36px] sm:text-[42px] font-bold text-[#24A556] leading-none"><?= $pdDonePct; ?>%</div>
+                <div class="text-[12px] sm:text-[13px] text-[#878C91] font-medium uppercase tracking-wide">complete</div>
+            </div>
+        </div>
+        <!-- Phase progress bar -->
+        <div class="mt-[20px] grid grid-cols-4 gap-[6px]">
+            <?php foreach ([1,2,3,4] as $p): ?>
+                <div class="h-[6px] rounded-full <?= $p <= $pdPhaseNum ? 'bg-[#24A556]' : 'bg-[#E5E7EB]'; ?>"></div>
+            <?php endforeach; ?>
+        </div>
+        <div class="mt-[8px] grid grid-cols-4 gap-[6px] text-[10px] sm:text-[11px] text-[#878C91] font-medium">
+            <div>Day 1</div>
+            <div>72 hours</div>
+            <div>Week 1-4</div>
+            <div class="text-right sm:text-left">Ongoing</div>
+        </div>
+    </div>
+
+    <!-- Counts grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-[#F1F1F1]">
+        <div class="px-[20px] py-[18px]">
+            <div class="text-[13px] text-[#878C91] font-medium">Removed</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#24A556] leading-none"><?= number_format($pdCounts['done']); ?></div>
+        </div>
+        <div class="px-[20px] py-[18px]">
+            <div class="text-[13px] text-[#878C91] font-medium">In progress</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#3B82F6] leading-none"><?= number_format($pdCounts['in_flight']); ?></div>
+        </div>
+        <div class="px-[20px] py-[18px]">
+            <div class="text-[13px] text-[#878C91] font-medium">Scheduled</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold text-[#010205] leading-none"><?= number_format($pdCounts['queued']); ?></div>
+        </div>
+        <div class="px-[20px] py-[18px]">
+            <div class="text-[13px] text-[#878C91] font-medium">Needs attention</div>
+            <div class="mt-[4px] text-[26px] sm:text-[30px] font-bold <?= $pdCounts['missing_pii'] > 0 ? 'text-[#DC2626]' : 'text-[#010205]'; ?> leading-none">
+                <?= number_format($pdCounts['missing_pii']); ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent activity -->
+    <?php if (!empty($pdRecent)): ?>
+        <div class="px-[24px] sm:px-[32px] py-[20px] sm:py-[24px] border-t border-[#F1F1F1]">
+            <h3 class="text-[15px] sm:text-[16px] font-bold text-[#010205] mb-[14px]">Recent activity</h3>
+            <ul class="space-y-[10px]">
+                <?php foreach (array_slice($pdRecent, 0, 5) as $r): list($lbl, $color, $iconPath) = pd_step_label((int)$r['step']); ?>
+                    <li class="flex items-center gap-[12px]">
+                        <span class="shrink-0 w-[28px] h-[28px] rounded-full flex items-center justify-center" style="background: <?= $color; ?>14; color: <?= $color; ?>;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="<?= $iconPath; ?>" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="flex-1 min-w-0 text-[13px] sm:text-[14px] text-[#010205] truncate">
+                            <strong><?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                            <span class="text-[#878C91]"> &mdash; <?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8'); ?></span>
+                        </span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <a href="/new_dashboard/personal" class="mt-[14px] inline-flex items-center gap-[4px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
+                See all <?= number_format($pdCounts['total']); ?> sites
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Honest disclosures -->
+    <?php if ($pdCounts['failed'] > 0 || $pdCounts['not_impl'] > 0): ?>
+        <div class="px-[24px] sm:px-[32px] py-[16px] bg-[#FAFAFA] border-t border-[#F1F1F1] text-[12px] sm:text-[13px] text-[#5B5F66] leading-[1.5]">
+            <?php if ($pdCounts['failed'] > 0): ?>
+                <span><strong><?= number_format($pdCounts['failed']); ?> brokers</strong> rejected the first attempt &mdash; we&rsquo;ll retry on the next 90-day sweep.</span>
+            <?php endif; ?>
+            <?php if ($pdCounts['not_impl'] > 0): ?>
+                <span class="ml-2"><strong><?= number_format($pdCounts['not_impl']); ?> brokers</strong> aren&rsquo;t yet supported by our automation; they&rsquo;re tracked separately.</span>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+</div>

@@ -1,3 +1,10 @@
+<?php
+// Profile-completeness banner: renders top-of-dashboard ONLY when the user
+// is missing PII the broker pipeline requires (birth_date/city/state/zip/
+// address/phone). Reads `users` via the shared $conn from
+// dashboard_bootstrap.php. Silent no-op when profile is complete.
+require_once BASEPATH . '/src/pages/Dashboard/Main/profile_banner.php';
+?>
 <div class="flex items-center justify-between xl:justify-normal" data-reveal="fade">
     <h1 class="font-semibold text-[16px] sm:text-[20px] md:text-[24px] text-[#010205] pointer-events-none">Welcome, <?php echo $_SESSION["fullName"]; ?>
     </h1>
@@ -53,6 +60,14 @@
         </div>
     </div>
 </div>
+<?php
+// Removal Journey panel: phase indicator + live counts + recent activity
+// feed + honest disclosures about failed/not-impl brokers. Renders for all
+// users (planable or not -- a not-yet-paid user sees "Waiting to start").
+// Replaces the abstract donut as the primary "what's happening" surface;
+// the donut still renders below for users who like the legacy view.
+require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
+?>
 <div class="hidden lg:block">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/progress/index.php"); ?>
 </div>
