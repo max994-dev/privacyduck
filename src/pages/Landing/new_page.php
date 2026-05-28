@@ -297,7 +297,7 @@ main_head_end();
         <div class="relative z-10 flex-1 flex flex-col justify-center px-5 md:px-10 lg:px-20 xl:px-[100px] py-10 sm:py-12 pb-28 lg:pb-12 max-w-[960px]">
     <h1
     class="np-poppins font-semibold text-[32px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-[-0.02em]"
-    aria-label="Remove your Phone Number from 300+ data brokers."
+    aria-label="Remove your Phone Number from 400+ data brokers."
 >
     <span class="whitespace-nowrap">
         Real people removing your
@@ -513,7 +513,7 @@ main_head_end();
         <div class="max-w-[960px] mx-auto text-center mb-10">
             <span class="inline-block rounded-full np-brand-bg text-white text-sm font-semibold px-5 py-2">Pricing</span>
             <h2 class="np-poppins mt-6 font-semibold text-[#010205] text-[28px] sm:text-[34px] lg:text-[44px] leading-[1.15] tracking-[-0.02em]">The Right Price For You, Whoever You Are</h2>
-            <p class="np-poppins mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">Our subscription covers 300+ sites and continues to delete your data from data broker sites year after year</p>
+            <p class="np-poppins mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">Our subscription covers 400+ sites and continues to delete your data from data broker sites year after year</p>
         </div>
         <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8 font-dmsans">
             <article class="np-plan-card np-plan-card--active p-6 sm:p-8 md:p-10 flex flex-col cursor-pointer" data-plan-card="pro" role="button" tabindex="0" aria-pressed="true">
@@ -532,7 +532,7 @@ main_head_end();
                 </a>
                 <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>
                 <ul class="mt-4 space-y-3 text-[15px] text-[#141414]/90">
-                    <li class="flex gap-2"><span class="np-brand-text font-bold">✓</span> 300+ Sites Opted Out</li>
+                    <li class="flex gap-2"><span class="np-brand-text font-bold">✓</span> 400+ Sites Opted Out</li>
                     <li class="flex gap-2"><span class="np-brand-text font-bold">✓</span> Dark Web Monitoring &amp; Privacy Concierge Support Included</li>
                     <li class="flex gap-2"><span class="np-brand-text font-bold">✓</span> Custom Support Through Our Concierge</li>
                 </ul>
@@ -609,7 +609,7 @@ main_head_end();
             $rows = [
                 ['Removes Basic People Search Sites', '✓', '✓', '✓'],
                 ['Basic Data Removal', '✓', '✓', '✓'],
-                ['Data Brokers Removed', '300+ Sites', '180 Sites', '50 Sites Removed'],
+                ['Data Brokers Removed', '400+ Sites', '180 Sites', '50 Sites Removed'],
                 ['Time until full removal', '1-2 weeks', '3 Months', '6 Months'],
                 ['Exclusive offers', '✓', '✕', '✕'],
                 ['Removes Genealogy sites', '✓', '✕', '✕'],
@@ -855,7 +855,7 @@ main_head_end();
             <div class="mt-12 grid md:grid-cols-3 gap-6 md:items-stretch">
                 <?php
                 $cards = [
-                    ['300+ Sites Checked', 'Sites checked for your information', 'PrivacyDuck checks and removes your data on 300+ websites'],
+                    ['400+ Sites Checked', 'Sites checked for your information', 'PrivacyDuck checks and removes your data on 400+ websites'],
                     ['30,000+ Profiles Removed', "We're proud to have removed over 30,000 website profiles.", 'Our professionals have removed personal information on 30,000+ websites.'],
                     ['10,000+ customers', 'We have served 10,000+ customers', 'We have catered to the needs of over 10,000 satisfied customers with comprehensive solutions.'],
                 ];

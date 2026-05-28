@@ -16,7 +16,7 @@
 </div>
 <div class="px-[16px] mt-[40px] sm:mt-[48px]">
     <h1 class="text-[24px] sm:text-[36px] text-[#010205] font-semibold leading-[110%] tracking-[-0.03em]"><span class="text-[#24A556]"
-            id="progress-count">0</span> out of 301 websites</h1>
+            id="progress-count">0</span> out of 413 websites</h1>
 </div>
 <div class="px-[16px] mt-[24px] sm:mt-[48px]">
     <h1 class="text-[32px] sm:text-[56px] text-[#010205] font-bold leading-[110%] tracking-[-0.03em]">Scanning...</h1>
@@ -106,7 +106,7 @@
 <script>
     toggleCollapse();
     let progress = 0;
-    const total = 301;
+    const total = 413;  // matches REMOVAL_TARGET_TOTAL_PER_USER on the pipeline
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const progressCount = document.getElementById('progress-count');

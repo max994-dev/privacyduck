@@ -48,7 +48,7 @@ $pdMostPopular = 'couple';
                 Real people, removing your data,<br class="hidden sm:block"> year after year
             </h1>
             <p class="mt-6 text-white/75 text-[16px] sm:text-[18px] leading-[1.6] max-w-[600px] mx-auto">
-                One plan per household. Cancel any time. Every plan includes unlimited removal requests across 300+ data brokers.
+                One plan per household. Cancel any time. Every plan includes unlimited removal requests across 400+ data brokers.
             </p>
         </div>
 

@@ -295,7 +295,7 @@ main_head_end();
                 <?php
                 $pdSteps = [
                     ['t' => 'First 24 hours', 'h' => 'Deleting common data brokers',       'b' => 'We start by removing your data from the highest-traffic brokers like Acxiom and Spokeo - the ones most likely to surface in a Google search of your name.'],
-                    ['t' => '48 hours',       'h' => 'Removing from people-search sites',  'b' => 'Next we work through the long tail of people-finding sites (BeenVerified, FastBackgroundCheck, WhitePages and 300+ others) - the ones that resell your address and phone number.'],
+                    ['t' => '48 hours',       'h' => 'Removing from people-search sites',  'b' => 'Next we work through the long tail of people-finding sites (BeenVerified, FastBackgroundCheck, WhitePages and 400+ others) - the ones that resell your address and phone number.'],
                     ['t' => '72 hours',       'h' => 'Removing from genetic databases',    'b' => 'We file removal requests at genetic data sites such as 23andMe and Ancestry - places that can leak family relationships and health data.'],
                     ['t' => 'Rest of the year','h' => 'Continuous sweeping',               'b' => 'Brokers re-upload your data on a quarterly cycle. We monitor and re-submit removal requests as soon as your information reappears, every year you stay subscribed.'],
                 ];
@@ -341,7 +341,7 @@ main_head_end();
                     The Right Price For You, <span class="pd-gradient-text">Whoever You Are</span>
                 </h2>
                 <p data-reveal data-reveal-delay="120" class="mt-4 text-[#010205]/80 text-[15px] sm:text-[17px] leading-[155%]">
-                    Our subscription covers 300+ sites and continues to delete your data from data broker sites year after year
+                    Our subscription covers 400+ sites and continues to delete your data from data broker sites year after year
                 </p>
             </div>
             <div class="max-w-[960px] mx-auto grid md:grid-cols-2 gap-6 md:gap-8" style="font-family: 'DM Sans', system-ui, sans-serif;">
@@ -365,7 +365,7 @@ main_head_end();
                     </a>
                     <p class="mt-7 font-bold text-[#141414]">Plan includes:</p>
                     <ul class="mt-4 space-y-3 text-[15px] text-[#141414]/90 text-left">
-                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> 300+ Sites Opted Out</li>
+                        <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> 400+ Sites Opted Out</li>
                         <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Dark Web Monitoring &amp; Privacy Concierge Support Included</li>
                         <li class="flex gap-2"><span class="text-[#77B248] font-bold">✓</span> Custom Support Through Our Concierge</li>
                     </ul>

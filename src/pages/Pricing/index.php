@@ -12,7 +12,7 @@ $json_ld = [
         "name" => "PrivacyDuck",
         "url" => "https://privacyduck.com"
     ],
-    "description" => "Remove your personal data from 300+ data broker sites, people search engines, and Google. Includes dark web monitoring and privacy concierge support.",
+    "description" => "Remove your personal data from 400+ data broker sites, people search engines, and Google. Includes dark web monitoring and privacy concierge support.",
     "url" => "https://privacyduck.com/pricing",
     "areaServed" => "US",
     "offers" => [

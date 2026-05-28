@@ -28,7 +28,7 @@ $city = isset($_GET["city"]) ? $_GET["city"] : "";
                 <h1 class="text-[16px] sm:text-[18px] leading-[130%] text-[#010205] mt-[24px] sm:mt-[33px]">
                     We will
                     scan
-                    301 people-search sites now to find those that expose your personal information.
+                    413 people-search sites now to find those that expose your personal information.
                 </h1>
             </div>
             <div class="mt-[32px] ">

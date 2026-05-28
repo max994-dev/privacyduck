@@ -10,7 +10,7 @@
                         <?php for ($i = 0; $i < 4; $i++) { ?>
                             <div>
                                 <h2 class="text-center text-[18px] sm:text-[32px] font-bold leading-[150%] tracking-[-0.03em] text-white">2020</h2>
-                                <p class="max-w-[204px] text-center text-[#FFFFFFE5] text-[12px] leading-[160%] font-medium mt-[28px]">Our system automatically removes your data from 300+ websites. </p>
+                                <p class="max-w-[204px] text-center text-[#FFFFFFE5] text-[12px] leading-[160%] font-medium mt-[28px]">Our system automatically removes your data from 400+ websites. </p>
                             </div>
                         <?php } ?>
                     </div>

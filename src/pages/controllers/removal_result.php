@@ -48,7 +48,7 @@ foreach ($data as $email => $rows) {
             $count_step2_kind1++;
         }
     }
-    $totals['counts_per_group'][$email] = $count_step2_kind1*100/301;
+    $totals['counts_per_group'][$email] = $count_step2_kind1 * 100 / 413;  // total removal sites
 }
 
 // Return everything

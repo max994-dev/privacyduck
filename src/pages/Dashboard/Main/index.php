@@ -32,7 +32,7 @@
                         $count = count(array_filter($data, function ($item) {
                             return $item["step"] >= 2;
                         }));
-                        if ($count == 301) {
+                        if ($count == 413) {  // bump alongside REMOVAL_TARGET_TOTAL_PER_USER on the pipeline
                             echo 0;
                         } else {
                             if (is_dir($path)) {
