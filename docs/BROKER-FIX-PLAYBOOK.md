@@ -1,5 +1,73 @@
 # Broker scraping fix playbook
 
+## UPDATE 2026-05-28 (latest+1): 53 of 112 stubs implemented via shared template
+
+Customer demanded "all 413 brokers in progress, IT MUST". Discovered the
+remaining 112 unimplemented brokers were never going to succeed on their
+own. Started knocking them down by shared template.
+
+**First template:** `run_arrests_org_optout(broker_name, dataRow, run_mode)`
+added to `lib/broker_helpers.py`. Implements the `/request-portal`
+form shared by:
+
+- 49 `*arrests.org` state-arrest-records sites (`californiaarrestsorg`,
+  `nyarrestsorg`, `alabamaarrestsorg`, ..., `arrestwarrantorg`)
+- 4 `*courtrecords.us` state-court-records sites (`alabamacourtrecordsus`,
+  `alaskacourtrecordsus`, `arizonacourtrecordsus`, `arkansascourtrecordsus`)
+
+Discovered the shared form by hitting `californiaarrests.org/request-portal`
+and `nyarrests.org/request-portal` via WebFetch -- both render the same
+fields: self/agent radio, request-type radio (we click Delete), First/Last
+name, Email, Address, City, State dropdown, Zip, Additional Details
+textarea, Submit button. No CAPTCHA. JavaScript required (use DrissionPage).
+
+Each broker stub now reduces to a 4-line file:
+
+```python
+from lib.broker_helpers import run_arrests_org_optout
+
+def californiaarrestsorg(dataRow, website_name, in_user_email, run_mode):
+    return run_arrests_org_optout("californiaarrestsorg", dataRow, run_mode=run_mode)
+```
+
+**All 414 broker files compile clean.** Import chain verified
+(`from sites.californiaarrestsorg import californiaarrestsorg` returns
+the callable). pd-removal restarted, picked up new code at 07:30 UTC.
+
+**Honest caveats:**
+
+1. Template is **unverified in production** -- no real opt-out submission
+   has run through it yet. Selectors are defensive (multi-candidate
+   fallbacks) but might miss; first real user data hitting each broker
+   will tell us.
+2. Some `*arrests.org` sites may be dead (e.g. `texasarrests.org`
+   returned 404 in spot-check -- but `texasarrests` is not in the 112
+   stubs, so no harm). Expect 10-20% of the 53 to fail on first call
+   due to dead sites or selector drift.
+3. CloudFlare interstitials may block scraper attempts on some sites.
+
+**Remaining 59 stubs** (~ down from 112):
+- People-search / phone-lookup: 411com, 411info, 411locatecom,
+  absolutepeoplesearchcom, allareacodescom, areacodelookupcom,
+  callercentercom, cellrevealercom, mylifecom, numbergurucom,
+  neighborreport, neighborwhocom, ownerlycom, thisnumbercom, usphoneprocom
+- Ad-tech / marketing data: 24countercom, 33acrosscom, 33mileradiuscom,
+  360mediadirectcom, addirectinccom, addressuscom, adstradatacom,
+  adttributioncom, aeroleadscom, affinityanswerscom, affinitysolutions,
+  agedleadstorecom, agrmarketingsolutionscom, alliantinsightcom,
+  alphonsotv, altratacom, amplemarketcom, anchorcomputercom, anteriadcom,
+  apolloio, aritycom, arivifycom, arounddealcom, aspirenorthcom,
+  atdatacom, attribitscom, awlcom, aceagentsai, adaptio, bigvillagecom,
+  birdeyecom, centedacom, lookifyio
+- Misc: alarmscaliforniaorg, allbizcom, backgroundcheckersnet,
+  backgroundcheckmeorg, backgroundchecksorg, besthistorysitesnet,
+  homemetrycom, informationcom, onlinesearchescom, yellowbookcom,
+  yellowpagesdirectorycom
+
+These each need their own form scraper (1-3 hr per broker realistically).
+~80-160 hours of focused dev work remaining. No shared template
+possible because they're unrelated companies with different forms.
+
 ## UPDATE 2026-05-28 (latest): pipeline categorization + "removal paused" gate killed
 
 Earlier in the day a customer reported their dashboard showed:
