@@ -8,7 +8,7 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
                 All broker sites
             </h1>
             <p class="text-[#5B5F66] text-[12px] sm:text-[13px] mt-[2px]">
-                Search or filter to see status of any specific broker.
+                <span id="results-summary">Loading…</span>
             </p>
         </div>
         <div class="flex items-center gap-[10px] mt-[15px] md:mt-0">
@@ -39,7 +39,44 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             </div>
         </div>
     </div>
-    <div class="mt-[24px]">
+    <!-- Status filter chips. Click to filter the list by status; counts
+         come from the same /get_results endpoint so they always match the
+         visible total. The chip styling matches the inline row badges below
+         (same color per status) so the connection is visually obvious. -->
+    <div id="status-filter-chips" class="mt-[18px] flex flex-wrap gap-[8px]">
+        <button type="button" data-chip="" class="pd-chip pd-chip-active inline-flex items-center gap-[6px] px-[12px] h-[32px] rounded-full text-[12px] font-semibold border transition-colors">
+            <span>All</span>
+            <span class="pd-chip-count text-[11px] opacity-75" data-count-key="all">0</span>
+        </button>
+        <button type="button" data-chip="0" class="pd-chip inline-flex items-center gap-[6px] px-[12px] h-[32px] rounded-full text-[12px] font-semibold border transition-colors">
+            <span class="w-[6px] h-[6px] rounded-full bg-[#C00000]"></span>
+            <span>Not yet</span>
+            <span class="pd-chip-count text-[11px] opacity-75" data-count-key="0">0</span>
+        </button>
+        <button type="button" data-chip="1" class="pd-chip inline-flex items-center gap-[6px] px-[12px] h-[32px] rounded-full text-[12px] font-semibold border transition-colors">
+            <span class="w-[6px] h-[6px] rounded-full bg-[#FFA500]"></span>
+            <span>Ongoing</span>
+            <span class="pd-chip-count text-[11px] opacity-75" data-count-key="1">0</span>
+        </button>
+        <button type="button" data-chip="2" class="pd-chip inline-flex items-center gap-[6px] px-[12px] h-[32px] rounded-full text-[12px] font-semibold border transition-colors">
+            <span class="w-[6px] h-[6px] rounded-full bg-[#24A556]"></span>
+            <span>Sent</span>
+            <span class="pd-chip-count text-[11px] opacity-75" data-count-key="2">0</span>
+        </button>
+        <button type="button" data-chip="3" class="pd-chip inline-flex items-center gap-[6px] px-[12px] h-[32px] rounded-full text-[12px] font-semibold border transition-colors">
+            <span class="w-[6px] h-[6px] rounded-full bg-[#9B9B9C]"></span>
+            <span>Not found</span>
+            <span class="pd-chip-count text-[11px] opacity-75" data-count-key="3">0</span>
+        </button>
+    </div>
+    <style>
+        .pd-chip { background:#F4F5F7; color:#5B5F66; border-color:transparent; }
+        .pd-chip:hover { background:#ECEDEF; }
+        .pd-chip-active { background:#E8F7EF !important; color:#1A7F40 !important; border-color:#BFE7C7 !important; }
+        .pd-chip-active .pd-chip-count { opacity:1; }
+    </style>
+
+    <div class="mt-[16px]">
         <div class="overflow-x-auto">
             <!-- Single-column table: each row's <td> contains a full card
                  (logo + name + status + screenshot + actions). The JS
@@ -67,7 +104,8 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
         current: 1,
         pageSize: 10,
         sort: "target_domain",
-        search: ""
+        search: "",
+        status: ""   // '' = all, '0'..'3' = step value (Not yet / Ongoing / Sent / Not found)
     };
 
     function initSearchOptions_and_events() {
@@ -76,9 +114,39 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             current: urlParams.get("current") || 1,
             pageSize: urlParams.get("pageSize") || 10,
             sort: urlParams.get("sort") || "target_domain",
-            search: urlParams.get("search") || ""
+            search: urlParams.get("search") || "",
+            status: urlParams.get("status") || ""
         });
+        // Reflect initial status in the chip UI.
+        applyChipActiveState(searchOptions.status || "");
 
+        // Chip click handlers. Live across re-renders since chips are static.
+        document.querySelectorAll('#status-filter-chips .pd-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const v = btn.getAttribute('data-chip') || "";
+                setSearchOptions({ status: v });
+                applyChipActiveState(v);
+            });
+        });
+    }
+
+    function applyChipActiveState(value) {
+        document.querySelectorAll('#status-filter-chips .pd-chip').forEach(btn => {
+            if ((btn.getAttribute('data-chip') || "") === (value || "")) {
+                btn.classList.add('pd-chip-active');
+            } else {
+                btn.classList.remove('pd-chip-active');
+            }
+        });
+    }
+
+    function updateChipCounts(counts) {
+        if (!counts) return;
+        document.querySelectorAll('#status-filter-chips .pd-chip-count').forEach(el => {
+            const key = el.getAttribute('data-count-key');
+            const v = counts[key];
+            if (typeof v === 'number') el.textContent = v.toLocaleString();
+        });
     }
 
     function setSearchOptions(data) {
@@ -100,6 +168,11 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
         urlParams.set("pageSize", searchOptions.pageSize);
         urlParams.set("sort", searchOptions.sort);
         urlParams.set("search", searchOptions.search);
+        if (searchOptions.status) {
+            urlParams.set("status", searchOptions.status);
+        } else {
+            urlParams.delete("status");
+        }
         window.history.pushState(null, "", "?" + urlParams.toString());
     }
 
@@ -195,6 +268,19 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             "across33com": "udp.33across.com",
         }
         $.get("/get_results", searchOptions, function(res) {
+            // Update the filter chip counts + the "X of Y" summary line.
+            updateChipCounts(res.status_counts || null);
+            const summaryEl = document.getElementById("results-summary");
+            if (summaryEl) {
+                const total = res.total || 0;
+                if (total === 0) {
+                    summaryEl.textContent = "No brokers match your filters.";
+                } else {
+                    const start = Math.min(total, (searchOptions.current - 1) * searchOptions.pageSize + 1);
+                    const end   = Math.min(total, start + searchOptions.pageSize - 1);
+                    summaryEl.textContent = `Showing ${start.toLocaleString()}-${end.toLocaleString()} of ${total.toLocaleString()} brokers`;
+                }
+            }
             const status_label = {
                 0: "Not yet removed",
                 1: "Ongoing",
@@ -269,7 +355,7 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
                     : `<a href="/dashboard/plans"><span class="text-[12px] font-semibold text-[#9B9B9C]">-</span></a>`;
 
                 const rowCard = `
-                    <label class="flex items-center justify-between gap-[10px] rounded-[12px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#ECFFF1]' : 'border-[#E8E8E8] bg-white'} px-[10px] py-[10px]">
+                    <label class="group flex items-center justify-between gap-[12px] rounded-[12px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#ECFFF1]' : 'border-[#E8E8E8] bg-white'} px-[12px] py-[12px] hover:border-[#C9D1DA] hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all">
                         <div class="flex items-center gap-[10px] min-w-0">
                             <img src="${favicon}" alt="logo" class="w-[36px] h-[36px] rounded-full object-cover border border-[#D6D6D6] bg-white"
                                  onerror="this.outerHTML='<div class=&quot;w-[36px] h-[36px] rounded-full bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#D6D6D6]&quot;><i class=&quot;fa-solid fa-globe&quot;></i></div>'">

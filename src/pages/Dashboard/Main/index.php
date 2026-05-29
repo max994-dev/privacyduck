@@ -101,15 +101,18 @@ if (!$pdIsPaid) {
     </div>
 <?php endif; ?>
 
-<?php if (!$pdIsPaid): ?>
-    <!-- Donut chart for UNPAID users only. -->
-    <div class="hidden lg:block">
-        <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/progress/index.php"); ?>
-    </div>
-    <div class="block lg:hidden">
-        <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/progress/mobile.php"); ?>
-    </div>
-<?php endif; ?>
+<?php
+// progress/index.php + progress/mobile.php intentionally NOT included
+// anymore. They rendered an old donut + 3 stat cards (Your Removal /
+// Privacy Risk Score / Requests Completed) that duplicated info already
+// shown by journey_panel above. When a paid user's session was stale
+// (plan_id not yet refreshed from DB after Stripe webhook), this block
+// would render the unpaid view AND leave the journey panel showing zero
+// progress -- producing the "I paid but nothing started" confusion seen
+// in the 2026-05-29 customer screenshot. dashboard_bootstrap now
+// refreshes plan_id from the DB on every load, so the journey panel
+// shows the correct paid state immediately.
+?>
 
 <!-- ALL BROKERS table. No data-reveal -- this is primary content and
      must be visible immediately. The reveal animation was hiding it

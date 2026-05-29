@@ -12,7 +12,45 @@ if (empty($_SESSION["user_id"])) {
     exit;
 }
 
-// If user just paid via hosted Stripe and webhook is delayed, try one pull-sync before gating flows.
+// ALWAYS refresh plan_id / planable from DB on every dashboard load.
+// Why: login set these into the session ONCE when the user logged in.
+// If they then went to Stripe Checkout and the webhook updated
+// users.plan_id afterwards, their session still has the stale empty
+// values until they log out + back in. Users see the UNPAID dashboard
+// even though their payment went through. This is a 1-row indexed
+// lookup; the cost is negligible vs. the support cost of "I paid
+// but dashboard says I didn't".
+//
+// Uses its own short-lived connection because the main $conn isn't
+// opened until further down -- and we want this refresh to happen
+// before the Stripe fallback (which depends on the result of this).
+if (!empty($_SESSION["user_id"])) {
+    try {
+        $refreshConn = getDBConnection();
+        $refreshStmt = $refreshConn->prepare("SELECT plan_id, plan_end FROM users WHERE id = ? LIMIT 1");
+        $refreshStmt->bind_param("i", $_SESSION["user_id"]);
+        $refreshStmt->execute();
+        $fresh = $refreshStmt->get_result()->fetch_assoc();
+        $refreshStmt->close();
+        $refreshConn->close();
+        if ($fresh !== null) {
+            $hasActivePlan = !empty($fresh["plan_id"]) && !empty($fresh["plan_end"]);
+            $isPlanValid  = $hasActivePlan && (new DateTime() < new DateTime($fresh["plan_end"]));
+            $_SESSION["plan_id"]         = $fresh["plan_id"] ?? null;
+            $_SESSION["planable"]        = $isPlanValid;
+            $_SESSION["signup_complete"] = $isPlanValid ? 1 : ($_SESSION["signup_complete"] ?? 0);
+        }
+    } catch (Throwable $e) {
+        error_log('dashboard_bootstrap session refresh: ' . $e->getMessage());
+    }
+}
+
+// Fallback: if STILL not paid in session after the DB refresh AND the
+// user just came back from Stripe Checkout (book-call flow sets this
+// flag), pull from Stripe directly. The webhook may simply not have
+// landed yet. Only runs for that specific intent because Stripe API
+// calls cost a few hundred ms and we don't want to do them on every
+// pageload for already-paid users.
 if (
     !empty($_SESSION["pd_book_call_intent"]) &&
     (empty($_SESSION["planable"]) || empty($_SESSION["plan_id"])) &&
@@ -21,17 +59,17 @@ if (
     try {
         $syncConn = getDBConnection();
         stripe_sync_privacyduck_subscription_for_email($syncConn, (string) $_SESSION["email"], true);
-        $refresh = $syncConn->prepare("SELECT plan_id, plan_end FROM users WHERE id = ?");
-        $refresh->bind_param("i", $_SESSION["user_id"]);
-        $refresh->execute();
-        $fresh = $refresh->get_result()->fetch_assoc();
-        $refresh->close();
+        $refreshStmt = $syncConn->prepare("SELECT plan_id, plan_end FROM users WHERE id = ? LIMIT 1");
+        $refreshStmt->bind_param("i", $_SESSION["user_id"]);
+        $refreshStmt->execute();
+        $fresh = $refreshStmt->get_result()->fetch_assoc();
+        $refreshStmt->close();
         $syncConn->close();
         if ($fresh) {
             $hasActivePlan = !empty($fresh["plan_id"]) && !empty($fresh["plan_end"]);
-            $isPlanValid = $hasActivePlan && (new DateTime() < new DateTime($fresh["plan_end"]));
-            $_SESSION["plan_id"] = $fresh["plan_id"] ?? null;
-            $_SESSION["planable"] = $isPlanValid;
+            $isPlanValid   = $hasActivePlan && (new DateTime() < new DateTime($fresh["plan_end"]));
+            $_SESSION["plan_id"]         = $fresh["plan_id"] ?? null;
+            $_SESSION["planable"]        = $isPlanValid;
             $_SESSION["signup_complete"] = $isPlanValid;
         }
     } catch (Throwable $e) {
