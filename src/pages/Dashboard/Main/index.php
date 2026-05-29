@@ -48,13 +48,13 @@ if (!$pdIsPaid) {
                 <span class="w-[7px] h-[7px] rounded-full bg-[#24A556]"></span>
                 Plan active &mdash; removal running
             </span>
-        <?php else: ?>
-            <button onclick="navigateTo('/dashboard/plans')"
-                class="pd-btn-press pd-shine inline-flex items-center bg-gradient-to-r from-[#77B248] to-[#24A556] px-[16px] py-[8px] rounded-full gap-[6px] text-white font-semibold text-[13px] sm:text-[14px]">
-                <?php require(BASEPATH . "/src/common/svgs/dashboard/sidebar/fixed_menu_protect_user.php"); ?>
-                <span>Protect Yourself</span>
-            </button>
         <?php endif; ?>
+        <?php // Unpaid users: no button here. The sticky header in
+              // NewDashboard/index.php ALREADY renders "Protect Yourself"
+              // in the top-right; rendering it again here was a duplicate
+              // (visible in the 2026-05-29 customer screenshot). For paid
+              // users we keep the status pill -- it's the symmetric
+              // confirmation that there's something happening. ?>
     </div>
 </div>
 

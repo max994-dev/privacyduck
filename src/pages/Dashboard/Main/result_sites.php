@@ -392,39 +392,47 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
                         </svg>
                     </a>` : "";
 
+                // Hide the URL subtitle when it's just the niceName again
+                // (e.g. "24counter.com" / "24counter.com" — pure noise).
+                // Keep it when it's actually different (subdomains, paths
+                // like "udp.33across.com/udp_opt_out").
+                const showHost = hostShown && hostShown.toLowerCase() !== niceName.toLowerCase();
+
                 const rowCard = `
-                    <label class="group flex items-center justify-between gap-[14px] rounded-[14px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#F4FBF6]' : 'border-[#EAECEF] bg-white'} px-[14px] py-[12px] hover:border-[#C9D1DA] hover:shadow-[0_2px_8px_rgba(16,24,40,0.06)] hover:-translate-y-[1px] transition-all">
-                        <div class="flex items-center gap-[12px] min-w-0 flex-1">
-                            <img src="${favicon}" alt="" class="w-[40px] h-[40px] rounded-[10px] object-cover border border-[#E5E7EB] bg-white shrink-0"
-                                 onerror="this.outerHTML='<div class=&quot;w-[40px] h-[40px] rounded-[10px] bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#E5E7EB] shrink-0&quot;><i class=&quot;fa-solid fa-globe text-[16px]&quot;></i></div>'">
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-[8px] min-w-0">
-                                    <span class="text-[14px] font-semibold text-[#010205] truncate">${escapeHtml(niceName)}</span>
-                                    ${row.manualDone ? `<span class="shrink-0 inline-flex items-center gap-[3px] px-[6px] py-[1px] rounded-full bg-[#E8F7EF] text-[#1A7F40] text-[10px] font-semibold">
-                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                        manually removed
-                                    </span>` : ''}
+                    <label class="group flex items-center justify-between gap-[14px] ${row.manualDone ? 'bg-[#F4FBF6]' : 'bg-white'} px-[16px] py-[14px] hover:bg-[#FAFBFC] transition-colors cursor-pointer">
+                        <div class="flex items-center gap-[14px] min-w-0 flex-1">
+                            <img src="${favicon}" alt="" class="w-[36px] h-[36px] rounded-[8px] object-cover border border-[#EAECEF] bg-white shrink-0"
+                                 onerror="this.outerHTML='<div class=&quot;w-[36px] h-[36px] rounded-[8px] bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#EAECEF] shrink-0&quot;><i class=&quot;fa-solid fa-globe text-[14px]&quot;></i></div>'">
+                            <div class="min-w-0 flex-1 flex items-center gap-[14px]">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-[8px] min-w-0">
+                                        <span class="text-[14px] font-semibold text-[#010205] truncate">${escapeHtml(niceName)}</span>
+                                        ${row.manualDone ? `<span class="shrink-0 inline-flex items-center gap-[3px] px-[6px] py-[1px] rounded-full bg-[#E8F7EF] text-[#1A7F40] text-[10px] font-semibold">
+                                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            manually removed
+                                        </span>` : ''}
+                                    </div>
+                                    ${showHost ? `<div class="mt-[2px] text-[11px] text-[#878C91] truncate">${escapeHtml(hostShown)}</div>` : ''}
                                 </div>
-                                <div class="mt-[3px] flex items-center gap-[8px] min-w-0">
-                                    <span class="inline-flex items-center gap-[5px] px-[8px] py-[2px] rounded-full border text-[11px] font-semibold whitespace-nowrap"
-                                          style="color:${meta.textColor}; background:${meta.bgColor}; border-color:${meta.borderColor};">
-                                        ${meta.icon}
-                                        ${escapeHtml(meta.label)}
-                                    </span>
-                                    <span class="text-[11px] text-[#878C91] truncate">${escapeHtml(hostShown)}</span>
-                                </div>
+                                <span class="hidden sm:inline-flex shrink-0 items-center gap-[5px] px-[9px] py-[3px] rounded-full text-[11px] font-semibold whitespace-nowrap"
+                                      style="color:${meta.textColor}; background:${meta.bgColor};">
+                                    ${meta.icon}
+                                    ${escapeHtml(meta.label)}
+                                </span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-[8px] shrink-0">
+                        <div class="flex items-center gap-[6px] shrink-0">
+                            <span class="sm:hidden inline-flex shrink-0 items-center gap-[5px] px-[8px] py-[2px] rounded-full text-[11px] font-semibold whitespace-nowrap"
+                                  style="color:${meta.textColor}; background:${meta.bgColor};">
+                                ${meta.icon}
+                            </span>
                             ${externalLink}
                             ${screenshotHtml}
-                            <span style="cursor:pointer;" class="p-[4px] rounded-[8px] hover:bg-[#F4F5F7] transition-colors"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span>
+                            <span style="cursor:pointer;" class="p-[6px] rounded-[8px] text-[#878C91] hover:bg-[#F1F2F4] hover:text-[#010205] transition-colors"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span>
                         </div>
                     </label>
                 `;
-                tr.innerHTML = `
-                        <td class="py-[6px]">${rowCard}</td>
-                    `;
+                tr.innerHTML = `<td class="p-0">${rowCard}</td>`;
                 tableBody.appendChild(tr);
             });
             if (beforeCnt + arrayOfDivs.length < total) {
