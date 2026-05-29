@@ -91,8 +91,11 @@ try {
     $stmt->close();
 
     // Recent activity (last 8 rows that moved). Cheap with the index.
+    // Pull site_url + removal_url so we can show the actual broker URL
+    // under the slug name in the feed.
     $stmt = $conn->prepare(
-        "SELECT id, target_domain, step, updated_at FROM results
+        "SELECT id, target_domain, step, updated_at, site_url, removal_url
+         FROM results
          WHERE user_id = ? AND kind = 1 AND step IN (1, 2, 3, 4, 5)
          ORDER BY updated_at DESC LIMIT 8"
     );
@@ -141,6 +144,29 @@ function pd_step_meta(int $step): array {
         case 5: return ['Broker requested more info', '#2563EB'];
     }
     return ['Scheduled', '#878C91'];
+}
+
+// Derive a human-readable host from the broker slug + the optional site_url
+// column. "californiaarrestsorg" -> "californiaarrests.org". Prefers
+// site_url if populated since some brokers have non-standard host shapes.
+function pd_broker_host(string $slug, ?string $siteUrl): string {
+    if ($siteUrl) {
+        $h = parse_url($siteUrl, PHP_URL_HOST);
+        if ($h) return ltrim($h, '.');
+    }
+    foreach (['com','org','net','edu','gov','info','biz','io','ai','tv','co','us'] as $sfx) {
+        $len = strlen($sfx);
+        if (strlen($slug) > $len && substr($slug, -$len) === $sfx) {
+            return substr($slug, 0, -$len) . '.' . $sfx;
+        }
+    }
+    return $slug;
+}
+
+// Google's favicon service. Free, no API key, ~50ms latency, fine for
+// per-row icons. sz=64 = 32x32 retina-ready.
+function pd_broker_favicon_url(string $host): string {
+    return 'https://www.google.com/s2/favicons?domain=' . rawurlencode($host) . '&sz=64';
 }
 
 // Format a time-ago string from a SQL datetime
@@ -344,16 +370,33 @@ $pdDailyMax = max(1, max($pdDaily));
             </p>
         <?php else: ?>
             <ul class="divide-y divide-[#F1F1F1]" data-pd-recent>
-                <?php foreach ($pdRecent as $r): list($lbl, $color) = pd_step_meta((int) $r['step']); ?>
+                <?php foreach ($pdRecent as $r):
+                    list($lbl, $color) = pd_step_meta((int) $r['step']);
+                    $host = pd_broker_host($r['target_domain'], $r['site_url'] ?? null);
+                    $siteUrl = $r['site_url'] ?: ('https://' . $host . '/');
+                ?>
                     <li class="flex items-center gap-[14px] py-[12px]">
-                        <span class="shrink-0 w-[8px] h-[8px] rounded-full" style="background:<?= $color ?>"></span>
+                        <!-- Site logo (favicon via Google's free service). 32px box with
+                             gray fallback bg so a missing icon doesn't leave a blank gap. -->
+                        <div class="shrink-0 w-[32px] h-[32px] rounded-[8px] bg-[#F4F5F7] flex items-center justify-center overflow-hidden">
+                            <img src="<?= htmlspecialchars(pd_broker_favicon_url($host), ENT_QUOTES, 'UTF-8') ?>"
+                                 alt="" width="20" height="20" loading="lazy"
+                                 onerror="this.style.display='none'"
+                                 class="w-[20px] h-[20px]" />
+                        </div>
                         <div class="flex-1 min-w-0">
-                            <div class="text-[14px] font-semibold text-[#010205] truncate">
-                                <?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8') ?>
+                            <div class="flex items-center gap-[8px]">
+                                <span class="shrink-0 w-[6px] h-[6px] rounded-full" style="background:<?= $color ?>" title="<?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?>"></span>
+                                <div class="text-[14px] font-semibold text-[#010205] truncate">
+                                    <?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8') ?>
+                                </div>
                             </div>
-                            <div class="text-[12px] text-[#5B5F66] mt-[1px]">
-                                <?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?>
-                            </div>
+                            <a href="<?= htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer"
+                               class="text-[12px] text-[#5B5F66] hover:text-[#24A556] truncate block mt-[1px]" title="<?= htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($host, ENT_QUOTES, 'UTF-8') ?>
+                                <span class="text-[#9CA3AF]"> &middot; </span>
+                                <span class="text-[#9CA3AF]"><?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?></span>
+                            </a>
                         </div>
                         <div class="shrink-0 text-[11px] text-[#878C91] tabular-nums">
                             <?= pd_time_ago($r['updated_at'] ?? null) ?>
@@ -445,6 +488,28 @@ $pdDailyMax = max(1, max($pdDaily));
         0: ['Scheduled',                  '#878C91']
     };
 
+    // Derive the host from a broker slug, mirroring the PHP pd_broker_host
+    // logic so the JS-rendered rows match the SSR rows visually.
+    function brokerHost(slug, siteUrl) {
+        if (siteUrl) {
+            try {
+                var h = new URL(siteUrl).host;
+                if (h) return h.replace(/^\./, '');
+            } catch (e) {}
+        }
+        var sfxs = ['com','org','net','edu','gov','info','biz','io','ai','tv','co','us'];
+        for (var i = 0; i < sfxs.length; i++) {
+            var s = sfxs[i];
+            if (slug.length > s.length && slug.slice(-s.length) === s) {
+                return slug.slice(0, -s.length) + '.' + s;
+            }
+        }
+        return slug;
+    }
+    function faviconUrl(host) {
+        return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=64';
+    }
+
     function rebuildRecent(items) {
         var ul = panel.querySelector('[data-pd-recent]');
         if (!ul) return;
@@ -455,11 +520,20 @@ $pdDailyMax = max(1, max($pdDaily));
         for (var i = 0; i < items.length; i++) {
             var r = items[i];
             var meta = STEP_META[r.step] || STEP_META[0];
+            var host = brokerHost(r.target_domain, r.site_url || null);
+            var url = r.site_url || ('https://' + host + '/');
             html += '<li class="flex items-center gap-[14px] py-[12px]">';
-            html +=   '<span class="shrink-0 w-[8px] h-[8px] rounded-full" style="background:' + meta[1] + '"></span>';
+            html +=   '<div class="shrink-0 w-[32px] h-[32px] rounded-[8px] bg-[#F4F5F7] flex items-center justify-center overflow-hidden">';
+            html +=     '<img src="' + faviconUrl(host) + '" alt="" width="20" height="20" loading="lazy" class="w-[20px] h-[20px]" onerror="this.style.display=\'none\'"/>';
+            html +=   '</div>';
             html +=   '<div class="flex-1 min-w-0">';
-            html +=     '<div class="text-[14px] font-semibold text-[#010205] truncate">' + escapeHTML(r.target_domain) + '</div>';
-            html +=     '<div class="text-[12px] text-[#5B5F66] mt-[1px]">' + escapeHTML(meta[0]) + '</div>';
+            html +=     '<div class="flex items-center gap-[8px]">';
+            html +=       '<span class="shrink-0 w-[6px] h-[6px] rounded-full" style="background:' + meta[1] + '" title="' + escapeHTML(meta[0]) + '"></span>';
+            html +=       '<div class="text-[14px] font-semibold text-[#010205] truncate">' + escapeHTML(r.target_domain) + '</div>';
+            html +=     '</div>';
+            html +=     '<a href="' + escapeHTML(url) + '" target="_blank" rel="noopener noreferrer" class="text-[12px] text-[#5B5F66] hover:text-[#24A556] truncate block mt-[1px]" title="' + escapeHTML(url) + '">';
+            html +=       escapeHTML(host) + ' <span class="text-[#9CA3AF]">&middot;</span> <span class="text-[#9CA3AF]">' + escapeHTML(meta[0]) + '</span>';
+            html +=     '</a>';
             html +=   '</div>';
             html +=   '<div class="shrink-0 text-[11px] text-[#878C91] tabular-nums">' + timeAgoFromISO(r.updated_at) + '</div>';
             html += '</li>';

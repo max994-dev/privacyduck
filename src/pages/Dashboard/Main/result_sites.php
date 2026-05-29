@@ -309,17 +309,29 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             }
             const table = $('#exposureTable').DataTable({
                 pageLength: searchOptions.pageSize,
-                lengthChange: false,
+                lengthChange: true,
+                lengthMenu: [10, 25, 50, 100],
                 ordering: false,
                 displayStart: (searchOptions.current - 1) * searchOptions.pageSize,
                 pagingType: "simple_numbers",
                 searching: false,
+                info: true,
                 language: {
+                    lengthMenu: "Show _MENU_ per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ brokers",
+                    infoEmpty: "No brokers to show",
                     paginate: {
                         previous: "<",
                         next: ">"
                     }
                 }
+            });
+            // Sync the page-size dropdown back into searchOptions so the
+            // server-side pagination follows along.
+            table.off('length.dt').on('length.dt', function (e, settings, len) {
+                searchOptions.pageSize = len;
+                searchOptions.current = 1;
+                main_table();
             });
             table.off('page.dt').on('page.dt', function() {
                 const info = table.page.info();

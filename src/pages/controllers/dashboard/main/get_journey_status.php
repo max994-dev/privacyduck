@@ -87,7 +87,7 @@ try {
     $stmt->close();
 
     $stmt = $conn->prepare(
-        "SELECT id, target_domain, step, updated_at
+        "SELECT id, target_domain, step, updated_at, site_url
          FROM results WHERE user_id = ? AND kind = 1 AND step IN (1,2,3,4,5)
          ORDER BY updated_at DESC LIMIT 8"
     );
@@ -105,6 +105,7 @@ try {
         $recent[] = [
             'id' => (int) $r['id'],
             'target_domain' => $r['target_domain'],
+            'site_url' => $r['site_url'] ?? null,
             'step' => (int) $r['step'],
             'updated_at' => $r['updated_at'] ?? null,
             'label' => $label,
