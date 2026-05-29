@@ -82,19 +82,33 @@ if (!$pdIsPaid) {
     </div>
 <?php endif; ?>
 
+<!-- SECTION: PROGRESS. Removal journey hero, phase stepper, chart, stats, recent activity. -->
+<div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="60">
+    <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">Your removal progress</h2>
+    <?php if ($pdIsPaid): ?>
+        <span class="text-[11px] text-[#878C91]">Updates every 8 seconds</span>
+    <?php endif; ?>
+</div>
 <?php
-// Removal Journey panel: the SINGLE source of truth for removal progress.
-// Renders for everyone -- unpaid users see "Waiting to start", paid users
-// see live counts + recent activity + phase indicator. Replaces all of
-// the previous status pills.
+// Removal Journey panel: hero (donut + phase stepper) + 14-day chart +
+// 4-stat grid + recent activity feed. Single source of truth.
 require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
 ?>
 
+<?php if ($pdIsPaid): ?>
+    <!-- SECTION: NOTABLE BROKERS. Brand-recognition card so customers
+         can see specific names (Spokeo, MyLife, Whitepages...) and their
+         actual per-broker status. Adds tangibility to the "413 brokers" claim. -->
+    <div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="100">
+        <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">Recognizable brokers</h2>
+    </div>
+    <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/notable_brokers.php"); ?>
+<?php endif; ?>
+
 <?php if (!$pdIsPaid): ?>
-    <!-- Donut chart: kept for UNPAID users as a visual exposure indicator
-         (they haven't started removal, so it's a "look how much there is"
-         shock visual, not a progress meter). Paid users see only the
-         journey panel above, which has the accurate live percentage. -->
+    <!-- Donut chart for UNPAID users only -- a "look how much there is"
+         shock visual to drive conversion. Paid users already have the
+         journey panel above with accurate live data. -->
     <div class="hidden lg:block">
         <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/progress/index.php"); ?>
     </div>
@@ -103,17 +117,31 @@ require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
     </div>
 <?php endif; ?>
 
-<!-- "Sensitive data we cover" / detail_item card (restored). Shows
-     the 12 categories of PII PrivacyDuck submits opt-outs for. -->
-<div data-reveal data-reveal-delay="120"
-    class="pd-card-lift relative mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
+<!-- SECTION: WHAT WE COVER. The 12 categories of PII PrivacyDuck submits
+     opt-out requests for, across every broker. -->
+<div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="160">
+    <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">What we cover</h2>
+</div>
+<div data-reveal data-reveal-delay="180"
+    class="pd-card-lift relative mt-[12px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
 </div>
 
-<div class="mt-[24px]" data-reveal data-reveal-delay="180">
+<!-- SECTION: SCAN RESULTS. Where your data was found across the scanned
+     web (Primary scan tab) and across face-search engines (Face scan). -->
+<div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="220">
+    <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">Scan results</h2>
+</div>
+<div class="mt-[12px]" data-reveal data-reveal-delay="240">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
 </div>
-<div class="mt-[24px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden" data-reveal data-reveal-delay="240">
+
+<!-- SECTION: ALL BROKER SITES. Full searchable table of every broker
+     in the pipeline + status + screenshot evidence. -->
+<div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="280">
+    <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">All broker sites</h2>
+</div>
+<div class="mt-[12px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden" data-reveal data-reveal-delay="300">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/result_sites.php"); ?>
 </div>
 

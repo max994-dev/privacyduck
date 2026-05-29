@@ -194,6 +194,33 @@ $pdDailyMax = max(1, max($pdDaily));
             <p class="mt-[4px] text-[12px] sm:text-[13px] text-[#5B5F66] leading-[1.45]">
                 <?= htmlspecialchars($pdPhaseDesc, ENT_QUOTES, 'UTF-8') ?>
             </p>
+            <!-- Phase progress stepper: 4 horizontal dots connected by a
+                 line. Filled dot = phase reached/passed. Outlined = future.
+                 The connecting line is brand green up to the current phase,
+                 light gray beyond. Gives an immediate visual answer to
+                 "where am I in the journey?" -->
+            <div class="mt-[14px] flex items-center gap-0 max-w-[420px] mx-auto sm:mx-0">
+                <?php
+                $phases = [
+                    ['n' => 1, 'label' => 'Day 1'],
+                    ['n' => 2, 'label' => '72 hours'],
+                    ['n' => 3, 'label' => 'Week 1-4'],
+                    ['n' => 4, 'label' => 'Monitoring'],
+                ];
+                foreach ($phases as $i => $p):
+                    $isCurrent = ($p['n'] === $pdPhaseNum);
+                    $isPast = ($p['n'] < $pdPhaseNum);
+                    $isReached = $isCurrent || $isPast;
+                ?>
+                    <div class="flex flex-col items-center flex-1 shrink-0 relative">
+                        <?php if ($i > 0): ?>
+                            <div class="absolute right-1/2 top-[7px] w-full h-[2px] -translate-y-1/2 <?= $isReached ? 'bg-[#24A556]' : 'bg-[#E5E7EB]' ?>"></div>
+                        <?php endif; ?>
+                        <div class="relative z-10 w-[14px] h-[14px] rounded-full <?= $isCurrent ? 'bg-[#24A556] ring-4 ring-[#E8F7EF]' : ($isPast ? 'bg-[#24A556]' : 'bg-white border-2 border-[#E5E7EB]') ?>"></div>
+                        <div class="mt-[5px] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide <?= $isReached ? 'text-[#1A7F40]' : 'text-[#9CA3AF]' ?> whitespace-nowrap"><?= $p['label'] ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
             <div class="mt-[10px] flex flex-wrap gap-[8px] justify-center sm:justify-start">
                 <span class="inline-flex items-center gap-[6px] rounded-full bg-[#E8F7EF] text-[#1A7F40] px-[12px] py-[6px] text-[12px] font-semibold">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
