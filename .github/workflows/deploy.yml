@@ -47,6 +47,23 @@ jobs:
           test -s assets/css/tailwind-built.css || { echo "ERR: tailwind-built.css empty/missing after build"; exit 1; }
           echo "built CSS: $(wc -c < assets/css/tailwind-built.css) bytes"
 
+      - name: Diagnose VPS_SSH_KEY secret (length + header line only, never the full value)
+        env:
+          SK: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          if [ -z "$SK" ]; then
+            echo "VPS_SSH_KEY: NOT SET (empty / undefined)"
+            echo "If you think it's set, check repo Settings > Secrets > Actions > the name spelling matches exactly: VPS_SSH_KEY"
+            exit 1
+          fi
+          echo "VPS_SSH_KEY: present, ${#SK} chars"
+          # First line tells us the key format (OpenSSH / RSA / etc.)
+          echo "first line: $(printf '%s' "$SK" | head -n 1)"
+          # Last line (often shows ----END or trailing whitespace issue)
+          echo "last line:  $(printf '%s' "$SK" | tail -n 1)"
+          # Line count (a valid PEM key should be ~10+ lines)
+          echo "line count: $(printf '%s' "$SK" | wc -l)"
+
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
