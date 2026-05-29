@@ -27,10 +27,13 @@ if (!$pdIsPaid) {
     }
 }
 ?>
-<!-- Greeting bar. Bigger, more confident heading + a status pill that
-     gives the page weight (was previously a small h1 floating alone
-     above the bright journey panel, which felt orphaned). -->
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-[12px]" data-reveal="fade">
+<!-- Greeting bar. Above-the-fold = no data-reveal: the IntersectionObserver
+     occasionally doesn't fire for elements that are already in view at
+     pageload (depends on browser caching state + observer init timing),
+     leaving the greeting + scan card stuck at opacity:0. Empty 250px
+     gap at the top of the dashboard until first scroll. Always-visible
+     is the safer default for landing content. -->
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-[12px]">
     <div>
         <div class="text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.12em] text-[#5B5F66]">
             Dashboard
@@ -58,8 +61,9 @@ if (!$pdIsPaid) {
 <?php if (!$pdIsPaid): ?>
     <!-- UNPAID USERS: exposure-scare card with the scan count + CTA. Drives
          conversion. Paid users skip this entirely and go straight to the
-         journey panel, which has real numbers instead of a 0 placeholder. -->
-    <div class="mt-[16px] lg:mt-[42px]" data-reveal data-reveal-delay="60">
+         journey panel, which has real numbers instead of a 0 placeholder.
+         No data-reveal -- same above-the-fold reason as the greeting bar. -->
+    <div class="mt-[16px] lg:mt-[42px]">
         <div class="pd-card-lift rounded-[30px] bg-[#FEFEFE] border border-[#F6F6F6] sm:flex justify-center items-center lg:block">
             <div class="px-[8px] py-[18px] sm:px-[18px] lg:flex lg:justify-between items-center">
                 <div class="flex space-x-[8px] items-center">

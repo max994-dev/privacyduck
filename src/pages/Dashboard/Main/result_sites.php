@@ -258,6 +258,32 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             return "https://" + names[0] + ".com";
         }
 
+        // "24countercom" -> "24counter.com" ; "verifyrecordscom" -> "verifyrecords.com"
+        // Most slugs in the DB are <name> + "com" concatenated. A few have
+        // explicit display overrides via realUrl[] (e.g. "across33com" -> "udp.33across.com").
+        function prettyName(raw) {
+            if (!raw) return "";
+            if (raw.endsWith("com")) {
+                const stem = raw.slice(0, -3);
+                if (stem) return stem + ".com";
+            }
+            return raw;
+        }
+
+        // Icon + label per step. Returns {icon, label, textColor, bgColor, borderColor}.
+        function statusMeta(step) {
+            switch (step) {
+                case 2: return { label: "Request sent", textColor: "#1A7F40", bgColor: "#ECFFF1", borderColor: "#BFE7C7",
+                    icon: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
+                case 1: return { label: "In progress", textColor: "#9B6B00", bgColor: "#FFF7E6", borderColor: "#FFE1A6",
+                    icon: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>' };
+                case 3: return { label: "Not found", textColor: "#5B5F66", bgColor: "#F4F5F7", borderColor: "#E5E7EB",
+                    icon: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5"/><path d="M8 12h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>' };
+                default: return { label: "Not yet removed", textColor: "#B00020", bgColor: "#FFF0F0", borderColor: "#FFC0C0",
+                    icon: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5"/></svg>' };
+            }
+        }
+
         const logos = {
             "achcoopcom": "/assets/image/desktop/logos/achcoopcom.avif",
             "across33com": "/assets/image/desktop/logos/across33com.svg",
@@ -336,51 +362,68 @@ require BASEPATH . "/src/pages/Dashboard/sites_data.php";
             arrayOfDivs.forEach(row => {
                 const tr = document.createElement("tr");
                 const planable = '<?php echo $_SESSION["planable"]; ?>';
-                const statusLabel = status_label[row.step] || "Not yet removed";
-                const statusClass = status_color[row.step] || "text-[#C00000]";
-                const statusPillBg = row.step >= 2 ? "bg-[#ECFFF1] border-[#BFE7C7]" : (row.step === 1 ? "bg-[#FFF7E6] border-[#FFE1A6]" : "bg-[#FFF0F0] border-[#FFC0C0]");
+                const meta = statusMeta(row.step);
                 const websiteUrl = row.link ? String(row.link) : "";
                 const favicon = websiteUrl
                     ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(websiteUrl)}&sz=64`
                     : row.logo;
+                const niceName = prettyName(row.target_domain || "");
+                // Friendly host string for the subtitle (strip scheme + trailing slash).
+                const hostShown = websiteUrl
+                    ? websiteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                    : niceName;
 
                 const screenshotHtml = (String(planable) && String(planable) !== "0")
                     ? (
                         row.step === 2
-                            ? `<img src="${row.src}" class="border border-[#24A556] cursor-pointer w-[72px] h-[40px] rounded-[8px] object-cover" onclick="showFullImage(this.src)">`
-                            : (row.step === 3
-                                ? `<span class="text-[12px] font-semibold text-[#9B9B9C]">-</span>`
-                                : `<span class="text-[12px] font-semibold text-[#9B9B9C]">-</span>`)
+                            ? `<img src="${row.src}" class="border border-[#24A556] cursor-pointer w-[72px] h-[40px] rounded-[8px] object-cover hover:opacity-90 transition-opacity" onclick="showFullImage(this.src)" title="View screenshot">`
+                            : `<span class="text-[11px] text-[#9B9B9C]">—</span>`
                     )
-                    : `<a href="/dashboard/plans"><span class="text-[12px] font-semibold text-[#9B9B9C]">-</span></a>`;
+                    : `<a href="/dashboard/plans" class="text-[11px] text-[#9B9B9C] hover:text-[#24A556]">—</a>`;
+
+                // External link to the broker site itself (only when we have a URL).
+                const externalLink = websiteUrl
+                    ? `<a href="${escapeHtml(websiteUrl)}" target="_blank" rel="noopener noreferrer"
+                          class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center w-[28px] h-[28px] rounded-[8px] text-[#878C91] hover:text-[#010205] hover:bg-[#F4F5F7]"
+                          title="Open broker site"
+                          onclick="event.stopPropagation()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M14 4h6m0 0v6m0-6L10 14M9 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>` : "";
 
                 const rowCard = `
-                    <label class="group flex items-center justify-between gap-[12px] rounded-[12px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#ECFFF1]' : 'border-[#E8E8E8] bg-white'} px-[12px] py-[12px] hover:border-[#C9D1DA] hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all">
-                        <div class="flex items-center gap-[10px] min-w-0">
-                            <img src="${favicon}" alt="logo" class="w-[36px] h-[36px] rounded-full object-cover border border-[#D6D6D6] bg-white"
-                                 onerror="this.outerHTML='<div class=&quot;w-[36px] h-[36px] rounded-full bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#D6D6D6]&quot;><i class=&quot;fa-solid fa-globe&quot;></i></div>'">
-                            <div class="min-w-0">
-                                <div class="text-[13px] font-semibold text-[#010205] truncate">${escapeHtml(row.target_domain || '')}</div>
-                                <div class="mt-[2px] flex items-center gap-[8px]">
-                                    <span class="inline-flex items-center px-[8px] py-[2px] rounded-full border ${statusPillBg} text-[12px] font-semibold ${statusClass}">
-                                        ${escapeHtml(statusLabel)}
+                    <label class="group flex items-center justify-between gap-[14px] rounded-[14px] border ${row.manualDone ? 'border-[#BFE7C7] bg-[#F4FBF6]' : 'border-[#EAECEF] bg-white'} px-[14px] py-[12px] hover:border-[#C9D1DA] hover:shadow-[0_2px_8px_rgba(16,24,40,0.06)] hover:-translate-y-[1px] transition-all">
+                        <div class="flex items-center gap-[12px] min-w-0 flex-1">
+                            <img src="${favicon}" alt="" class="w-[40px] h-[40px] rounded-[10px] object-cover border border-[#E5E7EB] bg-white shrink-0"
+                                 onerror="this.outerHTML='<div class=&quot;w-[40px] h-[40px] rounded-[10px] bg-[#EAF5ED] flex items-center justify-center text-[#24A556] border border-[#E5E7EB] shrink-0&quot;><i class=&quot;fa-solid fa-globe text-[16px]&quot;></i></div>'">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-[8px] min-w-0">
+                                    <span class="text-[14px] font-semibold text-[#010205] truncate">${escapeHtml(niceName)}</span>
+                                    ${row.manualDone ? `<span class="shrink-0 inline-flex items-center gap-[3px] px-[6px] py-[1px] rounded-full bg-[#E8F7EF] text-[#1A7F40] text-[10px] font-semibold">
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        manually removed
+                                    </span>` : ''}
+                                </div>
+                                <div class="mt-[3px] flex items-center gap-[8px] min-w-0">
+                                    <span class="inline-flex items-center gap-[5px] px-[8px] py-[2px] rounded-full border text-[11px] font-semibold whitespace-nowrap"
+                                          style="color:${meta.textColor}; background:${meta.bgColor}; border-color:${meta.borderColor};">
+                                        ${meta.icon}
+                                        ${escapeHtml(meta.label)}
                                     </span>
-                                    ${row.manualDone ? `
-                                        <span class="text-[12px] font-semibold text-[#24A556]">
-                                            ✓ manually removed.
-                                        </span>
-                                    ` : ''}
+                                    <span class="text-[11px] text-[#878C91] truncate">${escapeHtml(hostShown)}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-[10px] shrink-0">
+                        <div class="flex items-center gap-[8px] shrink-0">
+                            ${externalLink}
                             ${screenshotHtml}
-                            <span style="cursor:pointer;"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span>
+                            <span style="cursor:pointer;" class="p-[4px] rounded-[8px] hover:bg-[#F4F5F7] transition-colors"><?php require(BASEPATH . "/src/common/svgs/dashboard/main/table_dot.php"); ?></span>
                         </div>
                     </label>
                 `;
                 tr.innerHTML = `
-                        <td class="py-[8px]">${rowCard}</td>
+                        <td class="py-[6px]">${rowCard}</td>
                     `;
                 tableBody.appendChild(tr);
             });
