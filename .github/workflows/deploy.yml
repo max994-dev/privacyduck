@@ -1,5 +1,15 @@
 name: Deploy to VPS
 
+# Build Tailwind CSS in CI (no Node toolchain on the VPS), then deploy
+# code via git pull + ship the freshly-built CSS via scp afterwards.
+#
+# Why this matters: before May 2026 someone was running
+# `npm run build:css` locally and committing the output to git. When
+# that stopped, every new CSS utility class added in PHP got purged
+# from the production stylesheet because the CSS was stale. Concrete
+# symptom: dashboard `lg:col-span-2` was missing for days, hero card
+# squished into 1/4 width.
+
 on:
   push:
     branches:
@@ -10,17 +20,38 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Build Tailwind CSS
+        # Outputs to ./assets/css/tailwind-built.css. Scans every
+        # PHP/JS file listed in tailwind.config.js content[], so any
+        # new utility class added since last build is now included.
+        run: npm run build:css
+
+      - name: Sanity-check built CSS exists
+        run: |
+          test -s assets/css/tailwind-built.css || { echo "ERR: tailwind-built.css empty/missing after build"; exit 1; }
+          echo "built CSS: $(wc -c < assets/css/tailwind-built.css) bytes"
+
       - name: Install sshpass
         run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
 
-      - name: Deploy via SSH (raw, bypassing appleboy/ssh-action)
+      - name: Deploy code (git pull on VPS)
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          # Strict host check off because we use password auth - the host fingerprint
-          # changing would just fail the connection here rather than alert us.
           sshpass -p "$VPS_PASSWORD" ssh \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
@@ -40,8 +71,32 @@ jobs:
               if [ -f composer.json ] && command -v composer >/dev/null 2>&1; then
                 composer install --no-dev --optimize-autoloader --no-interaction >/tmp/composer.log 2>&1 || true
               fi
-              systemctl restart apache2 >/dev/null 2>&1 || true
-              systemctl restart nginx >/dev/null 2>&1 || true
-              echo "Deployed: $(git log -1 --pretty=format:'%h %s' 2>/dev/null || echo unknown)"
+              echo "Pulled: $(git log -1 --pretty=format:'%h %s' 2>/dev/null || echo unknown)"
               exit 0
           REMOTE
+
+      - name: Upload freshly-built Tailwind CSS (overwrites git's stale copy)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sshpass -p "$VPS_PASSWORD" scp \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=30 \
+            assets/css/tailwind-built.css \
+            "$VPS_USER@$VPS_HOST:/var/www/html/assets/css/tailwind-built.css"
+
+      - name: Restart web servers
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sshpass -p "$VPS_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=30 \
+            "$VPS_USER@$VPS_HOST" \
+            'systemctl restart apache2 >/dev/null 2>&1 || true; systemctl restart nginx >/dev/null 2>&1 || true; echo "Servers restarted"; ls -la /var/www/html/assets/css/tailwind-built.css'
