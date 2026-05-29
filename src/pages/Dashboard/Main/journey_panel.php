@@ -351,67 +351,9 @@ $pdDailyMax = max(1, max($pdDaily));
         </div>
     </div>
 
-    <!-- RECENT REMOVALS FEED (full width across the 3-column desktop grid).
-         style sets the grid-column to span all tracks so this row breaks
-         out of the 2fr/1fr/1fr layout above. -->
-    <div class="rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]"
-         style="grid-column: 1 / -1;">
-        <div class="flex items-center justify-between mb-[16px]">
-            <h3 class="text-[16px] sm:text-[17px] font-bold text-[#010205]">Recent activity</h3>
-            <span class="inline-flex items-center gap-[6px] text-[11px] font-semibold text-[#878C91] uppercase tracking-wide" data-pd-live-indicator>
-                <span class="w-[7px] h-[7px] rounded-full bg-[#24A556] animate-pulse"></span>
-                <span data-pd-live-text>Live</span>
-            </span>
-        </div>
-        <?php if (empty($pdRecent)): ?>
-            <p class="text-[14px] text-[#5B5F66] py-[20px]">
-                The pipeline hasn&rsquo;t processed any of your brokers yet.
-                It usually starts within the first hour after sign-up.
-            </p>
-        <?php else: ?>
-            <ul class="divide-y divide-[#F1F1F1]" data-pd-recent>
-                <?php foreach ($pdRecent as $r):
-                    list($lbl, $color) = pd_step_meta((int) $r['step']);
-                    $host = pd_broker_host($r['target_domain'], $r['site_url'] ?? null);
-                    $siteUrl = $r['site_url'] ?: ('https://' . $host . '/');
-                ?>
-                    <li class="flex items-center gap-[14px] py-[12px]">
-                        <!-- Site logo (favicon via Google's free service). 32px box with
-                             gray fallback bg so a missing icon doesn't leave a blank gap. -->
-                        <div class="shrink-0 w-[32px] h-[32px] rounded-[8px] bg-[#F4F5F7] flex items-center justify-center overflow-hidden">
-                            <img src="<?= htmlspecialchars(pd_broker_favicon_url($host), ENT_QUOTES, 'UTF-8') ?>"
-                                 alt="" width="20" height="20" loading="lazy"
-                                 onerror="this.style.display='none'"
-                                 class="w-[20px] h-[20px]" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-[8px]">
-                                <span class="shrink-0 w-[6px] h-[6px] rounded-full" style="background:<?= $color ?>" title="<?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?>"></span>
-                                <div class="text-[14px] font-semibold text-[#010205] truncate">
-                                    <?= htmlspecialchars($r['target_domain'], ENT_QUOTES, 'UTF-8') ?>
-                                </div>
-                            </div>
-                            <a href="<?= htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer"
-                               class="text-[12px] text-[#5B5F66] hover:text-[#24A556] truncate block mt-[1px]" title="<?= htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') ?>">
-                                <?= htmlspecialchars($host, ENT_QUOTES, 'UTF-8') ?>
-                                <span class="text-[#9CA3AF]"> &middot; </span>
-                                <span class="text-[#9CA3AF]"><?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?></span>
-                            </a>
-                        </div>
-                        <div class="shrink-0 text-[11px] text-[#878C91] tabular-nums">
-                            <?= pd_time_ago($r['updated_at'] ?? null) ?>
-                        </div>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-            <a href="#all-broker-sites" class="inline-flex items-center gap-[4px] mt-[16px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
-                See all <?= number_format($pdCounts['total']) ?> brokers
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </a>
-        <?php endif; ?>
-    </div>
+    <!-- Recent-activity mini-feed REMOVED. The full paginated broker
+         table (notable_brokers + result_sites below this panel) covers
+         the same information without duplication. -->
 
 </div>
 

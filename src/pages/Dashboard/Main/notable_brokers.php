@@ -73,12 +73,10 @@ function pd_notable_status(int $step): array {
                 Removing your data from the sites people actually use
             </h3>
         </div>
-        <a href="#all-broker-sites" class="inline-flex items-center gap-[4px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47] whitespace-nowrap">
-            See all <?= number_format($pdCounts['total'] ?? 413) ?>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </a>
+        <span class="text-[12px] text-[#878C91]">
+            <span class="font-semibold text-[#010205]"><?= number_format($pdCounts['total'] ?? 413) ?></span> total &middot;
+            full list below
+        </span>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[10px] sm:gap-[12px]">
         <?php foreach ($pdNotableSlugs as $slug => $label):
