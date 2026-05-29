@@ -47,41 +47,49 @@ jobs:
           test -s assets/css/tailwind-built.css || { echo "ERR: tailwind-built.css empty/missing after build"; exit 1; }
           echo "built CSS: $(wc -c < assets/css/tailwind-built.css) bytes"
 
-      - name: Diagnose VPS_SSH_KEY secret (length + header line only, never the full value)
+      - name: Install SSH key from VPS_SSH_KEY secret
         env:
           SK: ${{ secrets.VPS_SSH_KEY }}
-        run: |
-          if [ -z "$SK" ]; then
-            echo "VPS_SSH_KEY: NOT SET (empty / undefined)"
-            echo "If you think it's set, check repo Settings > Secrets > Actions > the name spelling matches exactly: VPS_SSH_KEY"
-            exit 1
-          fi
-          echo "VPS_SSH_KEY: present, ${#SK} chars"
-          # First line tells us the key format (OpenSSH / RSA / etc.)
-          echo "first line: $(printf '%s' "$SK" | head -n 1)"
-          # Last line (often shows ----END or trailing whitespace issue)
-          echo "last line:  $(printf '%s' "$SK" | tail -n 1)"
-          # Line count (a valid PEM key should be ~10+ lines)
-          echo "line count: $(printf '%s' "$SK" | wc -l)"
-
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Add VPS host key
-        env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
+          if [ -z "$SK" ]; then
+            echo "ERR: VPS_SSH_KEY secret is not set"
+            exit 1
+          fi
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Write key to file. Ensure exactly one trailing newline -- some
+          # webfactory/ssh-agent failures are caused by missing newline.
+          printf '%s\n' "$SK" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
+          # Validate the key parses. ssh-keygen -y derives the public key
+          # from a private; it'll fail loudly if format is wrong.
+          if ! ssh-keygen -y -f ~/.ssh/id_deploy > ~/.ssh/id_deploy.pub 2>/tmp/keyerr; then
+            echo "ERR: VPS_SSH_KEY does not parse as a valid private key."
+            echo "ssh-keygen says:"
+            cat /tmp/keyerr
+            echo ""
+            echo "Common causes:"
+            echo "  - Secret was pasted with Windows line endings (CRLF)"
+            echo "  - Secret has leading/trailing whitespace"
+            echo "  - Secret is a public key by mistake (only the BEGIN/END PRIVATE block belongs in secret)"
+            echo "  - Key is encrypted with passphrase (CI can't enter one)"
+            exit 1
+          fi
+          echo "key OK, fingerprint:"
+          ssh-keygen -lf ~/.ssh/id_deploy
+
           ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          echo "VPS host key pinned"
 
       - name: Deploy code (git pull on VPS)
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh -o ConnectTimeout=30 -o ServerAliveInterval=15 \
+          ssh -i ~/.ssh/id_deploy -o ConnectTimeout=30 -o ServerAliveInterval=15 \
             "$VPS_USER@$VPS_HOST" \
             'bash -s' << 'REMOTE'
               set -u
@@ -105,7 +113,7 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          scp -o ConnectTimeout=30 \
+          scp -i ~/.ssh/id_deploy -o ConnectTimeout=30 \
             assets/css/tailwind-built.css \
             "$VPS_USER@$VPS_HOST:/var/www/html/assets/css/tailwind-built.css"
 
@@ -114,6 +122,10 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh -o ConnectTimeout=30 \
+          ssh -i ~/.ssh/id_deploy -o ConnectTimeout=30 \
             "$VPS_USER@$VPS_HOST" \
             'systemctl restart apache2 >/dev/null 2>&1 || true; systemctl restart nginx >/dev/null 2>&1 || true; echo "Servers restarted"; ls -la /var/www/html/assets/css/tailwind-built.css'
+
+      - name: Wipe deploy key from runner
+        if: always()
+        run: rm -f ~/.ssh/id_deploy ~/.ssh/id_deploy.pub
