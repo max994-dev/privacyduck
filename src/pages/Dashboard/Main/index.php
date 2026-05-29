@@ -132,9 +132,15 @@ if (!$pdIsPaid) {
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
 </div>
 
-<div class="mt-[16px]">
-    <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
-</div>
+<?php
+// Removed the "Primary Scan / Face Scan" tabbed widget that lived in
+// /Main/databrokers/index.php. It was a vestigial UI from an earlier
+// design -- everything it showed (broker scan results, screenshots,
+// face-removal stub) is already covered, more clearly, by the journey
+// panel + notable_brokers card + the All Broker Sites table above.
+// The file is left in place in case anything else references it; it's
+// just no longer wired into the main dashboard.
+?>
 
 <script>
     /* Legacy callback: progress-bar JS in progress/index.php still calls
