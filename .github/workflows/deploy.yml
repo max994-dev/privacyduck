@@ -9,6 +9,10 @@ name: Deploy to VPS
 # from the production stylesheet because the CSS was stale. Concrete
 # symptom: dashboard `lg:col-span-2` was missing for days, hero card
 # squished into 1/4 width.
+#
+# Auth: SSH key from secret VPS_SSH_KEY (the VPS has
+# PasswordAuthentication=no, so the previous sshpass+password approach
+# was silently failing every push).
 
 on:
   push:
@@ -43,20 +47,24 @@ jobs:
           test -s assets/css/tailwind-built.css || { echo "ERR: tailwind-built.css empty/missing after build"; exit 1; }
           echo "built CSS: $(wc -c < assets/css/tailwind-built.css) bytes"
 
-      - name: Install sshpass
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add VPS host key
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy code (git pull on VPS)
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -p "$VPS_PASSWORD" ssh \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o ConnectTimeout=30 \
-            -o ServerAliveInterval=15 \
+          ssh -o ConnectTimeout=30 -o ServerAliveInterval=15 \
             "$VPS_USER@$VPS_HOST" \
             'bash -s' << 'REMOTE'
               set -u
@@ -79,12 +87,8 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -p "$VPS_PASSWORD" scp \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o ConnectTimeout=30 \
+          scp -o ConnectTimeout=30 \
             assets/css/tailwind-built.css \
             "$VPS_USER@$VPS_HOST:/var/www/html/assets/css/tailwind-built.css"
 
@@ -92,11 +96,7 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -p "$VPS_PASSWORD" ssh \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o ConnectTimeout=30 \
+          ssh -o ConnectTimeout=30 \
             "$VPS_USER@$VPS_HOST" \
             'systemctl restart apache2 >/dev/null 2>&1 || true; systemctl restart nginx >/dev/null 2>&1 || true; echo "Servers restarted"; ls -la /var/www/html/assets/css/tailwind-built.css'
