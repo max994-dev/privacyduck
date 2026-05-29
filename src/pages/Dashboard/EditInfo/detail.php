@@ -196,7 +196,63 @@
         </div>
         <div class="flex justify-center items-center text-[#C00000] space-x-[10px] cursor-pointer">
             <i class="fa-solid fa-trash  text-[24px]"></i>
-            <button onclick="deleteAccount()" class="font-semibold text-[14px] leading-[130%] tracking-[-0.02em] align-middle">Permanently Delete My Account</button>
+            <button onclick="openDeleteAccountModal()" type="button" class="font-semibold text-[14px] leading-[130%] tracking-[-0.02em] align-middle">Permanently Delete My Account</button>
+        </div>
+    </div>
+</div>
+
+<!--
+  Delete-account confirmation modal. Built in-place rather than in a
+  shared component because the destructive action is one-of-a-kind --
+  no other flow needs typed "DELETE" reauth + password gate together.
+-->
+<div id="pdDeleteAccountModal" class="hidden fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 px-[16px]">
+    <div class="bg-white rounded-[16px] w-full max-w-[460px] shadow-[0_24px_64px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
+        <div class="px-[24px] py-[20px] border-b border-[#F1F1F1] flex items-center gap-[12px]">
+            <div class="shrink-0 w-[36px] h-[36px] rounded-full bg-[#FFF0F0] flex items-center justify-center text-[#C00000]">
+                <i class="fa-solid fa-triangle-exclamation text-[16px]"></i>
+            </div>
+            <div>
+                <h3 class="text-[16px] font-bold text-[#010205]">Permanently delete your account?</h3>
+                <p class="text-[12px] text-[#5B5F66] mt-[2px]">This cannot be undone.</p>
+            </div>
+        </div>
+
+        <div class="px-[24px] py-[18px]">
+            <ul class="text-[13px] text-[#374151] leading-[1.55] space-y-[6px] list-disc pl-[18px]">
+                <li>Your active subscription will be <strong>cancelled in Stripe immediately</strong> (no more charges).</li>
+                <li>Your removal progress on <strong>413+ broker sites</strong> will be deleted.</li>
+                <li>Your name, email, address, phone, date of birth and any uploaded files will be <strong>permanently erased</strong>.</li>
+                <li>This action is irreversible &mdash; we cannot restore the account later.</li>
+            </ul>
+
+            <div class="mt-[18px] space-y-[12px]">
+                <div>
+                    <label class="block text-[12px] font-semibold text-[#374151] mb-[4px]">Confirm your password</label>
+                    <input id="pdDeletePassword" type="password" autocomplete="current-password"
+                           class="w-full h-[40px] px-[12px] rounded-[8px] border border-[#D1D5DB] focus:outline-none focus:border-[#C00000] focus:ring-2 focus:ring-[#C00000]/15 text-[14px]"
+                           placeholder="Your account password">
+                </div>
+                <div>
+                    <label class="block text-[12px] font-semibold text-[#374151] mb-[4px]">Type <span class="font-mono text-[#C00000]">DELETE</span> to confirm</label>
+                    <input id="pdDeleteConfirm" type="text" autocomplete="off"
+                           class="w-full h-[40px] px-[12px] rounded-[8px] border border-[#D1D5DB] focus:outline-none focus:border-[#C00000] focus:ring-2 focus:ring-[#C00000]/15 text-[14px] font-mono tracking-wider"
+                           placeholder="DELETE">
+                </div>
+            </div>
+
+            <p id="pdDeleteError" class="hidden mt-[12px] text-[12px] text-[#C00000] font-semibold"></p>
+        </div>
+
+        <div class="px-[24px] py-[16px] bg-[#FAFAFA] border-t border-[#F1F1F1] flex items-center justify-end gap-[10px]">
+            <button type="button" onclick="closeDeleteAccountModal()"
+                    class="h-[40px] px-[16px] rounded-[8px] text-[13px] font-semibold text-[#374151] hover:bg-[#F1F2F4] transition-colors">
+                Cancel
+            </button>
+            <button id="pdDeleteSubmitBtn" type="button" onclick="submitDeleteAccount()"
+                    class="h-[40px] px-[16px] rounded-[8px] bg-[#C00000] text-white text-[13px] font-semibold hover:bg-[#A00000] disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-[6px]">
+                <span id="pdDeleteSubmitLabel">Delete my account</span>
+            </button>
         </div>
     </div>
 </div>
@@ -279,15 +335,81 @@
         return false; // prevent actual form submission
     }
 
-    function deleteAccount() {
-        event.preventDefault();
-        $.post("/api/delete_account", {}, (res) => {
-            if (res.error) {
-                toastr.error(res.error);
-            } else {
-                toastr.success("Account deleted successfully");
-                window.location.href = "/new_signin";
+    /* OLD deleteAccount() removed -- it fired the destructive POST on
+       a single button click, with no password gate or typed
+       confirmation. Replaced with the modal-driven flow below so:
+         - password re-auth blocks stolen-session attacks
+         - typed "DELETE" prevents accidental clicks
+         - user sees what will actually happen (sub cancel, PII erase)
+       Keep the same toastr / redirect behavior on success. */
+
+    function openDeleteAccountModal() {
+        const modal = document.getElementById('pdDeleteAccountModal');
+        if (!modal) return;
+        // Reset fields each open
+        document.getElementById('pdDeletePassword').value = '';
+        document.getElementById('pdDeleteConfirm').value = '';
+        document.getElementById('pdDeleteError').classList.add('hidden');
+        document.getElementById('pdDeleteSubmitBtn').disabled = false;
+        document.getElementById('pdDeleteSubmitLabel').textContent = 'Delete my account';
+        modal.classList.remove('hidden');
+        // Focus password field for accessibility
+        setTimeout(() => document.getElementById('pdDeletePassword').focus(), 50);
+    }
+
+    function closeDeleteAccountModal() {
+        const modal = document.getElementById('pdDeleteAccountModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function submitDeleteAccount() {
+        const pw  = document.getElementById('pdDeletePassword').value;
+        const cf  = document.getElementById('pdDeleteConfirm').value;
+        const err = document.getElementById('pdDeleteError');
+        const btn = document.getElementById('pdDeleteSubmitBtn');
+        const lbl = document.getElementById('pdDeleteSubmitLabel');
+
+        err.classList.add('hidden');
+        if (!pw) {
+            err.textContent = 'Please enter your password.';
+            err.classList.remove('hidden');
+            return;
+        }
+        if (cf.trim().toUpperCase() !== 'DELETE') {
+            err.textContent = 'Type DELETE (in capital letters) to confirm.';
+            err.classList.remove('hidden');
+            return;
+        }
+        btn.disabled = true;
+        lbl.textContent = 'Deleting…';
+
+        $.post('/api/delete_account', {
+            password: pw,
+            confirmation: cf.trim().toUpperCase()
+        }, (res) => {
+            if (res && res.success) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Account deleted. Subscription cancelled.');
+                }
+                // Brief pause so the user sees the toast before redirect.
+                setTimeout(() => { window.location.href = '/new_signin'; }, 700);
+                return;
             }
+            const msg = (res && res.error) ? res.error : 'Deletion failed. Please try again.';
+            err.textContent = msg;
+            err.classList.remove('hidden');
+            btn.disabled = false;
+            lbl.textContent = 'Delete my account';
+        }, 'json').fail((xhr) => {
+            let msg = 'Deletion failed. Please try again.';
+            try {
+                const parsed = JSON.parse(xhr.responseText || '{}');
+                if (parsed.error) msg = parsed.error;
+            } catch (e) {}
+            err.textContent = msg;
+            err.classList.remove('hidden');
+            btn.disabled = false;
+            lbl.textContent = 'Delete my account';
         });
     }
 
