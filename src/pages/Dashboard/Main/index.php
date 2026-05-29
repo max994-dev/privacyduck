@@ -111,22 +111,21 @@ if (!$pdIsPaid) {
     </div>
 <?php endif; ?>
 
-<!-- ALL BROKERS table -- moved up from below "What we cover" / "Scan
-     results" because it's the primary content users want to see after
-     the progress overview. Now has logos + URLs in each row (matching
-     the design of the notable-brokers cards above) + DataTables pagination
-     across all 413. -->
-<div class="mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden" data-reveal data-reveal-delay="120">
+<!-- ALL BROKERS table. No data-reveal -- this is primary content and
+     must be visible immediately. The reveal animation was hiding it
+     (opacity:0 + translateY(28px) until IntersectionObserver fires)
+     and several customers thought the page ended after notable_brokers. -->
+<div class="mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/result_sites.php"); ?>
 </div>
 
-<!-- Reference info below the primary content. -->
-<div data-reveal data-reveal-delay="180"
-    class="pd-card-lift relative mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
+<!-- Reference info below the primary content. Also no data-reveal --
+     same reason; the observer was leaving these stuck at opacity:0. -->
+<div class="pd-card-lift relative mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/detail_item.php"); ?>
 </div>
 
-<div class="mt-[16px]" data-reveal data-reveal-delay="240">
+<div class="mt-[16px]">
     <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/index.php"); ?>
 </div>
 
