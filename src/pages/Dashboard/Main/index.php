@@ -137,8 +137,10 @@ require_once(BASEPATH . "/src/pages/Dashboard/Main/journey_panel.php");
 </div>
 
 <!-- SECTION: ALL BROKER SITES. Full searchable table of every broker
-     in the pipeline + status + screenshot evidence. -->
-<div class="mt-[28px] flex items-baseline justify-between gap-[12px]" data-reveal data-reveal-delay="280">
+     in the pipeline + status + screenshot evidence. id=all-broker-sites
+     is the anchor target for "See all 413 brokers" links elsewhere on
+     the page (notable_brokers, recent activity feed). -->
+<div id="all-broker-sites" class="mt-[28px] flex items-baseline justify-between gap-[12px] scroll-mt-[24px]" data-reveal data-reveal-delay="280">
     <h2 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#878C91]">All broker sites</h2>
 </div>
 <div class="mt-[12px] rounded-[24px] bg-white border border-[#F1F1F1] overflow-hidden" data-reveal data-reveal-delay="300">

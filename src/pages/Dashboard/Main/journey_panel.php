@@ -404,10 +404,10 @@ $pdDailyMax = max(1, max($pdDaily));
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <a href="/new_dashboard/personal" class="inline-flex items-center gap-[4px] mt-[16px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
+            <a href="#all-broker-sites" class="inline-flex items-center gap-[4px] mt-[16px] text-[13px] font-semibold text-[#24A556] hover:text-[#1F8B47]">
                 See all <?= number_format($pdCounts['total']) ?> brokers
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </a>
         <?php endif; ?>
