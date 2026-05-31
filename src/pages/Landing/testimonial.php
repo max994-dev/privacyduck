@@ -5,14 +5,51 @@
         font-size: 18px;
         font-weight: bold;
     }
+    /* Push Flickity prev/next arrows OUT of the card area into the
+       gutter. Defaults put them at left:10px/right:10px which means
+       they sit on top of the first/last card. We want them clearly
+       outside so they never overlap quote text. */
+    #pd-testimonials .flickity-prev-next-button.previous { left: -52px; }
+    #pd-testimonials .flickity-prev-next-button.next     { right: -52px; }
+    /* Tighter, lighter button look (default Flickity is a big white circle
+       with a heavy shadow). Match the dashboard's pill aesthetic. */
+    #pd-testimonials .flickity-prev-next-button {
+        width: 40px; height: 40px;
+        background: #FFFFFF;
+        border: 1px solid #EAECEF;
+        box-shadow: 0 2px 8px rgba(16,24,40,0.06);
+        opacity: 0.95;
+        transition: opacity 150ms, box-shadow 150ms, transform 150ms;
+    }
+    #pd-testimonials .flickity-prev-next-button:hover {
+        opacity: 1;
+        box-shadow: 0 4px 14px rgba(16,24,40,0.12);
+        transform: translateY(-50%) scale(1.04);
+    }
+    #pd-testimonials .flickity-prev-next-button .flickity-button-icon {
+        fill: #5B5F66;
+        left: 28%; top: 28%; width: 44%; height: 44%;
+    }
+    /* Hide the arrow buttons on small viewports where they'd clip the
+       cards. Pagination dots remain for navigation. */
+    @media (max-width: 640px) {
+        #pd-testimonials .flickity-prev-next-button { display: none; }
+    }
+    /* Page dots restyled lighter / smaller so they don't dominate. */
+    #pd-testimonials .flickity-page-dots .dot {
+        width: 8px; height: 8px; opacity: 0.35;
+        margin: 0 4px;
+    }
+    #pd-testimonials .flickity-page-dots .dot.is-selected {
+        opacity: 1; background: #24A556;
+    }
 </style>
 <!-- Outer wrapper is full-width so the soft grey background bleeds
-     edge-to-edge (intentional, sets the section apart). Inner content
-     is centered + max-width capped to ~1200px so the heading, subtitle,
-     and carousel don't look stretched on 1440px+ monitors -- previous
-     version had no max-width, headline hugged the left edge and the
-     carousel ran 1400px+ wide which felt unprofessional. -->
-<div class="mt-[30px] text-[#010205]">
+     edge-to-edge. Header is centered + capped to ~760px (readable line
+     length). The carousel itself runs WIDER (1440px cap) and has its
+     own internal padding so the Flickity prev/next arrows sit in the
+     gutters instead of overlapping the first/last card content. -->
+<div id="pd-testimonials" class="mt-[30px] text-[#010205]">
     <div class="bg-[#FAFAFA] h-fit py-[56px] sm:py-[88px] flex flex-col bg-cover bg-center rounded-3xl">
         <div class="max-w-[1200px] mx-auto w-full px-[20px] sm:px-[32px]">
             <!-- Header: always centered for visual balance with the carousel -->
@@ -32,9 +69,9 @@
                 </p>
             </div>
         </div>
-        <div class="relative w-full max-w-[1200px] mx-auto mt-[28px] sm:mt-[36px]">
+        <div class="relative w-full max-w-[1440px] mx-auto mt-[28px] sm:mt-[36px] px-[64px] sm:px-[72px]">
             <div class="relative">
-                <section class="overflow-hidden">
+                <section class="overflow-visible">  <!-- overflow-visible so carousel can extend slightly into the gutter padding without clipping -->
                     <div>
                         <div>
                             <!-- Duplicated cards to loop seamlessly -->
