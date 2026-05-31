@@ -69,7 +69,7 @@
                 </p>
             </div>
         </div>
-        <div class="relative w-full max-w-[1440px] mx-auto mt-[28px] sm:mt-[36px] px-[64px] sm:px-[72px]">
+        <div class="relative w-full max-w-[1600px] mx-auto mt-[28px] sm:mt-[36px] px-[64px] sm:px-[72px]">
             <div class="relative">
                 <section class="overflow-visible">  <!-- overflow-visible so carousel can extend slightly into the gutter padding without clipping -->
                     <div>
