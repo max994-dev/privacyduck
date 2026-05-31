@@ -337,6 +337,59 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     }
     removalPlan($_SESSION["user_id"], $websites, $websitesUrl);
 
+    // FACE REMOVAL dispatch (kind=4). The Python pipeline's
+    // process_groups_face_removal worker polls for kind=4, step=0,
+    // planable=1 rows and runs sites/pimeyescom.py on them. Previously
+    // NO PHP code ever created a kind=4 row -- the entire face-removal
+    // feature was dead code. This block creates one row per paid user
+    // who has uploaded a face image (users.url non-empty).
+    //
+    // Idempotent: only inserts if no existing kind=4 row for this
+    // (user, target_domain). If the user later uploads a different
+    // image, update_user_info.php resets step=0 so the new image
+    // gets re-processed.
+    //
+    // Currently only targets pimeyescom. Add more face-removal sites
+    // to the $faceTargets array below + drop a matching sites/<slug>.py
+    // in the Python tree.
+    $faceTargets = [
+        // slug -> [site_url, removal_url]
+        'pimeyescom' => ['https://pimeyes.com', 'https://pimeyes.com/en/opt-out-request-form'],
+    ];
+    $faceUserStmt = $conn->prepare("SELECT url, email FROM users WHERE id = ? LIMIT 1");
+    $faceUserStmt->bind_param("i", $_SESSION["user_id"]);
+    $faceUserStmt->execute();
+    $faceUser = $faceUserStmt->get_result()->fetch_assoc();
+    $faceUserStmt->close();
+    if ($faceUser && !empty($faceUser["url"])) {
+        $faceFilename = (string) $faceUser["url"];
+        $faceUserEmail = (string) ($faceUser["email"] ?? '');
+        $faceDataJson = json_encode([
+            "face_filename" => $faceFilename,
+            "user_email"    => $faceUserEmail,
+        ]);
+        foreach ($faceTargets as $slug => [$siteUrl, $removalUrl]) {
+            $checkStmt = $conn->prepare(
+                "SELECT id FROM results WHERE user_id = ? AND kind = 4 AND target_domain = ? LIMIT 1"
+            );
+            $checkStmt->bind_param("is", $_SESSION["user_id"], $slug);
+            $checkStmt->execute();
+            $exists = $checkStmt->get_result()->fetch_assoc();
+            $checkStmt->close();
+            if (!$exists) {
+                $insStmt = $conn->prepare(
+                    "INSERT INTO results (target_domain, user_id, kind, step, planable, site_url, removal_url, data)
+                     VALUES (?, ?, 4, 0, 1, ?, ?, ?)"
+                );
+                $insStmt->bind_param("sisss", $slug, $_SESSION["user_id"], $siteUrl, $removalUrl, $faceDataJson);
+                if (!$insStmt->execute()) {
+                    error_log('dashboard_bootstrap face kind=4 insert failed user_id=' . (int) $_SESSION["user_id"] . ' slug=' . $slug . ' err=' . $insStmt->error);
+                }
+                $insStmt->close();
+            }
+        }
+    }
+
     // Reset TRANSIENT failure states back to step=0 so the pipeline
     // tries them again. Policy (May 2026):
     //   step=3 (broker_raised: scraper exception)  -> retry
@@ -347,6 +400,10 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     // step=1 (in_flight) NOT reset (actively claimed).
     // step=2 (done) is terminal.
     //
+    // Applies to BOTH kind=1 (regular broker removal) and kind=4
+    // (face removal via PimEyes). Failed face removals should retry
+    // the same way regular brokers do.
+    //
     // CACHED per-session: this UPDATE used to run on EVERY dashboard
     // load. For users with many failed rows, that's a slow write
     // on a 875K-row table. New behavior: run at most once every
@@ -355,7 +412,7 @@ if (isset($_SESSION["planable"]) && $_SESSION['planable']) {
     $lastResetAt = (int) ($_SESSION['pd_last_step_reset_at'] ?? 0);
     if (time() - $lastResetAt > 300) {
         $resetStmt = $conn->prepare(
-            "UPDATE results SET step = 0 WHERE user_id = ? AND kind = 1 AND step IN (3, 5)"
+            "UPDATE results SET step = 0 WHERE user_id = ? AND kind IN (1, 4) AND step IN (3, 5)"
         );
         $resetStmt->bind_param("i", $_SESSION["user_id"]);
         $resetStmt->execute();

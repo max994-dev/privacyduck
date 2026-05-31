@@ -145,6 +145,45 @@ try {
     $stmt->execute();
     $stmt->close();
 
+    // FACE REMOVAL re-dispatch: if a new face image was uploaded in
+    // this request, ensure a kind=4 results row exists AND is reset
+    // to step=0 so the Python pipeline picks up the new image.
+    //   - If no kind=4 row yet -> insert one (matches dashboard_bootstrap)
+    //   - If row exists -> reset step + step counters + update data JSON
+    //     with the new filename so the broker uses the latest upload
+    // $filename is non-empty only when a new image was uploaded this request.
+    if ($filename !== '') {
+        $faceTargets = ['pimeyescom' => ['https://pimeyes.com', 'https://pimeyes.com/en/opt-out-request-form']];
+        $faceDataJson = json_encode([
+            "face_filename" => $filename,
+            "user_email"    => (string) $email,
+        ]);
+        foreach ($faceTargets as $slug => [$siteUrl, $removalUrl]) {
+            $checkStmt = $conn->prepare(
+                "SELECT id FROM results WHERE user_id = ? AND kind = 4 AND target_domain = ? LIMIT 1"
+            );
+            $checkStmt->bind_param("is", $user_id, $slug);
+            $checkStmt->execute();
+            $exists = $checkStmt->get_result()->fetch_assoc();
+            $checkStmt->close();
+            if ($exists) {
+                $rid = (int) $exists['id'];
+                $up = $conn->prepare("UPDATE results SET step = 0, data = ? WHERE id = ?");
+                $up->bind_param("si", $faceDataJson, $rid);
+                $up->execute();
+                $up->close();
+            } else {
+                $ins = $conn->prepare(
+                    "INSERT INTO results (target_domain, user_id, kind, step, planable, site_url, removal_url, data)
+                     VALUES (?, ?, 4, 0, 1, ?, ?, ?)"
+                );
+                $ins->bind_param("sisss", $slug, $user_id, $siteUrl, $removalUrl, $faceDataJson);
+                $ins->execute();
+                $ins->close();
+            }
+        }
+    }
+
     $_SESSION["fullName"] = $firstname . " " . $lastname;
     $_SESSION["signup_complete"] = 1;
     unset($_SESSION["needs_profile_info"]);
