@@ -402,6 +402,20 @@ function fixed_menu()
                     $('#content').html(data)
                 });
                 break;
+            case "/dashboard/face":
+                // Face Removal: dedicated page (paid-only). XHR endpoint
+                // is /dashboard/content/face -> Dashboard/FaceRemoval/index.php.
+                // Mirrors /custom's plan-gating: unpaid users get redirected.
+                const facePlanable = "<?php echo isset($_SESSION["planable"]) && $_SESSION["planable"]; ?>";
+                if (!facePlanable) {
+                    toastr.error("Please upgrade your plan to use Face Removal.");
+                    location.href = "/";
+                    return;
+                }
+                $.get("/dashboard/content/face", data => {
+                    $('#content').html(data);
+                });
+                break;
             case "/dashboard/personal":
                 $.get("/dashboard/content/personal", data => {
                     $('#content').html(data)
