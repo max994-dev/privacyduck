@@ -104,12 +104,24 @@ if (!$pdIsPaid) {
         <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/notable_brokers.php"); ?>
     </div>
 
-<?php
-// Face removal moved to its own dedicated page at /new_dashboard/face
-// (sidebar nav item: "Face Removal", plan-only). Used to be an inline
-// card here but the user wanted it as a separate section so it shows
-// up prominently in the nav rather than buried below the broker table.
-?>
+    <!-- Face removal summary card. Lives ALSO on its own dedicated
+         page at /new_dashboard/face (sidebar nav item: "Face Removal").
+         Shown here so paid users see PimEyes status at a glance on the
+         main dashboard without having to navigate. The "Manage" link at
+         the bottom-right takes them to the full page (coverage list,
+         how-it-works, FAQ). -->
+    <div id="face-removal" class="mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
+        <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/databrokers_face.php"); ?>
+        <div class="mt-[16px] pt-[14px] border-t border-[#F1F2F4] flex justify-end">
+            <a data-link href="/new_dashboard/face"
+               class="inline-flex items-center gap-[6px] text-[13px] font-semibold text-[#24A556] hover:text-[#1A7F40] transition-colors">
+                Manage Face Removal
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+    </div>
 <?php endif; ?>
 
 <?php
