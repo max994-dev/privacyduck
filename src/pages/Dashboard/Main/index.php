@@ -104,14 +104,12 @@ if (!$pdIsPaid) {
         <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/notable_brokers.php"); ?>
     </div>
 
-    <!-- Face removal status card. Shows real pipeline state for the
-         user's PimEyes face-removal request (kind=4 in results).
-         Was previously buried inside a tab widget that we removed;
-         now lives as a standalone section so paid users can see it
-         alongside their notable brokers. -->
-    <div id="face-removal" class="mt-[16px] rounded-[24px] bg-white border border-[#F1F1F1] p-[24px] sm:p-[28px]">
-        <?php require_once(BASEPATH . "/src/pages/Dashboard/Main/databrokers/databrokers_face.php"); ?>
-    </div>
+<?php
+// Face removal moved to its own dedicated page at /new_dashboard/face
+// (sidebar nav item: "Face Removal", plan-only). Used to be an inline
+// card here but the user wanted it as a separate section so it shows
+// up prominently in the nav rather than buried below the broker table.
+?>
 <?php endif; ?>
 
 <?php

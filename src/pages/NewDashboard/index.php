@@ -442,6 +442,19 @@ function new_dashboard_fixed_menu()
                     $('#content').html(data)
                 });
                 break;
+            case "/new_dashboard/face":
+                // Face Removal: dedicated page with status, coverage,
+                // how-it-works, and FAQ. Paid-only (mirrors custom).
+                const facePlanable = "<?php echo isset($_SESSION['planable']) && $_SESSION['planable']; ?>";
+                if (!facePlanable) {
+                    toastr.error("Please upgrade your plan to use Face Removal.");
+                    navigateTo("/new_dashboard/plans");
+                    return;
+                }
+                $.get("/dashboard/content/face", data => {
+                    $('#content').html(data);
+                });
+                break;
             case "/new_dashboard/personal":
                 $.get("/dashboard/content/personal", data => {
                     $('#content').html(data)

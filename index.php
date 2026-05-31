@@ -179,6 +179,10 @@ $routes = [
     'dashboard/content/databrokers/primary' => 'Dashboard/Main/databrokers/databrokers_primary.php',
     'dashboard/content/databrokers/custom' => 'Dashboard/Main/databrokers/databrokers_custom.php',
     'dashboard/content/databrokers/face' => 'Dashboard/Main/databrokers/databrokers_face.php',
+    // Dedicated face-removal page (wrapper around databrokers_face.php with
+    // page header, coverage list, "how it works", and FAQ). Reached via
+    // the sidebar nav link at /new_dashboard/face.
+    'dashboard/content/face' => 'Dashboard/FaceRemoval/index.php',
     'get_results' => 'controllers/dashboard/main/get_results.php',
     'toggle_manual_removal' => 'controllers/dashboard/main/toggle_manual_removal.php',
     'scan_api/upload' => 'controllers/dashboard/main/upload.php',
