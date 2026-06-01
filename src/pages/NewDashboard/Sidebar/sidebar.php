@@ -85,16 +85,26 @@ $newDashboardSiteNavRows = [
                 ['href' => '/account', 'svg' => 'fixed_menu_account', 'label' => 'Account'],
             ];
             foreach ($sidebarNavItems as $item) {
-                if (!empty($item['plan_only']) && empty($_SESSION['planable'])) {
-                    continue;
-                }
+                // Render EVERY nav item regardless of plan status. Plan-only
+                // items are still tagged with a lock icon for unpaid users
+                // so they can see what's behind the upgrade. JS routing in
+                // NewDashboard/index.php handles the "unpaid clicked locked
+                // feature" case (toastr + redirect to /plans).
+                $isLocked = !empty($item['plan_only']) && empty($_SESSION['planable']);
             ?>
                 <div>
                     <?php $isActive = pd_nav_is_active($item['href'], $pdCurrentPath); ?>
                     <a data-link href="<?= '/new_dashboard' . $item['href'] ?>"
-                       class="group flex space-x-[12px] items-center px-[12px] py-[10px] rounded-[10px] transition-colors <?= $isActive ? 'bg-[#E8F7EF]' : 'hover:bg-[#F4F8F6]' ?>">
+                       class="group flex space-x-[12px] items-center px-[12px] py-[10px] rounded-[10px] transition-colors <?= $isActive ? 'bg-[#E8F7EF]' : 'hover:bg-[#F4F8F6]' ?>"
+                       <?= $isLocked ? 'title="Upgrade to unlock"' : '' ?>>
                         <?php require BASEPATH . '/src/common/svgs/dashboard/sidebar/' . $item['svg'] . '.php'; ?>
-                        <h1 class="text-[16px] tracking-[-0.01em] transition-colors <?= $isActive ? 'text-[#1A7F40] font-semibold' : 'text-[#4B4B4E] font-medium group-hover:text-[#24A556]' ?>"><?= $item['label'] ?></h1>
+                        <h1 class="text-[16px] tracking-[-0.01em] transition-colors flex-1 <?= $isActive ? 'text-[#1A7F40] font-semibold' : ($isLocked ? 'text-[#878C91] font-medium' : 'text-[#4B4B4E] font-medium group-hover:text-[#24A556]') ?>"><?= $item['label'] ?></h1>
+                        <?php if ($isLocked): ?>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" class="text-[#9CA3AF]" aria-hidden="true">
+                                <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        <?php endif; ?>
                     </a>
                     <div class="max-h-[70px] overflow-y-auto relative">
                         <?php
