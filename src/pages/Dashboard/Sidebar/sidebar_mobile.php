@@ -51,14 +51,21 @@
                     ["href" => "/account", "svg" => "fixed_menu_account", "label" => "Account"],
                 ];
                 foreach ($sidebarMobileNavItems as $item) {
-                    if (!empty($item["plan_only"]) && empty($_SESSION["planable"])) {
-                        continue;
-                    }
+                    // Render every item; plan-only ones get a lock icon
+                    // for unpaid users (same pattern as desktop sidebar).
+                    $isLocked = !empty($item["plan_only"]) && empty($_SESSION["planable"]);
                 ?>
                     <div>
-                        <a data-link href="<?= '/dashboard' . $item['href'] ?>" class="flex space-x-[14px] items-center">
+                        <a data-link href="<?= '/dashboard' . $item['href'] ?>" class="flex space-x-[14px] items-center"
+                           <?= $isLocked ? 'title="Upgrade to unlock"' : '' ?>>
                             <?php require BASEPATH . "/src/common/svgs/dashboard/sidebar/" . $item['svg'] . ".php"; ?>
-                            <h1 class="text-[#4B4B4E] text-[18px] font-medium tracking-[-0.01em]"><?= $item['label'] ?></h1>
+                            <h1 class="<?= $isLocked ? 'text-[#878C91]' : 'text-[#4B4B4E]' ?> text-[18px] font-medium tracking-[-0.01em] flex-1"><?= $item['label'] ?></h1>
+                            <?php if ($isLocked): ?>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" class="text-[#9CA3AF]" aria-hidden="true">
+                                    <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            <?php endif; ?>
                         </a>
                         <div class="max-h-[70px] overflow-y-auto relative">
                             <?php
